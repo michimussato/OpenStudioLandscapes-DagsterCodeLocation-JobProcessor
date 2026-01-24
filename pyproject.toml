@@ -49,20 +49,32 @@ Homepage = "https://github.com/michimussato/OpenStudioLandscapes-Dagster-JobProc
 module_name = "OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.definitions"
 project_name = "OpenStudioLandscapes-Dagster-JobProcessor"
 
+#[tool.setuptools]
+#include-package-data = true
+#platforms = [
+#    "Linux",
+#]
+#
+#[tool.setuptools.packages.find]
+#exclude = [
+#    "tests",
+#]
+#include = [
+#    "OpenStudioLandscapes.Dagster.JobProcessor"
+#]
+#namespaces = true
+#where = [
+#    "src/",
+#]
+
 [tool.setuptools]
 include-package-data = true
+packages = [
+    "OpenStudioLandscapes.Dagster.Showcase",
+]
 platforms = [
     "Linux",
 ]
 
-[tool.setuptools.packages.find]
-exclude = [
-    "tests",
-]
-include = [
-    "OpenStudioLandscapes.Dagster.JobProcessor"
-]
-namespaces = true
-where = [
-    "src/",
-]
+[tool.setuptools.package-dir]
+"" = "src"
