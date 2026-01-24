@@ -1,9 +1,10 @@
+import os
+
 from dagster import (
     Definitions,
     load_assets_from_modules,
     AutoMaterializePolicy,
     AutoMaterializeRule,
-    EnvVar,
 )
 
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.assets import read_yaml, submit_jobs, constants_factory
@@ -38,7 +39,7 @@ resources = {
 }
 
 
-deployment_name = EnvVar("DAGSTER_DEPLOYMENT").get_value()  # os.getenv("DAGSTER_DEPLOYMENT", "farm")
+deployment_name = os.environ.get("DAGSTER_DEPLOYMENT", "farm")
 
 
 defs = Definitions(
