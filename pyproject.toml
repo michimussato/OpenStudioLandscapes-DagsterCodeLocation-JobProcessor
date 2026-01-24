@@ -63,5 +63,5 @@ include = [
 ]
 namespaces = true
 where = [
-    "src/OpenStudioLandscapes/Dagster/",
+    "src/",
 ]
