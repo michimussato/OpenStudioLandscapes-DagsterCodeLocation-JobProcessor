@@ -1,129 +1,67 @@
 [build-system]
-# AVOID CHANGING REQUIRES: IT WILL BE UPDATED BY PYSCAFFOLD!
-requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5"]
 build-backend = "setuptools.build_meta"
+requires = [
+    "setuptools-scm>=9",
+    "setuptools>=80",
+]
 
-[tool.setuptools_scm]
-# For smarter version schemes and other configuration options,
-# check out https://github.com/pypa/setuptools_scm
-version_scheme = "no-guess-dev"
+[project]
+authors = [
+    { email = "michimussato@gmail.com", name = "Michael Mussato" },
+]
+maintainers = [
+    { email = "michimussato@gmail.com", name = "Michael Mussato" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: OpenStudioLandscapes",
+    "Programming Language :: Python",
+]
+name = "OpenStudioLandscapes-Dagster-JobProcessor"
+dynamic = [
+    "version",
+]
+description = "This is a Deadline Job Processor package for OpenStudioLandscapes-Dagster."
+license-files = [
+    "LICENSE.txt",
+]
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "dagster==1.9.11",
+    "dagster-webserver",
+]
 
+[project.optional-dependencies]
+optional-base = [
+    "OpenStudioLandscapes-Dagster[optional-base] @ git+https://github.com/michimussato/OpenStudioLandscapes-Dagster.git",
+    "OpenStudioLandscapes-Deadline-10-2[optional-base] @ git+https://github.com/michimussato/OpenStudioLandscapes-Deadline-10-2.git",
+]
 
-# From Dagster
-#
-# [project]
-# name = "my_skeleton_mackage"
-# version = "0.1.0"
-# description = "Add your description here"
-# readme = "README.md"
-# requires-python = ">=3.9,<3.13"
-# dependencies = [
-#     "dagster",
-#     "dagster-cloud",
-# ]
-#
-# [project.optional-dependencies]
-# dev = [
-#     "dagster-webserver",
-#     "pytest",
-# ]
-#
-# [build-system]
-# requires = ["setuptools"]
-# build-backend = "setuptools.build_meta"
-#
-# [tool.dagster]
-# module_name = "my_skeleton_mackage.definitions"
-# project_name = "my_skeleton_mackage"
-#
-# [tool.setuptools.packages.find]
-# exclude=["my_skeleton_mackage_tests"]
+[project.readme]
+content-type = "text/markdown; charset=UTF-8"
+file = "README.md"
 
+[project.urls]
+Homepage = "https://github.com/michimussato/OpenStudioLandscapes-Dagster-JobProcessor"
 
-# From pimo
-# [build-system]
-# requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5"]
-# build-backend = "setuptools.build_meta"
-#
-# [project]
-# authors = [
-#     {name = "Michael Mussato", email = "michimussato@gmail.com"},
-# ]
-# maintainers = [
-#     {name = "Michael Mussato", email = "michimussato@gmail.com"},
-# ]
-# description = "TBD"
-# readme = "README.md"
-# name = "pimo"
-# dynamic = ["version"]
-# requires-python = ">= 3.9"
-# # https://pypi.org/project/inky/
-# dependencies = [
-#     "pillow",
-#     "pillow-lut",
-#     "inky[rpi]>=1.5.0,<1.6",
-#     "ascii-magic",
-#     "moon_clock @ git+https://github.com/michimussato/moon-clock.git",
-# ]
-# classifiers = [
-#     "Development Status :: 4 - Beta",
-#     "License :: OSI Approved :: MIT License",
-#     "Programming Language :: Python :: 3",
-# ]
-#
-# # https://stackoverflow.com/questions/75490231/pip-pyproject-toml-can-optional-dependency-groups-require-other-optional-depend#75503961
-# [project.optional-dependencies]
-# tests = [
-#     "nox",
-#     "pytest",
-# ]
-# dev = [
-#     "pre-commit",
-#     "pimo[tests]"
-# ]
-# sbom = [
-#     "graphviz",
-#     "pipdeptree",
-#     "cyclonedx-bom",
-# ]
-# #readthedocs = [
-# #]
-# #sphinx = [
-# #]
-# lint = [
-#     "black",
-#     "isort",
-#     "pylint",
-# ]
-# coverage = [
-#     "coverage",
-#     "pytest"
-# ]
-# release = [
-# ]
-#
-# [project.urls]
-# Repository = "https://github.com/michimussato/pimo.git"
-#
-# [project.scripts]
-# pimo = "pimo.pimo:run"
-#
-# [tool.setuptools]
-# # https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
-# platforms = ["Linux"]
-# include-package-data = true
-# zip-safe = false  # This just means it's safe to zip up the bdist
-#
-# [tool.setuptools.packages.find]
-# where = ["src"]
-# exclude = ["docs*", "tests*"]
-#
-# [tool.setuptools.package-data]
-# pimo = [
-#     "*.ttf",
-# ]
-#
-# [tool.setuptools_scm]
-# # For smarter version schemes and other configuration options,
-# # check out https://github.com/pypa/setuptools_scm
-# version_scheme = "no-guess-dev"
+[tool.dagster]
+module_name = "OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.definitions"
+project_name = "OpenStudioLandscapes-Dagster-JobProcessor"
+
+[tool.setuptools]
+include-package-data = true
+platforms = [
+    "Linux",
+]
+
+[tool.setuptools.packages.find]
+exclude = [
+    "tests",
+]
+include = [
+    "OpenStudioLandscapes.Dagster.JobProcessor"
+]
+namespaces = true
+where = [
+    "src/OpenStudioLandscapes/Dagster/",
+]

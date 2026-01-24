@@ -4,6 +4,6 @@ load_from:
 #      location_name: "My Skeleton Package Location"
   - python_module:
       working_directory: src
-      module_name: Deadline.dagster_job_processor.definitions
-      location_name: "dagster-job-processor Package Location"
+      module_name: OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.definitions
+      location_name: OpenStudioLandscapes-Dagster-JobProcessor Package Location
       # executable_path: ../.venv/bin/python
