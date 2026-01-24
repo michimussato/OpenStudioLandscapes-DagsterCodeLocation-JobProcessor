@@ -29,6 +29,7 @@ requires-python = ">=3.11,<3.13"
 dependencies = [
     "dagster==1.9.11",
     "dagster-webserver",
+    "gazu",
 ]
 
 [project.optional-dependencies]
