@@ -70,7 +70,7 @@ project_name = "OpenStudioLandscapes-Dagster-JobProcessor"
 [tool.setuptools]
 include-package-data = true
 packages = [
-    "OpenStudioLandscapes.Dagster.Showcase",
+    "OpenStudioLandscapes.Dagster.JobProcessor",
 ]
 platforms = [
     "Linux",
