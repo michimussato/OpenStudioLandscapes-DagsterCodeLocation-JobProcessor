@@ -23,8 +23,6 @@ dagster_code_locations:
       module_name: OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.definitions
       working_directory: src
       pip_path: OpenStudioLandscapes-Dagster-JobProcessor @ git+https://github.com/michimussato/OpenStudioLandscapes-Dagster-JobProcessor.git@main
-      volume_mounts: []
-      environment: {}
   # [...]
 ```
 
