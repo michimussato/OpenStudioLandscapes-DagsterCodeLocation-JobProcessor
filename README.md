@@ -1,3 +1,7 @@
+[![ Logo OpenStudioLandscapes ](https://github.com/michimussato/OpenStudioLandscapes/raw/main/media/images/logo128.png)](https://github.com/michimussato/OpenStudioLandscapes)
+
+---
+
 <!-- TOC -->
 * [OpenStudioLandscapes-Dagster-JobProcessor](#openstudiolandscapes-dagster-jobprocessor)
   * [Install into OpenStudioLandscapes-Dagster](#install-into-openstudiolandscapes-dagster)
