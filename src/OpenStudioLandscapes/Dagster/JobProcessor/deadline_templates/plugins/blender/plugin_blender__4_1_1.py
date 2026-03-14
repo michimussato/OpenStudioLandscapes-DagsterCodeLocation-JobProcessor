@@ -1,4 +1,4 @@
+from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins import *
 from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.blender.plugin_blender_base import plugin
 
-
-plugin["submitter"]["executable"] = "/nfs/rez-packages/wrappers/blender-4.1.1"
+plugin["submitter"]["executable"] = REZ_PACKAGES / "blender" / "4.1.1" / "blender"

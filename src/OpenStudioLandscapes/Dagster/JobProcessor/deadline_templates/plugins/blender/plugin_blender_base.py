@@ -1,6 +1,5 @@
 from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.plugin_base import plugin
 
-
 plugin["submitter"]["render_engines"] = ["CYCLES", "BLENDER_EEVEE", "WORKBENCH"]
 
 plugin["submitter"]["args"].append("--background")
