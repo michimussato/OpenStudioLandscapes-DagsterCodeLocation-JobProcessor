@@ -1495,7 +1495,7 @@ def job_kitsu_publish(
 
     executable = GAZU_PY
     args = []
-    args.extend(['<QUOTE>/nfs/deadline-repository/DeadlineRepository10/custom/events/Kitsu/kitsu_submission_cli.py<QUOTE>'])
+    args.extend(['<QUOTE>/data/share/deadline-repository/DeadlineRepository10/custom/events/Kitsu/kitsu_submission_cli.py<QUOTE>'])
     args.extend(['--task-id', '<QUOTE>{}<QUOTE>'.format(combine_dicts['yaml_submission']["kitsu_task"])])
     args.extend(['--comment', f'<QUOTE>'
                               f'Output directory: `{render_output_directory}`<br>'
@@ -1510,8 +1510,8 @@ def job_kitsu_publish(
                               f'Job file: `{combine_dicts["yaml_submission"]["job_file"]}`<br>'
                               f'<QUOTE>'
                               f''])
-    args.extend(['--host', f'<QUOTE>{"http://10.1.2.15/api"}<QUOTE>'])
-    args.extend(['--user', f'<QUOTE>{"michimussato@gmail.com"}<QUOTE>'])
+    args.extend(['--host', f'<QUOTE>{"http://10.1.2.15:4545/api"}<QUOTE>'])
+    args.extend(['--user', f'<QUOTE>{"admin@example.com"}<QUOTE>'])
     args.extend(['--password', f'<QUOTE>{"mysecretpassword"}<QUOTE>'])
     args.extend(['--movie-file', f'<QUOTE>{draft_out_dir}/{job_title}.{extension}<QUOTE>'])
     args.extend(['--version', f'<QUOTE>{version}<QUOTE>'])

@@ -4,6 +4,8 @@ from dagster import (
     DefaultSensorStatus,
 )
 
+from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins import *
+
 
 """
 ExperimentalWarning: Class `AndAssetCondition` is experimental. It may break in future versions, even between dot releases. To mute warnings for experimental functionality, invoke warnings.filterwarnings("ignore", category=dagster.ExperimentalWarning) or use one of the other methods described at https://docs.python.org/3/library/warnings.html#describing-warning-filters.
@@ -14,10 +16,12 @@ SENSORS_STATUS = DefaultSensorStatus.RUNNING
 JSON_INDENT = 2
 PADDING = 4
 SUBMISSION_JSON = "submission.json"
-OUTPUT_ROOT = pathlib.Path("/nfs/AWSPortalRoot1/out")
-INPUT_ROOT = pathlib.Path(os.environ.get("OPENSTUDIOLANDSCAPES__DAGSTER_JOBS_IN", "/data/share/nfs/in"))
-INPUT_ROOT_PROCESSED = pathlib.Path(os.environ.get("OPENSTUDIOLANDSCAPES__DAGSTER_JOBS_IN", "/data/share/nfs/in")).joinpath(".processing")
+OUTPUT_ROOT = AWSPORTAL_ROOT_1 / "out"
+INPUT_ROOT = pathlib.Path(os.environ.get("OPENSTUDIOLANDSCAPES__DAGSTER_JOBS_IN", "/data/share/in"))
+INPUT_ROOT_PROCESSED = pathlib.Path(os.environ.get("OPENSTUDIOLANDSCAPES__DAGSTER_JOBS_IN", "/data/share/in")).joinpath(".processing")
 
+# Todo
+#  - [ ] Disable as long as no certificates are involved
 DEADLINE_ERRORS = [
     # Connecting to the correct repository?
     "'\nConfiguration Error: Failed to establish connection to michimussato-fuji.nord:4433 due to a communication error.\n'"
