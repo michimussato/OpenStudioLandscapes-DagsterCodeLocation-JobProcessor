@@ -1,4 +1,5 @@
 import json
+import shlex
 import subprocess
 
 from dagster import asset, Config, MaterializeResult, MetadataValue, AssetExecutionContext
@@ -55,12 +56,16 @@ def submit_job(
 
     except Exception as err:
         context.log.error(err)
+        combine_dicts["deadline_job_submitted"] = False
+        combine_dicts["deadline_job_submitted_result"] = err
 
     return MaterializeResult(
         asset_key="submit_job",
         metadata={
             "url": MetadataValue.url(combine_dicts["task_url"]),
-            "deadline_cmd": MetadataValue.json(combine_dicts["deadline_cmd"]["deadline_cmd"]),
+            "job_submitted": MetadataValue.bool(combine_dicts["deadline_job_submitted"]),
+            "cmd": MetadataValue.json(combine_dicts["deadline_cmd"]["deadline_cmd"]),
+            "cmd_joined": MetadataValue.path(shlex.join(combine_dicts["deadline_cmd"]["deadline_cmd"])),
             # 'destination': MetadataValue.path(config.render_output_directory),
             "result": MetadataValue.text(combine_dicts["deadline_job_submitted_result"])
         }
