@@ -492,7 +492,6 @@ def render_output_filename(
     # # Don't uncomment
     # # Required to eval(padding_deadline) and eval(padding_command)
     # from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.settings import PADDING as EVAL_PADDING
-
     EVAL_PADDING = CONFIG.PADDING
 
     ret = {
@@ -1561,7 +1560,9 @@ def job_kitsu_publish(
 
     executable = CONFIG.GAZU_PY
     args = []
-    args.extend(['<QUOTE>/data/share/deadline-repository/DeadlineRepository10/custom/events/Kitsu/kitsu_submission_cli.py<QUOTE>'])
+    # Todo:
+    #  - [ ] Use gazu[cli] directly
+    args.extend(['<QUOTE>/data/local/.openstudiolandscapes/.landscapes/.persistent/OpenStudioLandscapes-Deadline-10-2/data/opt/Thinkbox/DeadlineRepository10/custom/events/Kitsu/kitsu_submission_cli.py<QUOTE>'])
     args.extend(['--task-id', '<QUOTE>{}<QUOTE>'.format(combine_dicts["yaml_submission"]["kitsu_task"])])
     args.extend(['--comment', f'<QUOTE>'
                               f'Output directory: `{render_output_directory}`<br>'
