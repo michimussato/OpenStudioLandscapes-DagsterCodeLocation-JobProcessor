@@ -2,6 +2,7 @@ import datetime
 
 from dagster import (
     RunRequest,
+    AssetKey,
     SensorResult,
     sensor,
     SensorEvaluationContext,
@@ -16,6 +17,8 @@ import shutil
 
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor import settings
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.config.models import DefaultConstants
+from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.assets.read_yaml import ASSET_HEADER_JOB_PROCESSOR
+from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.assets.submit_jobs import ASSET_HEADER_JOB_SUBMITTER
 
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.jobs import submit_synced_jobs, ingest_synced_jobs
 
@@ -77,7 +80,7 @@ def submission_sensor(
                                 run_key=f"submit_synced_jobs_{str(file_path).replace(os.sep, '__')}",
                                 run_config={
                                     "ops": {
-                                        "submit_job": {
+                                        AssetKey([*ASSET_HEADER_JOB_SUBMITTER, "submit_job"]).to_string(): {
                                             "config": {
                                                 "filename": str(file_path),
                                                 "combine_dict_path": str(combine_dict_path),
@@ -136,7 +139,7 @@ def ingestion_sensor(
             run_key=f"ingested_jobs__{datetime.datetime.timestamp(datetime.datetime.now())}__{str(job_py).replace(os.sep, '__')}",
             run_config={
                 "ops": {
-                    "read_job_py": {
+                    AssetKey([*ASSET_HEADER_JOB_PROCESSOR, "read_job_py"]).to_string(): {
                         "config": {
                             "filename": str(output_file),
                             }
