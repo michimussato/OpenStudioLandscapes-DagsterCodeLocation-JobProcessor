@@ -18,6 +18,44 @@ import json
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.config.models import DefaultConstants
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.resources import KitsuResource
 
+"""
+dagster._core.errors.DagsterInvalidSubsetError: AssetKey(s) ['read_job_py'] were selected, but no AssetsDefinition objects supply these keys. Make sure all keys are spelled correctly, and all AssetsDefinitions are correctly added to the `Definitions`.
+
+For selected asset ["read_job_py"], did you mean one of the following?
+	["OpenStudioLandscapes_Dagster_JobProcessor", "read_job_py"]
+
+  File "/opt/python3.11/lib/python3.11/site-packages/dagster/_grpc/server.py", line 417, in __init__
+    self._loaded_repositories: Optional[LoadedRepositories] = LoadedRepositories(
+                                                              ^^^^^^^^^^^^^^^^^^^
+  File "/opt/python3.11/lib/python3.11/site-packages/dagster/_grpc/server.py", line 275, in __init__
+    repo_def.load_all_definitions()
+  File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/definitions/repository_definition/repository_definition.py", line 178, in load_all_definitions
+    self._repository_data.load_all_definitions()
+  File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/definitions/repository_definition/repository_data.py", line 201, in load_all_definitions
+    self.get_all_jobs()
+  File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/definitions/repository_definition/repository_data.py", line 424, in get_all_jobs
+    self._all_jobs = self._jobs.get_all_definitions()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/definitions/repository_definition/caching_index.py", line 93, in get_all_definitions
+    sorted(
+  File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/definitions/repository_definition/caching_index.py", line 124, in get_definition
+    definition = cast(Callable, definition_source)()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/definitions/repository_definition/repository_data_builder.py", line 125, in resolve_unresolved_job_def
+    job_def = unresolved_job_def.resolve(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/definitions/unresolved_asset_job_definition.py", line 188, in resolve
+    job_asset_graph = get_asset_graph_for_job(asset_graph, self.selection)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/definitions/asset_job.py", line 226, in get_asset_graph_for_job
+    selected_keys = selection.resolve(parent_asset_graph)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/definitions/asset_selection.py", line 474, in resolve
+    return self.resolve_inner(asset_graph, allow_missing=allow_missing)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/definitions/asset_selection.py", line 1036, in resolve_inner
+    raise DagsterInvalidSubsetError(
+"""
 
 # TODO
 #  rename to generate_job_submission_scripts

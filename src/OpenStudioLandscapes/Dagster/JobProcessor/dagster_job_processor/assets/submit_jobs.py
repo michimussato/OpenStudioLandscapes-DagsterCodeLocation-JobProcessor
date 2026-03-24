@@ -16,13 +16,22 @@ from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.config.mode
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.assets.read_yaml import ASSET_HEADER_JOB_PROCESSOR
 
 
+GROUP_JOB_SUBMITTER = "OpenStudioLandscapes_Dagster_JobSubmitter"
+KEY_JOB_SUBMITTER = [GROUP_JOB_SUBMITTER]
+
+ASSET_HEADER_JOB_SUBMITTER = {
+    "group_name": GROUP_JOB_SUBMITTER,
+    "key_prefix": KEY_JOB_SUBMITTER,
+}
+
+
 class SubmitJobConfig(Config):
     filename: str
     combine_dict_path: str
 
 
 @asset(
-    group_name="DEADLINE_SUBMIT_JOB",
+    **ASSET_HEADER_JOB_SUBMITTER,
     ins={
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
