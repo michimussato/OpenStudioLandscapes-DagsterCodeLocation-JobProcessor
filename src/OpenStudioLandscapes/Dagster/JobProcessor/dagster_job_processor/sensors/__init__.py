@@ -80,7 +80,7 @@ def submission_sensor(
                                 run_key=f"submit_synced_jobs_{str(file_path).replace(os.sep, '__')}",
                                 run_config={
                                     "ops": {
-                                        AssetKey([*ASSET_HEADER_JOB_SUBMITTER, "submit_job"]).to_string(): {
+                                        AssetKey([*ASSET_HEADER_JOB_SUBMITTER["key_prefix"], "submit_job"]).to_user_string(): {
                                             "config": {
                                                 "filename": str(file_path),
                                                 "combine_dict_path": str(combine_dict_path),
@@ -139,7 +139,7 @@ def ingestion_sensor(
             run_key=f"ingested_jobs__{datetime.datetime.timestamp(datetime.datetime.now())}__{str(job_py).replace(os.sep, '__')}",
             run_config={
                 "ops": {
-                    AssetKey([*ASSET_HEADER_JOB_PROCESSOR, "read_job_py"]).to_string(): {
+                    AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_py"]).to_user_string(): {
                         "config": {
                             "filename": str(output_file),
                             }
