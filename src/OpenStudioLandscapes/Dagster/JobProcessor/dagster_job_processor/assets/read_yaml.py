@@ -1344,7 +1344,7 @@ def job_draft_png(
         ScriptArg16=taskEndFrame={frame_end_absolute}
         ScriptArg17=outFolder="{draft_out_dir}"
         ScriptArg18=outFile="{draft_out_dir}/{job_title}.{"#" * CONFIG.PADDING}.{codec}"
-        ScriptArg19=inFile="{pathlib.Path(render_output_directory / render_output_filename["padding_deadline"]).as_posix()}"
+        ScriptArg19=inFile="{pathlib.Path(render_output_directory / "raw" / render_output_filename["padding_deadline"]).as_posix()}"
         """
     )
 
@@ -1453,7 +1453,7 @@ def job_draft_mov(
         ScriptArg17=frameRate={combine_dicts["entity"]["data"]["fps"]}
         ScriptArg18=outFolder="{draft_out_dir}"
         ScriptArg19=outFile="{draft_out_dir}/{job_title}.{extension}"
-        ScriptArg20=inFile="{pathlib.Path(render_output_directory / render_output_filename["padding_deadline"]).as_posix()}"
+        ScriptArg20=inFile="{pathlib.Path(render_output_directory/ "raw" / render_output_filename["padding_deadline"]).as_posix()}"
         """
     )
 
