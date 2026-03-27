@@ -168,3 +168,11 @@ ffmpeg -framerate ${FPS} -start_number ${START} -i sh030_001.%04d.exr -vf "drawt
 export FPS="25" START="1197"; ffmpeg -framerate "${FPS}" -start_number "${START}" -i sh030_001.%04d.exr -vf "drawtext=: text='%{frame_num}': rate='${FPS}': start_number='${START}': x=(w-tw)/2:y=h-(2*lh):fontcolor=white:fontsize=50" -c:v libx264 -pix_fmt yuv420p -tune stillimage -r ${FPS} -s 1920x1280 output.mp4
 FPS="25" START="1197" && ffmpeg -framerate "${FPS}" -start_number "${START}" -i sh030_001.%04d.exr -vf "drawtext=: text='%{frame_num}': rate='${FPS}': start_number='${START}': x=(w-tw)/2:y=h-(2*lh):fontcolor=white:fontsize=50" -c:v libx264 -pix_fmt yuv420p -tune stillimage -r ${FPS} -s 1920x1280 output.mp4
 ```
+
+
+Refactor
+
+```shell
+docker exec -it dagster.2026-01-21_17-22-54__seasoned-jelly-wholesale-mixer bash
+pip3 install --root-user-action=ignore --editable OpenStudioLandscapes-Dagster-JobProcessor@git+https://github.com/michimussato/OpenStudioLandscapes-Dagster-JobProcessor.git@yaml-migration
+```

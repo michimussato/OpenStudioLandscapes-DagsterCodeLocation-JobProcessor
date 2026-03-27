@@ -66,7 +66,8 @@ class JobBase(BaseModel):
         default_factory=datetime.datetime.now().timestamp,
         exclude=True,
     )
-    handles: PositiveInt = Field(
+    # handles: PositiveInt = Field(
+    handles: int = Field(
         default=4,
     )
     output_format: OutputFormats = Field(
@@ -74,7 +75,11 @@ class JobBase(BaseModel):
         description="The render output format",
         examples=[i.name for i in OutputFormats],
     )
-    chunk_size: PositiveInt = Field(
+    # chunk_size: PositiveInt = Field()
+    # pydantic.errors.PydanticUserError: The `__modify_schema__` method is not supported in Pydantic v2. Use `__get_pydantic_json_schema__` instead in class `PositiveInt`.
+    #
+    # For further information visit https://errors.pydantic.dev/2.12/u/custom-json-schema
+    chunk_size: int = Field(
         default=1,
         description="The chunk size",
     )
@@ -107,7 +112,8 @@ class JobBase(BaseModel):
         default=1100,
         description="The cut out",
     )
-    resolution_draft_scale: PositiveFloat = Field(
+    # resolution_draft_scale: PositiveFloat = Field(
+    resolution_draft_scale: float = Field(
         default=0.5,
         description="Scale factor for the draft jobs",
     )
