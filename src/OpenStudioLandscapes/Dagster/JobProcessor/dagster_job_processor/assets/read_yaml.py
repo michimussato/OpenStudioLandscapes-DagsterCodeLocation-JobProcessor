@@ -6,7 +6,7 @@ import shutil
 import sys
 import textwrap
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any, Generator, Dict
 
 import yaml
 from dagster import (
@@ -202,7 +202,7 @@ def read_job_yaml(
     ins={
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
-        )
+        ),
     },
 )
 def get_kitsu_task_dict(
@@ -355,7 +355,9 @@ def annotations_string(
         "read_job_py": AssetIn(),
         "get_kitsu_task_dict": AssetIn(),
         "get_task_url": AssetIn(),
-        "handles": AssetIn(),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+        ),
         "frame_start_absolute": AssetIn(),
         "frame_end_absolute": AssetIn(),
         "resolution": AssetIn(),
@@ -375,7 +377,7 @@ def combine_dicts(
         read_job_py: dict,
         get_kitsu_task_dict: dict,
         get_task_url: str,
-        handles: int,
+        job_model: JobBase,
         frame_start_absolute: int,
         frame_end_absolute: int,
         resolution: tuple,
@@ -388,7 +390,7 @@ def combine_dicts(
         CONFIG: DefaultConstants,
 ) -> Generator[Output[dict] | AssetMaterialization | Any, Any, None]:
 
-    read_job_py.update({"handles": handles})
+    read_job_py.update({"handles": job_model.handles})
     read_job_py.update({"frame_start": frame_start_absolute})
     read_job_py.update({"frame_end": frame_end_absolute})
     read_job_py.update({"resolution": resolution})
@@ -759,37 +761,6 @@ def props(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
         "read_job_py": AssetIn(),
-        "CONFIG": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
-        ),
-    }
-)
-def handles(
-        context: AssetExecutionContext,
-        read_job_py: dict,
-        CONFIG: DefaultConstants,
-) -> Generator[Output[int | Any] | AssetMaterialization | Any, Any, None]:
-    """Handles with default"""
-    key = "handles"
-    if key in read_job_py:
-        ret = read_job_py[key]
-    else:
-        ret = CONFIG.DEFAULT_HANDLES
-
-    yield Output(ret)
-
-    yield AssetMaterialization(
-        asset_key=context.asset_key,
-        metadata={
-            "__".join(context.asset_key.path): MetadataValue.int(ret)
-        }
-    )
-
-
-@asset(
-    **ASSET_HEADER_JOB_PROCESSOR,
-    ins={
-        "read_job_py": AssetIn(),
         "get_kitsu_task_dict": AssetIn(),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
@@ -867,17 +838,22 @@ def output_format(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "read_job_py": AssetIn(),
-        "handles": AssetIn(),
+        "get_kitsu_task_dict": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
+        ),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+        ),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
         ),
     }
 )
 def frame_start_absolute(
+        # Todo: rename to `work_in`
         context: AssetExecutionContext,
-        read_job_py: dict,
-        handles: int,
+        get_kitsu_task_dict: Dict,
+        job_model: JobBase,
         CONFIG: DefaultConstants,
 ) -> Generator[Output[int | Any] | AssetMaterialization | Any, Any, None]:
 
@@ -887,13 +863,11 @@ def frame_start_absolute(
     nb_frames = get_kitsu_task_dict["entity"]["nb_frames"]
     """
 
-    fs = CONFIG.DEFAULT_FRAME_START
+    fs = job_model.cut_in
 
-    if "frame_start" in read_job_py:
-        if bool(read_job_py["frame_start"]):
-            fs = read_job_py["frame_start"]
+    fs_kitsu = get_kitsu_task_dict.get("entity", {}).get("data", {}).get("frame_in", 0)
 
-    fsa = fs - handles
+    fsa = fs - job_model.handles
 
     if CONFIG.DONT_ALLOW_NEGATIVE_FRAMES:
         raise Exception("Negative frames not allowed")
@@ -903,7 +877,10 @@ def frame_start_absolute(
     yield AssetMaterialization(
         asset_key=context.asset_key,
         metadata={
-            "__".join(context.asset_key.path): MetadataValue.int(fsa)
+            "__".join(context.asset_key.path): MetadataValue.int(fsa),
+            "work_in": MetadataValue.int(fsa),
+            "cut_in": MetadataValue.int(fs),
+            "cut_in_kitsu": MetadataValue.int(fs_kitsu),
         }
     )
 
@@ -911,48 +888,43 @@ def frame_start_absolute(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "read_job_py": AssetIn(),
-        "get_kitsu_task_dict": AssetIn(),
-        "handles": AssetIn(),
+        "get_kitsu_task_dict": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
+        ),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+        ),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
         ),
     }
 )
 def frame_end_absolute(
+        # Todo: rename to `work_out`
         context: AssetExecutionContext,
-        read_job_py: dict,
-        get_kitsu_task_dict: dict,
-        handles: int,
+        get_kitsu_task_dict: Dict,
+        job_model: JobBase,
         CONFIG: DefaultConstants,
 ) -> Generator[Output[int | Any] | AssetMaterialization | Any, Any, None]:
 
-    nb_frames = get_kitsu_task_dict["entity"]["nb_frames"]
-    fe = CONFIG.DEFAULT_FRAME_START + (nb_frames - 1)
+    fe = job_model.cut_out
 
-    if "frame_end" in read_job_py:
-        if bool(read_job_py["frame_end"]):
-            fe = read_job_py["frame_end"]
+    fe_kitsu = get_kitsu_task_dict.get("entity", {}).get("data", {}).get("frame_out", 0)
 
-    fea = fe + handles
+    fea = fe + job_model.handles
 
     if CONFIG.DONT_ALLOW_NEGATIVE_FRAMES:
         raise Exception("Negative frames not allowed")
-
-    # if self._frame_end is None:
-    #     if self.use_kitsu:
-    #         if self.entity_type_name == 'Shot':
-    #             self._frame_end = self.shot_frame_out
-    #             self.LOGGER.info(f'Frame End automatically set to {self._frame_end}')
-    #
-    # assert self._frame_end is not None, 'Set Frame End manually first (cannot use Kitsu).'
 
     yield Output(fea)
 
     yield AssetMaterialization(
         asset_key=context.asset_key,
         metadata={
-            "__".join(context.asset_key.path): MetadataValue.int(fea)
+            "__".join(context.asset_key.path): MetadataValue.int(fea),
+            "work_out": MetadataValue.int(fea),
+            "cut_out": MetadataValue.int(fe),
+            "cut_out_kitsu": MetadataValue.int(fe_kitsu),
         }
     )
 

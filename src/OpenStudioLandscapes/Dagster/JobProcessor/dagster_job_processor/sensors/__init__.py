@@ -7,7 +7,7 @@ from dagster import (
     sensor,
     SensorEvaluationContext,
     AssetSelection,
-    AutomationConditionSensorDefinition,
+    AutomationConditionSensorDefinition, DefaultSensorStatus,
 )
 
 import os
@@ -225,5 +225,5 @@ my_custom_auto_materialize_sensor = AutomationConditionSensorDefinition(
     "my_custom_auto_materialize_sensor",
     target=AssetSelection.all(include_sources=True),
     minimum_interval_seconds=15,
-    default_status=settings.SENSORS_STATUS,
+    default_status=DefaultSensorStatus.STOPPED,
 )
