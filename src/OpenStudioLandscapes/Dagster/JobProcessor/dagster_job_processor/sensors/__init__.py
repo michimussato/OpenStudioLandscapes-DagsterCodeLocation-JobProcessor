@@ -173,36 +173,43 @@ def ingestion_sensor_yaml(
 
     moves = []
 
-    for job_yaml in path_to_submission_files.glob('*.[yml yaml]'):
+    ext_yaml = [
+        ".yml",
+        ".yaml",
+    ]
 
-        context.log.info(f'Checking {job_yaml}...')
+    for job_yaml in path_to_submission_files.glob('*.*'):
 
-        context.log.info(f'Submission file is new: {job_yaml}...')
+        if job_yaml.suffix in ext_yaml:
 
-        CONFIG.INPUT_ROOT_PROCESSED.mkdir(mode=0o777, exist_ok=True, parents=True)
-        output_file = CONFIG.INPUT_ROOT_PROCESSED / f'{datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f")}_{job_yaml.name}'
-        # shutil.move(job_py, output_file)
+            context.log.info(f'Checking {job_yaml}...')
 
-        context.log.info(f'{output_file = }...')
-        # context.log.info(f'{constants.INPUT_ROOT_PROCESSED = }...')
-        context.log.info(f'{job_yaml = }...')
+            context.log.info(f'Submission file is new: {job_yaml}...')
 
-        runs_to_request.append(RunRequest(
-            # whether or not a run will skip is based on the run_key that was assigned to previous ones
-            run_key=f"ingested_jobs__{datetime.datetime.timestamp(datetime.datetime.now())}__{str(job_yaml).replace(os.sep, '__')}",
-            run_config={
-                "ops": {
-                    AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"]).to_python_identifier(): {
-                        "config": {
-                            "filename": str(output_file),
+            CONFIG.INPUT_ROOT_PROCESSED.mkdir(mode=0o777, exist_ok=True, parents=True)
+            output_file = CONFIG.INPUT_ROOT_PROCESSED / f'{datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f")}_{job_yaml.name}'
+            # shutil.move(job_py, output_file)
+
+            context.log.info(f'{output_file = }...')
+            # context.log.info(f'{constants.INPUT_ROOT_PROCESSED = }...')
+            context.log.info(f'{job_yaml = }...')
+
+            runs_to_request.append(RunRequest(
+                # whether or not a run will skip is based on the run_key that was assigned to previous ones
+                run_key=f"ingested_jobs__{datetime.datetime.timestamp(datetime.datetime.now())}__{str(job_yaml).replace(os.sep, '__')}",
+                run_config={
+                    "ops": {
+                        AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"]).to_python_identifier(): {
+                            "config": {
+                                "filename": str(output_file),
+                                }
                             }
                         }
                     }
-                }
+                )
             )
-        )
 
-        moves.append({'src': job_yaml, 'dst': output_file})
+            moves.append({'src': job_yaml, 'dst': output_file})
 
     for i in moves:
         shutil.move(i['src'], i['dst'])
