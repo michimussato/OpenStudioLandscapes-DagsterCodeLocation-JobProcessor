@@ -1,9 +1,7 @@
+import enum
 import pathlib
 import re
-import importlib.util
-import os
 import shutil
-import sys
 import textwrap
 from pathlib import Path
 from typing import Any, Generator, Dict
@@ -40,6 +38,330 @@ ASSET_HEADER_JOB_PROCESSOR = {
 }
 
 
+"""
+kitsu_task_dict example
+{
+  "assignees": [],
+  "assigner": {
+    "active": true,
+    "archived": false,
+    "contract_type": "open-ended",
+    "created_at": "2026-01-13T02:08:10",
+    "daily_salary": 0,
+    "data": null,
+    "departments": [],
+    "desktop_login": "",
+    "email": "admin@example.com",
+    "email_otp_enabled": false,
+    "expiration_date": null,
+    "fido_enabled": false,
+    "first_name": "Super",
+    "full_name": "Super Admin",
+    "has_avatar": false,
+    "id": "108d7c11-b47b-4c4b-9fa2-f955e095d1b8",
+    "is_bot": false,
+    "is_generated_from_ldap": false,
+    "last_login_failed": null,
+    "last_name": "Admin",
+    "last_presence": null,
+    "ldap_uid": null,
+    "locale": "en_US",
+    "login_failed_attemps": 0,
+    "notifications_discord_enabled": false,
+    "notifications_discord_userid": "",
+    "notifications_enabled": false,
+    "notifications_mattermost_enabled": false,
+    "notifications_mattermost_userid": "",
+    "notifications_slack_enabled": false,
+    "notifications_slack_userid": "",
+    "phone": "",
+    "position": "artist",
+    "preferred_two_factor_authentication": null,
+    "role": "admin",
+    "seniority": "mid",
+    "shotgun_id": null,
+    "studio_id": null,
+    "timezone": "Europe/Paris",
+    "totp_enabled": false,
+    "type": "Person",
+    "updated_at": "2026-01-13T02:08:10"
+  },
+  "assigner_id": "108d7c11-b47b-4c4b-9fa2-f955e095d1b8",
+  "completion_rate": 0,
+  "created_at": "2026-03-14T22:38:44",
+  "data": null,
+  "description": null,
+  "difficulty": 3,
+  "done_date": null,
+  "due_date": null,
+  "duration": 0,
+  "end_date": null,
+  "entity": {
+    "canceled": false,
+    "code": null,
+    "created_at": "2026-03-14T22:38:44",
+    "created_by": "108d7c11-b47b-4c4b-9fa2-f955e095d1b8",
+    "data": {
+      "fps": 25,
+      "frame_in": 1201,
+      "frame_out": 1250,
+      "max_retakes": null,
+      "resolution": "960x540"
+    },
+    "description": null,
+    "entity_type_id": "6b85fb0f-a152-412e-b828-0a2c030b1393",
+    "id": "89bcad46-1be7-4095-a5db-edeac55c04ab",
+    "is_casting_standby": false,
+    "is_shared": false,
+    "name": "SH030",
+    "nb_entities_out": 0,
+    "nb_frames": 50,
+    "parent_id": "dc80cc66-b934-4fe8-8bb3-cc90bf0a2348",
+    "preview_file_id": "a8bad4a4-3d67-4350-8755-bf7976c80831",
+    "project_id": "3ede4117-b73c-4bd3-83a2-40d66bc954c5",
+    "ready_for": null,
+    "shotgun_id": null,
+    "source_id": null,
+    "status": "running",
+    "type": "Entity",
+    "updated_at": "2026-03-23T09:43:42"
+  },
+  "entity_id": "89bcad46-1be7-4095-a5db-edeac55c04ab",
+  "entity_type": {
+    "archived": false,
+    "created_at": "2026-01-13T02:07:57",
+    "description": null,
+    "id": "6b85fb0f-a152-412e-b828-0a2c030b1393",
+    "name": "Shot",
+    "short_name": null,
+    "type": "EntityType",
+    "updated_at": "2026-01-13T02:07:57"
+  },
+  "estimation": 0,
+  "id": "b0cfdac7-afa9-4382-a75d-3c80a388e136",
+  "is_subscribed": false,
+  "last_comment_date": "2026-03-27T10:58:54",
+  "last_preview_file_id": "d9190fae-6f3a-4cef-bd3e-bfdc6773a5e1",
+  "name": "main",
+  "nb_assets_ready": 0,
+  "nb_drawings": 0,
+  "persons": [],
+  "priority": 0,
+  "project": {
+    "code": null,
+    "created_at": "2026-03-14T22:37:01",
+    "data": null,
+    "default_preview_background_file_id": null,
+    "description": null,
+    "end_date": "2027-04-30",
+    "episode_span": 0,
+    "file_tree": null,
+    "fps": "25",
+    "from_schedule_version_id": null,
+    "has_avatar": false,
+    "hd_bitrate_compression": 28,
+    "homepage": "assets",
+    "id": "3ede4117-b73c-4bd3-83a2-40d66bc954c5",
+    "is_clients_isolated": false,
+    "is_preview_download_allowed": false,
+    "is_publish_default_for_artists": false,
+    "is_set_preview_automated": false,
+    "ld_bitrate_compression": 6,
+    "man_days": null,
+    "max_retakes": 0,
+    "name": "Test Production",
+    "nb_episodes": 0,
+    "production_style": "2d3d",
+    "production_type": "shots",
+    "project_status_id": "9acbb6bf-2758-4abf-a87f-316399de5b3b",
+    "ratio": "16:9",
+    "resolution": "960x540",
+    "shotgun_id": null,
+    "start_date": "2026-03-13",
+    "type": "Project",
+    "updated_at": "2026-03-14T22:37:02"
+  },
+  "project_id": "3ede4117-b73c-4bd3-83a2-40d66bc954c5",
+  "real_start_date": "2026-03-14T22:39:28",
+  "retake_count": 1,
+  "sequence": {
+    "canceled": false,
+    "code": null,
+    "created_at": "2026-03-14T22:37:39",
+    "created_by": "108d7c11-b47b-4c4b-9fa2-f955e095d1b8",
+    "data": {},
+    "description": "",
+    "entity_type_id": "b9d90a79-7ca1-4e50-806b-41055a7a6f84",
+    "id": "dc80cc66-b934-4fe8-8bb3-cc90bf0a2348",
+    "is_casting_standby": false,
+    "is_shared": false,
+    "name": "SQ010",
+    "nb_entities_out": 0,
+    "nb_frames": null,
+    "parent_id": null,
+    "preview_file_id": null,
+    "project_id": "3ede4117-b73c-4bd3-83a2-40d66bc954c5",
+    "ready_for": null,
+    "shotgun_id": null,
+    "source_id": null,
+    "status": "running",
+    "type": "Sequence",
+    "updated_at": "2026-03-14T22:37:39"
+  },
+  "shotgun_id": null,
+  "sort_order": 0,
+  "start_date": null,
+  "task_status": {
+    "archived": false,
+    "color": "#ff3860",
+    "created_at": "2026-01-13T02:07:58",
+    "description": null,
+    "for_concept": false,
+    "id": "cb900a6e-06ea-42d1-885a-b742e686f312",
+    "is_artist_allowed": true,
+    "is_client_allowed": true,
+    "is_default": false,
+    "is_done": false,
+    "is_feedback_request": false,
+    "is_retake": true,
+    "is_wip": false,
+    "name": "Retake",
+    "priority": 1,
+    "short_name": "retake",
+    "shotgun_id": null,
+    "type": "TaskStatus",
+    "updated_at": "2026-01-13T02:07:58"
+  },
+  "task_status_id": "cb900a6e-06ea-42d1-885a-b742e686f312",
+  "task_type": {
+    "allow_timelog": true,
+    "archived": false,
+    "color": "#F06292",
+    "created_at": "2026-01-13T02:07:58",
+    "department_id": "9cf1aa43-06f5-4e9a-a51a-2b1fd3ed3c2f",
+    "description": null,
+    "for_entity": "Shot",
+    "id": "859d37ac-24e1-4fba-91a9-5c0479a11766",
+    "name": "Rendering",
+    "priority": 6,
+    "short_name": "",
+    "shotgun_id": null,
+    "type": "TaskType",
+    "updated_at": "2026-01-13T02:07:58"
+  },
+  "task_type_id": "859d37ac-24e1-4fba-91a9-5c0479a11766",
+  "type": "Task",
+  "updated_at": "2026-03-27T10:59:10"
+}
+"""
+
+
+class KitsuEntityTypes(enum.StrEnum):
+    SHOT = "Shot"
+
+
+def get_task_name(
+        kitsu_dict: Dict,
+) -> str:
+    """
+    {
+      "task_type": {
+        "allow_timelog": true,
+        "archived": false,
+        "color": "#F06292",
+        "created_at": "2026-01-13T02:07:58",
+        "department_id": "9cf1aa43-06f5-4e9a-a51a-2b1fd3ed3c2f",
+        "description": null,
+        "for_entity": "Shot",
+        "id": "859d37ac-24e1-4fba-91a9-5c0479a11766",
+        "name": "Rendering",
+        "priority": 6,
+        "short_name": "",
+        "shotgun_id": null,
+        "type": "TaskType",
+        "updated_at": "2026-01-13T02:07:58"
+      },
+    }
+    """
+    _task_name = (
+        kitsu_dict
+        .get("kitsu_task", {})
+        .get("task_type", {})
+        .get("name", "No Task Name")
+    )
+    return _task_name
+
+
+def get_entity_type(
+        kitsu_dict: Dict,
+) -> str:
+    """
+    {
+      "entity_type": {
+        "archived": false,
+        "created_at": "2026-01-13T02:07:57",
+        "description": null,
+        "id": "6b85fb0f-a152-412e-b828-0a2c030b1393",
+        "name": "Shot",
+        "short_name": null,
+        "type": "EntityType",
+        "updated_at": "2026-01-13T02:07:57"
+      },
+    }
+    """
+    _entity_type = (
+        kitsu_dict
+        .get("entity_type", {})
+        .get("name", "No Entity Type")
+    )
+    return _entity_type
+
+
+def get_entity_name(
+        kitsu_dict: Dict,
+) -> str:
+    """
+    {
+      "entity": {
+        "canceled": false,
+        "code": null,
+        "created_at": "2026-03-14T22:38:44",
+        "created_by": "108d7c11-b47b-4c4b-9fa2-f955e095d1b8",
+        "data": {
+          "fps": 25,
+          "frame_in": 1201,
+          "frame_out": 1250,
+          "max_retakes": null,
+          "resolution": "960x540"
+        },
+        "description": null,
+        "entity_type_id": "6b85fb0f-a152-412e-b828-0a2c030b1393",
+        "id": "89bcad46-1be7-4095-a5db-edeac55c04ab",
+        "is_casting_standby": false,
+        "is_shared": false,
+        "name": "SH030",
+        "nb_entities_out": 0,
+        "nb_frames": 50,
+        "parent_id": "dc80cc66-b934-4fe8-8bb3-cc90bf0a2348",
+        "preview_file_id": "a8bad4a4-3d67-4350-8755-bf7976c80831",
+        "project_id": "3ede4117-b73c-4bd3-83a2-40d66bc954c5",
+        "ready_for": null,
+        "shotgun_id": null,
+        "source_id": null,
+        "status": "running",
+        "type": "Entity",
+        "updated_at": "2026-03-23T09:43:42"
+      },
+    }
+    """
+    _entity_info = (
+        kitsu_dict
+        .get("entity", {})
+        .get("name", "No Entity Name")
+    )
+    return _entity_info
+
+
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={},
@@ -72,36 +394,6 @@ class IngestJobConfig(Config):
     filename: str
 
 
-# @asset(
-#     **ASSET_HEADER_JOB_PROCESSOR,
-#     description="Parses the job file.",
-# )
-# def read_job_py(
-#         context: AssetExecutionContext,
-#         config: IngestJobConfig,
-# ) -> Generator[Output[Any] | AssetMaterialization | Any, Any, None]:
-#
-#     parent = config.filename
-#
-#     spec = importlib.util.spec_from_file_location(str(pathlib.Path(parent).parent).replace(os.sep, '.'), parent)
-#     module_from_spec = importlib.util.module_from_spec(spec)
-#     sys.modules[str(pathlib.Path(parent).parent).replace(os.sep, '.')] = module_from_spec
-#     spec.loader.exec_module(module_from_spec)
-#     job = module_from_spec.job
-#
-#     job["job_file_py"] = config.filename
-#
-#     yield Output(job)
-#
-#     yield AssetMaterialization(
-#         asset_key=context.asset_key,
-#         metadata={
-#             # "__".join(context.asset_key.path): MetadataValue.json(job),
-#             "__".join(context.asset_key.path): MetadataValue.json(json.loads(json.dumps(job, indent=2, default=str))),
-#         }
-#     )
-
-
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     description="Parses the job file.",
@@ -130,71 +422,6 @@ def read_job_yaml(
             ),
         }
     )
-
-
-# @asset(
-#     ins={
-#         "read_job_py": AssetIn(),
-#     },
-#     group_name=group_name,
-#     description="Parses the plugin file.",
-# )
-# def read_plugin_py(
-#         read_job_py: dict,
-# ) -> dict:
-#
-#     # plugin_dict = read_job_py['plugin_dict']
-#
-#     # if parent is None:
-#     #     raise Exception(f'Plugin file not set: {read_job_py["plugin_file"] = }')
-#     #
-#     # spec = importlib.util.spec_from_file_location(str(pathlib.Path(parent).parent).replace(os.sep, '.'), parent)
-#     # module_from_spec = importlib.util.module_from_spec(spec)
-#     # sys.modules[str(pathlib.Path(parent).parent).replace(os.sep, '.')] = module_from_spec
-#     # spec.loader.exec_module(module_from_spec)
-#     # plugin = module_from_spec.plugin
-#
-#     if read_job_py['plugin_dict']['submitter']['executable'] is None:
-#         raise Exception(f'Plugin executable not set: {plugin = }')
-#
-#     yield Output(plugin)
-#
-#     yield AssetMaterialization(
-#         asset_key="read_plugin_py",
-#         metadata={
-#             'json': MetadataValue.json(plugin)
-#         }
-#     )
-
-
-# @asset(
-#     group_name=group_name,
-#     ins={
-#         "read_job_py": AssetIn(),
-#         # "read_plugin_py": AssetIn(),
-#     },
-# )
-# def merge_dicts(
-#         read_job_py: dict,
-#         # read_plugin_py: dict,
-# ) -> dict:
-#     """Merges the `job.py` dict and the `plugin.py` dict
-#      into one single dict and returns its contents as a `MaterializeResult` object in the JSON format."""
-#
-#     # merge dicts
-#     yaml_dict = read_job_py | read_plugin_py
-#
-#     # https://discuss.dagster.io/t/18787421/u0667dnc02y-when-returning-a-materializeresult-from-an-asset#87efa45e-008f-4d1d-b628-01fd07220ff6
-#     # https://discuss.dagster.io/t/18787421/u0667dnc02y-when-returning-a-materializeresult-from-an-asset#891a726e-e379-4c14-a19c-64ec7945e344
-#
-#     yield Output(yaml_dict)
-#
-#     yield AssetMaterialization(
-#         asset_key="merge_dicts",
-#         metadata={
-#             'json': MetadataValue.json(yaml_dict)
-#         }
-#     )
 
 
 @asset(
@@ -240,7 +467,6 @@ def get_task_url(
 
     # TODO: make fail safe
 
-    # if bool(merge_dicts["kitsu_task"]):
     if "error" in get_kitsu_task_dict:
         raise Exception(f"Kitsu task ID is set but can't get Task URL from Kitsu for this shot:\n"
                         f"{get_kitsu_task_dict['error']}")
@@ -352,8 +578,9 @@ def annotations_string(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        # "read_job_py": AssetIn(),
-        "get_kitsu_task_dict": AssetIn(),
+        "get_kitsu_task_dict": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
+        ),
         "get_task_url": AssetIn(),
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
@@ -361,11 +588,17 @@ def annotations_string(
         "frame_start_absolute": AssetIn(),
         "frame_end_absolute": AssetIn(),
         "resolution": AssetIn(),
-        "show_name": AssetIn(),
+        "show_name": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "show_name"])
+        ),
         "job_title": AssetIn(),
         "render_version_directory": AssetIn(),
-        "task_name": AssetIn(),
-        "fps": AssetIn(),
+        "task_name": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "task_name"]),
+        ),
+        "fps": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "fps"]),
+        ),
         "output_format": AssetIn(),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
@@ -374,7 +607,6 @@ def annotations_string(
 )
 def combine_dicts(
         context: AssetExecutionContext,
-        # read_job_py: dict,
         get_kitsu_task_dict: dict,
         get_task_url: str,
         job_model: JobBase,
@@ -505,28 +737,30 @@ def version(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "combine_dicts": AssetIn(),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+        ),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+        ),
+        "job_title": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title"])
+        ),
+        "output_format": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "output_format"])
         ),
     },
 )
 def render_output_filename(
         context: AssetExecutionContext,
-        combine_dicts: dict,
         CONFIG: DefaultConstants,
+        job_model: JobBase,
+        job_title: str,
+        output_format: str,
 ) -> Generator[Output[dict[str, str]] | AssetMaterialization | Any, Any, None]:
 
-    job_title = combine_dicts["yaml_submission"]["job_title"]
-
-    output_format = combine_dicts["yaml_submission"]["output_format"]
-
-    # if 'output_format' in combine_dicts['yaml_submission']:
-    #     if combine_dicts['yaml_submission']['output_format'] is not None:
-    #         output_format = combine_dicts['yaml_submission']['output_format']
-
-    padding_deadline = f"{combine_dicts['yaml_submission']['plugin_dict']['submitter']['padding_deadline']}"
-    padding_command = f"{combine_dicts['yaml_submission']['plugin_dict']['submitter']['padding_command']}"
+    padding_deadline = f"{job_model.plugin_model.padding_deadline}"
+    padding_command = f"{job_model.plugin_model.padding_command}"
 
     # # Don't uncomment
     # # Required to eval(padding_deadline) and eval(padding_command)
@@ -652,12 +886,7 @@ def task_name(
         get_kitsu_task_dict: Dict,
 ) -> Generator[Output[str | Any] | AssetMaterialization | Any, Any, None]:
 
-    ret = (
-        get_kitsu_task_dict
-        .get("kitsu_task", {})
-        .get("task_type", {})
-        .get("name", "No Task Name")
-    )
+    ret = get_task_name(get_kitsu_task_dict)
 
     yield Output(ret)
 
@@ -672,31 +901,45 @@ def task_name(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "combine_dicts": AssetIn(),
-        "version": AssetIn(),
+        "version": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "version"]),
+        ),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+        ),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+        ),
+        "show_name": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "show_name"])
+        ),
+        "task_name": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "task_name"]),
+        ),
+        "get_kitsu_task_dict": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
         ),
     }
 )
 def job_title_str(
         context: AssetExecutionContext,
-        combine_dicts: dict,
         version: str,
         CONFIG: DefaultConstants,
+        job_model: JobBase,
+        show_name: str,
+        task_name: str,
+        get_kitsu_task_dict: dict,
 ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
-    _entity_info = combine_dicts["entity"]["name"]
 
-    handles = combine_dicts["yaml_submission"]["handles"]
-    show_name = combine_dicts["yaml_submission"]["show_name"]
-    task_name = combine_dicts["yaml_submission"]["task_name"]
+    entity_name = get_entity_name(get_kitsu_task_dict)
+    entity_type = get_entity_type(get_kitsu_task_dict)
 
-    if bool(combine_dicts['yaml_submission']["kitsu_task"]):
-        if combine_dicts["entity_type"]["name"] == 'Shot':
-            _entity_info = f'{_entity_info} - {str(handles)}_{str(combine_dicts["yaml_submission"]["frame_start"]).zfill(CONFIG.PADDING)}-{str(combine_dicts["yaml_submission"]["frame_end"]).zfill(CONFIG.PADDING)}_{handles}'
-            # _entity_info = f'{self.sequence_name}_{self.entity_name} - {str(self.handles)}_{str(self.frame_start).zfill(self.PADDING)}-{str(self.frame_end).zfill(self.PADDING)}_{self.handles}'
+    if bool(job_model.kitsu_task):
+        if entity_type == KitsuEntityTypes.SHOT.value:
+            entity_name = f'{entity_name} - {str(job_model.handles)}_{str(job_model.cut_in).zfill(CONFIG.PADDING)}-{str(job_model.cut_out).zfill(CONFIG.PADDING)}_{job_model.handles}'
+            # entity_name = f'{self.sequence_name}_{self.entity_name} - {str(self.handles)}_{str(self.frame_start).zfill(self.PADDING)}-{str(self.frame_end).zfill(self.PADDING)}_{self.handles}'
 
-    ret = f'{show_name} - {_entity_info} - {task_name} - {pathlib.Path(combine_dicts["yaml_submission"]["job_file"]).name} - {version} - {pathlib.Path(combine_dicts["yaml_submission"]["plugin_dict"]["submitter"]["executable"]).name}'
+    ret = f'{show_name} - {entity_name} - {task_name} - {pathlib.Path(job_model.job_file).name} - {version} - {pathlib.Path(job_model.plugin_model.executable).name}'
 
     yield Output(ret)
 
@@ -803,7 +1046,7 @@ def fps(
 
     fps_kitsu_project = float(get_kitsu_task_dict.get("project", {}).get("fps", 0))
 
-    kitsu_entity_type = get_kitsu_task_dict.get("entity_type", {}).get("name", "Not defined")
+    kitsu_entity_type = get_entity_type(get_kitsu_task_dict)
     fps_kitsu_shot = float(0)
     if kitsu_entity_type == "Shot":
         fps_kitsu_entity = fps_kitsu_shot = float(get_kitsu_task_dict.get("entity", {}).get("data", {}).get("fps", 0))
@@ -1025,7 +1268,6 @@ def job_info_file(
         StartupDirectory=
         """
     )
-
 
 
     with open(path, "w") as job_info_file:
