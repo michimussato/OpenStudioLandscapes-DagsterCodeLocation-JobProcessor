@@ -352,7 +352,7 @@ def annotations_string(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "read_job_py": AssetIn(),
+        # "read_job_py": AssetIn(),
         "get_kitsu_task_dict": AssetIn(),
         "get_task_url": AssetIn(),
         "job_model": AssetIn(
@@ -374,7 +374,7 @@ def annotations_string(
 )
 def combine_dicts(
         context: AssetExecutionContext,
-        read_job_py: dict,
+        # read_job_py: dict,
         get_kitsu_task_dict: dict,
         get_task_url: str,
         job_model: JobBase,
@@ -389,6 +389,8 @@ def combine_dicts(
         output_format: str,
         CONFIG: DefaultConstants,
 ) -> Generator[Output[dict] | AssetMaterialization | Any, Any, None]:
+
+    read_job_py = job_model.model_dump()
 
     read_job_py.update({"handles": job_model.handles})
     read_job_py.update({"frame_start": frame_start_absolute})
