@@ -33,13 +33,13 @@ resources = {
     # "staging": {
     #     "kitsu_resource": KitsuResource(),
     # },
-    "farm": {
-        "kitsu_resource": KitsuResource(),
-    },
+    # "farm": {
+    #     "kitsu_resource": KitsuResource(),
+    # },
 }
 
 
-deployment_name = os.environ.get("DAGSTER_DEPLOYMENT", "farm")
+deployment_name = os.environ.get("DAGSTER_DEPLOYMENT", "local")
 
 
 defs = Definitions(

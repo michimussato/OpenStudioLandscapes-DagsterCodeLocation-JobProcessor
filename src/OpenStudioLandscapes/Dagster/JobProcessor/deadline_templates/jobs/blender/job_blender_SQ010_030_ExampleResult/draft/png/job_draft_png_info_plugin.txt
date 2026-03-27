@@ -1,0 +1,20 @@
+ScriptArg0=resolution="0.5"
+ScriptArg1=codec="png"
+ScriptArg2=colorSpaceIn="Identity"
+ScriptArg3=colorSpaceOut="Identity"
+ScriptArg4=annotationsString="{"NorthWest": {"text": "SH030/Rendering", "colorR": 95, "colorG": 95, "colorB": 95, "type": ""}, "NorthCenter": {"text": "sh030_001.blend", "colorR": 95, "colorG": 95, "colorB": 95, "type": ""}, "NorthEast": {"text": "$time (033)", "colorR": 95, "colorG": 95, "colorB": 95, "type": ""}, "SouthWest": {"text": "", "colorR": 95, "colorG": 95, "colorB": 95, "type": ""}, "SouthCenter": {"text": "4_1201||4_1201|$frame|1210_4||1250_4 @25.0", "colorR": 95, "colorG": 95, "colorB": 95, "type": ""}, "SouthEast": {"text": "960x540 (x0.5)", "colorR": 95, "colorG": 95, "colorB": 95, "type": ""}}"
+ScriptArg5=annotationsImageString="None"
+ScriptArg6=annotationsResWidthString="480.0"
+ScriptArg7=annotationsResHeightString="270.0"
+ScriptArg8=annotationsFramePaddingSize="4"
+ScriptArg9=quality="85"
+ScriptArg10=quickType="createImages"
+ScriptArg11=isDistributed="False"
+ScriptArg12=frameList=1197-1214
+ScriptArg13=startFrame=1197
+ScriptArg14=endFrame=1214
+ScriptArg15=taskStartFrame=1197
+ScriptArg16=taskEndFrame=1214
+ScriptArg17=outFolder="/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4/draft/png"
+ScriptArg18=outFile="/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4/draft/png/sh030_001.####.png"
+ScriptArg19=inFile="/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4/sh030_001.####.exr"

@@ -108,9 +108,10 @@ ffmpeg -start_number 1211 -i sh030_001.%04d.exr -vf "pad=iw:ih+60:0:30:red,drawt
 oiiotool "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4/sh030_001.1211.exr" --origin 0+60 --fullsize 960x660 -o "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4/test_out/sh030_001.oiio.1211.exr"
 
 # Batch Processing (possible pipeline)
-BASE_DIR="/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4"
+BASE_DIR="/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/035/4_1197-1254_4/"
+FPS=25
 START_F=1197
-ENF_F=1214
+ENF_F=1254
 F_TOTAL=$(echo "${ENF_F} - ${START_F} + 1" | bc)
 HEAD_H=4
 TAIL_H=4
@@ -126,9 +127,9 @@ CUT=$(echo "${CUT_OUT} - ${CUT_IN} + 1" | bc)
 TAIL_H_IN=$(echo "${OUT_F} + 1" | bc)
 
 # oiiotool for EXRs
-mkdir -p "${BASE_DIR}/oiio"
+# mkdir -p "${BASE_DIR}/oiio"
 exrinfo "${BASE_DIR}/sh030_001.${START_F}.exr"
-oiiotool "${BASE_DIR}/sh030_001.%04d.exr" --origin ${ORIGIN} --fullsize ${FULLSIZE} -o "${BASE_DIR}/oiio/sh030_001.%04d.exr"
+oiiotool "${BASE_DIR}/sh030_001.%04d.exr" --origin ${ORIGIN} --fullsize ${FULLSIZE} --create-dir -o "${BASE_DIR}/oiio/sh030_001.%04d.exr"
 exrinfo "${BASE_DIR}/oiio/sh030_001.${START_F}.exr"
 
 # ffmpeg for Proxies
@@ -139,18 +140,18 @@ mkdir -p "${BASE_DIR}/ffmpeg"
 mkdir -p "${BASE_DIR}/ffmpeg/png"
 mkdir -p "${BASE_DIR}/ffmpeg/png/full"
 mkdir -p "${BASE_DIR}/ffmpeg/png/half"
-ffmpeg -start_number ${START_F}   -i "${BASE_DIR}/oiio_exr/sh030_001.oiio.%04d.exr" -vf "crop=in_w:in_h-2*${BORDERS}:0:${BORDERS}, pad=iw:ih+2*${BORDERS}:0:${BORDERS}:red,   drawtext=: text='%{frame_num}': rate=${FPS}: start_number=${HEAD_H_IN}: x=(w-tw)/2:y=h-th:fontcolor=white:fontsize=${BORDERS}, scale=iw:-1:force_original_aspect_ratio=1"   -start_number ${HEAD_H_IN} -frames:v ${HEAD_H} "${BASE_DIR}/ffmpeg/png/full/sh030_001.%04d.png"
-ffmpeg -start_number ${START_F}   -i "${BASE_DIR}/oiio_exr/sh030_001.oiio.%04d.exr" -vf "crop=in_w:in_h-2*${BORDERS}:0:${BORDERS}, pad=iw:ih+2*${BORDERS}:0:${BORDERS}:red,   drawtext=: text='%{frame_num}': rate=${FPS}: start_number=${HEAD_H_IN}: x=(w-tw)/2:y=h-th:fontcolor=white:fontsize=${BORDERS}, scale=iw/2:-1:force_original_aspect_ratio=1" -start_number ${HEAD_H_IN} -frames:v ${HEAD_H} "${BASE_DIR}/ffmpeg/png/half/sh030_001.%04d.png"
-ffmpeg -start_number ${IN_F}      -i "${BASE_DIR}/oiio_exr/sh030_001.oiio.%04d.exr" -vf "crop=in_w:in_h-2*${BORDERS}:0:${BORDERS}, pad=iw:ih+2*${BORDERS}:0:${BORDERS}:green, drawtext=: text='%{frame_num}': rate=${FPS}: start_number=${CUT_IN}: x=(w-tw)/2:y=h-th:fontcolor=white:fontsize=${BORDERS},    scale=iw:-1:force_original_aspect_ratio=1"   -start_number ${CUT_IN}    -frames:v ${CUT}    "${BASE_DIR}/ffmpeg/png/full/sh030_001.%04d.png"
-ffmpeg -start_number ${IN_F}      -i "${BASE_DIR}/oiio_exr/sh030_001.oiio.%04d.exr" -vf "crop=in_w:in_h-2*${BORDERS}:0:${BORDERS}, pad=iw:ih+2*${BORDERS}:0:${BORDERS}:green, drawtext=: text='%{frame_num}': rate=${FPS}: start_number=${CUT_IN}: x=(w-tw)/2:y=h-th:fontcolor=white:fontsize=${BORDERS},    scale=iw/2:-1:force_original_aspect_ratio=1" -start_number ${CUT_IN}    -frames:v ${CUT}    "${BASE_DIR}/ffmpeg/png/half/sh030_001.%04d.png"
-ffmpeg -start_number ${TAIL_H_IN} -i "${BASE_DIR}/oiio_exr/sh030_001.oiio.%04d.exr" -vf "crop=in_w:in_h-2*${BORDERS}:0:${BORDERS}, pad=iw:ih+2*${BORDERS}:0:${BORDERS}:red,   drawtext=: text='%{frame_num}': rate=${FPS}: start_number=${TAIL_H_IN}: x=(w-tw)/2:y=h-th:fontcolor=white:fontsize=${BORDERS}, scale=iw:-1:force_original_aspect_ratio=1"   -start_number ${TAIL_H_IN} -frames:v ${TAIL_H} "${BASE_DIR}/ffmpeg/png/full/sh030_001.%04d.png"
-ffmpeg -start_number ${TAIL_H_IN} -i "${BASE_DIR}/oiio_exr/sh030_001.oiio.%04d.exr" -vf "crop=in_w:in_h-2*${BORDERS}:0:${BORDERS}, pad=iw:ih+2*${BORDERS}:0:${BORDERS}:red,   drawtext=: text='%{frame_num}': rate=${FPS}: start_number=${TAIL_H_IN}: x=(w-tw)/2:y=h-th:fontcolor=white:fontsize=${BORDERS}, scale=iw/2:-1:force_original_aspect_ratio=1" -start_number ${TAIL_H_IN} -frames:v ${TAIL_H} "${BASE_DIR}/ffmpeg/png/half/sh030_001.%04d.png"
+ffmpeg -hide_banner -y -start_number ${START_F}   -i "${BASE_DIR}/oiio/sh030_001.%04d.exr" -vf "crop=in_w:in_h-2*${BORDERS}:0:${BORDERS}, pad=iw:ih+2*${BORDERS}:0:${BORDERS}:red,   drawtext=: text='%{frame_num}': rate=${FPS}: start_number=${HEAD_H_IN}: x=(w-tw)/2:y=h-th:fontcolor=white:fontsize=${BORDERS}, scale=iw:-1:force_original_aspect_ratio=1"   -start_number ${HEAD_H_IN} -frames:v ${HEAD_H} "${BASE_DIR}/ffmpeg/png/full/sh030_001.%04d.png"
+ffmpeg -hide_banner -y -start_number ${START_F}   -i "${BASE_DIR}/oiio/sh030_001.%04d.exr" -vf "crop=in_w:in_h-2*${BORDERS}:0:${BORDERS}, pad=iw:ih+2*${BORDERS}:0:${BORDERS}:red,   drawtext=: text='%{frame_num}': rate=${FPS}: start_number=${HEAD_H_IN}: x=(w-tw)/2:y=h-th:fontcolor=white:fontsize=${BORDERS}, scale=iw/2:-1:force_original_aspect_ratio=1" -start_number ${HEAD_H_IN} -frames:v ${HEAD_H} "${BASE_DIR}/ffmpeg/png/half/sh030_001.%04d.png"
+ffmpeg -hide_banner -y -start_number ${IN_F}      -i "${BASE_DIR}/oiio/sh030_001.%04d.exr" -vf "crop=in_w:in_h-2*${BORDERS}:0:${BORDERS}, pad=iw:ih+2*${BORDERS}:0:${BORDERS}:green, drawtext=: text='%{frame_num}': rate=${FPS}: start_number=${CUT_IN}: x=(w-tw)/2:y=h-th:fontcolor=white:fontsize=${BORDERS},    scale=iw:-1:force_original_aspect_ratio=1"   -start_number ${CUT_IN}    -frames:v ${CUT}    "${BASE_DIR}/ffmpeg/png/full/sh030_001.%04d.png"
+ffmpeg -hide_banner -y -start_number ${IN_F}      -i "${BASE_DIR}/oiio/sh030_001.%04d.exr" -vf "crop=in_w:in_h-2*${BORDERS}:0:${BORDERS}, pad=iw:ih+2*${BORDERS}:0:${BORDERS}:green, drawtext=: text='%{frame_num}': rate=${FPS}: start_number=${CUT_IN}: x=(w-tw)/2:y=h-th:fontcolor=white:fontsize=${BORDERS},    scale=iw/2:-1:force_original_aspect_ratio=1" -start_number ${CUT_IN}    -frames:v ${CUT}    "${BASE_DIR}/ffmpeg/png/half/sh030_001.%04d.png"
+ffmpeg -hide_banner -y -start_number ${TAIL_H_IN} -i "${BASE_DIR}/oiio/sh030_001.%04d.exr" -vf "crop=in_w:in_h-2*${BORDERS}:0:${BORDERS}, pad=iw:ih+2*${BORDERS}:0:${BORDERS}:red,   drawtext=: text='%{frame_num}': rate=${FPS}: start_number=${TAIL_H_IN}: x=(w-tw)/2:y=h-th:fontcolor=white:fontsize=${BORDERS}, scale=iw:-1:force_original_aspect_ratio=1"   -start_number ${TAIL_H_IN} -frames:v ${TAIL_H} "${BASE_DIR}/ffmpeg/png/full/sh030_001.%04d.png"
+ffmpeg -hide_banner -y -start_number ${TAIL_H_IN} -i "${BASE_DIR}/oiio/sh030_001.%04d.exr" -vf "crop=in_w:in_h-2*${BORDERS}:0:${BORDERS}, pad=iw:ih+2*${BORDERS}:0:${BORDERS}:red,   drawtext=: text='%{frame_num}': rate=${FPS}: start_number=${TAIL_H_IN}: x=(w-tw)/2:y=h-th:fontcolor=white:fontsize=${BORDERS}, scale=iw/2:-1:force_original_aspect_ratio=1" -start_number ${TAIL_H_IN} -frames:v ${TAIL_H} "${BASE_DIR}/ffmpeg/png/half/sh030_001.%04d.png"
 
 # https://gist.github.com/aadm/661ff15f6b23f1d58c14c87c9a5ed9e0
 mkdir -p "${BASE_DIR}/ffmpeg/h264"
 mkdir -p "${BASE_DIR}/ffmpeg/h264/full"
 #ffmpeg -framerate ${FPS} -start_number ${START_F} -i "${BASE_DIR}/ffmpeg/sh030_001.%04d.png" -frames:v ${F_TOTAL} -vcodec h264 -c:v libx264 -pix_fmt yuv420p out.mp4
-ffmpeg -framerate ${FPS} -start_number ${START_F} -i "${BASE_DIR}/ffmpeg/png/full/sh030_001.%04d.png" -vcodec h264 -pix_fmt yuv420p "${BASE_DIR}/ffmpeg/h264/full/sh030_001.mp4"
+ffmpeg -hide_banner -y -framerate ${FPS} -start_number ${START_F} -i "${BASE_DIR}/ffmpeg/png/full/sh030_001.%04d.png" -vcodec h264 -pix_fmt yuv420p "${BASE_DIR}/ffmpeg/h264/full/sh030_001.mp4"
 
 # tw: text width
 # th: text height

@@ -1,0 +1,13 @@
+InitialStatus=Active
+BatchName=Batch: Test Production - SH030 - 4_1197-1214_4 - Rendering - sh030_001.blend - 033 - blender
+Name=Test Production - SH030 - 4_1197-1214_4 - Rendering - sh030_001.blend - 033 - blender
+Frames=1197-1214x10,1197-1214x5,1197-1214x2,1197-1214x1
+ChunkSize=1
+Plugin=CommandLine
+StartupDirectory=
+Comment=This is a new Bender job comment
+ForceReloadPlugin=True
+InitialStatus=Active
+OutputDirectory0=/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4
+OutputFilename0=sh030_001.####.exr
+BatchName=Batch: Test Production - SH030 - 4_1197-1214_4 - Rendering - sh030_001.blend - 033 - blender

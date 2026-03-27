@@ -5,22 +5,23 @@ from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.assets.subm
 
 
 # Asset Selections
-submit_jobs_job = AssetSelection.assets(
+submit_jobs_selection = AssetSelection.assets(
     AssetKey([*ASSET_HEADER_JOB_SUBMITTER["key_prefix"], "submit_job"]),
 )
 # ingest_jobs_job = AssetSelection.assets("ingest_job")
-read_job_py_job = AssetSelection.assets(
+read_job_selection = AssetSelection.assets(
     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_py"]),
+    AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"]),
 )
 
 
 submit_synced_jobs = define_asset_job(
     name="submit_jobs_job",
-    selection=submit_jobs_job,
+    selection=submit_jobs_selection,
 )
 
 
 ingest_synced_jobs = define_asset_job(
     name="read_job_py_job",
-    selection=read_job_py_job,
+    selection=read_job_selection,
 )

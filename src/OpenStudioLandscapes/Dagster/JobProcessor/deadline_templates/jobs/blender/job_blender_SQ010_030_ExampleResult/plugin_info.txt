@@ -1,0 +1,2 @@
+Executable=/data/share/rez-packages/packages/blender/4.1.1/blender
+Arguments="--background <QUOTE>"/data/share/AWSPortalRoot1/fixtures/blender/sh030_001.blend"<QUOTE> --render-output <QUOTE>"/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4/sh030_001.####.exr"<QUOTE> --render-format EXR --engine CYCLES --frame-start <STARTFRAME> --frame-end <ENDFRAME> --threads 0 --render-anim"

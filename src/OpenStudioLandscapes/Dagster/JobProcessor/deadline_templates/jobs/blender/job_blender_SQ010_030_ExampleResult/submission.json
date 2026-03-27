@@ -1,0 +1,34 @@
+{
+  "Jobs": [
+    {
+      "AuxiliaryFiles": [],
+      "JobDependencies": null,
+      "JobInfoFilePath": "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4/jobinfo_info.txt",
+      "PluginInfoFilePath": "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4/plugin_info.txt"
+    },
+    {
+      "AuxiliaryFiles": [],
+      "JobDependencies": [
+        "index://0"
+      ],
+      "JobInfoFilePath": "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4/draft/png/job_draft_png_info_job.txt",
+      "PluginInfoFilePath": "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4/draft/png/job_draft_png_info_plugin.txt"
+    },
+    {
+      "AuxiliaryFiles": [],
+      "JobDependencies": [
+        "index://0"
+      ],
+      "JobInfoFilePath": "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4/draft/mov/job_draft_mov_info_job.txt",
+      "PluginInfoFilePath": "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4/draft/mov/job_draft_mov_info_plugin.txt"
+    },
+    {
+      "AuxiliaryFiles": [],
+      "JobDependencies": [
+        "index://2"
+      ],
+      "JobInfoFilePath": "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4/kitsu/job_kitsu_publish_info_job.txt",
+      "PluginInfoFilePath": "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/033/4_1197-1214_4/kitsu/job_draft_kitsu_publish_info_plugin.txt"
+    }
+  ]
+}

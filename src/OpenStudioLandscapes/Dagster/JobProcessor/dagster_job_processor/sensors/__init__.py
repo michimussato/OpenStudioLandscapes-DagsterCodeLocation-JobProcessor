@@ -159,6 +159,59 @@ def ingestion_sensor(
     )
 
 
+@sensor(
+    job=ingest_synced_jobs,
+    default_status=settings.SENSORS_STATUS,
+    minimum_interval_seconds=15,
+)
+def ingestion_sensor_yaml(
+        context: SensorEvaluationContext,
+):
+    path_to_submission_files = pathlib.Path(CONFIG.INPUT_ROOT)
+
+    runs_to_request = []
+
+    moves = []
+
+    for job_yaml in path_to_submission_files.glob('*.y[a]ml'):
+
+        context.log.info(f'Checking {job_yaml}...')
+
+        context.log.info(f'Submission file is new: {job_yaml}...')
+
+        CONFIG.INPUT_ROOT_PROCESSED.mkdir(mode=0o777, exist_ok=True, parents=True)
+        output_file = CONFIG.INPUT_ROOT_PROCESSED / f'{datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S_%f")}_{job_yaml.name}'
+        # shutil.move(job_py, output_file)
+
+        context.log.info(f'{output_file = }...')
+        # context.log.info(f'{constants.INPUT_ROOT_PROCESSED = }...')
+        context.log.info(f'{job_yaml = }...')
+
+        runs_to_request.append(RunRequest(
+            # whether or not a run will skip is based on the run_key that was assigned to previous ones
+            run_key=f"ingested_jobs__{datetime.datetime.timestamp(datetime.datetime.now())}__{str(job_yaml).replace(os.sep, '__')}",
+            run_config={
+                "ops": {
+                    AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"]).to_python_identifier(): {
+                        "config": {
+                            "filename": str(output_file),
+                            }
+                        }
+                    }
+                }
+            )
+        )
+
+        moves.append({'src': job_yaml, 'dst': output_file})
+
+    for i in moves:
+        shutil.move(i['src'], i['dst'])
+
+    return SensorResult(
+        run_requests=runs_to_request,
+    )
+
+
 # Custom AutoMaterialize Sensor
 # https://docs.dagster.io/concepts/assets/asset-auto-execution#auto-materialize-sensors
 my_custom_auto_materialize_sensor = AutomationConditionSensorDefinition(

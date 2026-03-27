@@ -18,7 +18,7 @@ import json
 
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.config.models import DefaultConstants
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.resources import KitsuResource
-
+from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.jobs.job_base import JobBase
 
 # TODO
 #  rename to generate_job_submission_scripts
@@ -98,6 +98,44 @@ def read_job_py(
         metadata={
             # "__".join(context.asset_key.path): MetadataValue.json(job),
             "__".join(context.asset_key.path): MetadataValue.json(json.loads(json.dumps(job, indent=2, default=str))),
+        }
+    )
+
+
+@asset(
+    **ASSET_HEADER_JOB_PROCESSOR,
+    description="Parses the job file.",
+)
+def read_job_yaml(
+        context: AssetExecutionContext,
+        config: IngestJobConfig,
+) -> Generator[Output[JobBase] | AssetMaterialization | Any, Any, None]:
+
+    with open(config.filename) as fr:
+        job_ = yaml.safe_load(fr)
+
+    job_model: JobBase = JobBase(
+        **job_
+    )
+
+    parent = config.filename
+
+    spec = importlib.util.spec_from_file_location(str(pathlib.Path(parent).parent).replace(os.sep, '.'), parent)
+    module_from_spec = importlib.util.module_from_spec(spec)
+    sys.modules[str(pathlib.Path(parent).parent).replace(os.sep, '.')] = module_from_spec
+    spec.loader.exec_module(module_from_spec)
+    job = module_from_spec.job
+
+    job["job_file_py"] = config.filename
+
+    yield Output(job_model)
+
+    yield AssetMaterialization(
+        asset_key=context.asset_key,
+        metadata={
+            "__".join(context.asset_key.path): MetadataValue.md(
+                f"```yaml\n{yaml.safe_dump(json.loads(job_model.model_dump_json(fallback=str, indent=2)))}\n```"
+            ),
         }
     )
 
@@ -1025,7 +1063,11 @@ def job_info_file(
 
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
-    deps=["job_submission_tree"],
+    deps=[
+        # Todo:
+        #  - [ ] add full AssetKey
+        "job_submission_tree",
+    ],
     ins={
         "render_output_directory": AssetIn(),
         "combine_dicts": AssetIn(),
@@ -1598,6 +1640,37 @@ def job_kitsu_publish(
     # Todo:
     #  - [ ] Use gazu[cli] directly
     #        - [CLI](https://github.com/cgwire/gazu?tab=readme-ov-file#cli)
+    #          root@dagster:/dagster# gazu-cli --help
+    #          Usage: gazu-cli [OPTIONS] COMMAND [ARGS]...
+    #
+    #            Gazu CLI - Command-line client for the Kitsu API.
+    #
+    #          Options:
+    #            --json     Output as JSON.
+    #            --version  Show the version and exit.
+    #            --help     Show this message and exit.
+    #
+    #          Commands:
+    #            asset          Show details for an asset.
+    #            asset-types    List asset types.
+    #            assets         List assets for a project.
+    #            comment        Post a comment on a task (with status change).
+    #            episodes       List episodes for a project.
+    #            login          Log in to a Kitsu instance and store credentials.
+    #            logout         Log out and clear stored credentials.
+    #            my-tasks       List tasks assigned to current user.
+    #            persons        List all persons.
+    #            project        Show details for a project.
+    #            projects       List projects.
+    #            search         Search for entities across the Kitsu instance.
+    #            sequences      List sequences for a project.
+    #            shot-casting   Show casting (assets linked) for a shot.
+    #            shots          List shots for a project.
+    #            status         Show current connection status.
+    #            task           Show details for a task (by ID).
+    #            task-statuses  List task statuses.
+    #            task-types     List task types.
+    #            tasks          List tasks for a project.
     args.extend(['<QUOTE>/data/local/.openstudiolandscapes/.landscapes/.persistent/OpenStudioLandscapes-Deadline-10-2/data/opt/Thinkbox/DeadlineRepository10/custom/events/Kitsu/kitsu_submission_cli.py<QUOTE>'])
     args.extend(['--task-id', '<QUOTE>{}<QUOTE>'.format(combine_dicts["yaml_submission"]["kitsu_task"])])
     args.extend(['--comment', f'<QUOTE>'
@@ -1668,7 +1741,11 @@ def job_kitsu_publish(
 
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
-    deps=["paste_job_py"],
+    deps=[
+        # Todo:
+        #  - [ ] add full AssetKey
+        "paste_job_py",
+    ],
     ins={
         "render_output_directory": AssetIn(),
         "combine_dicts": AssetIn(),
