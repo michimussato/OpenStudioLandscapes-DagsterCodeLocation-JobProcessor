@@ -72,34 +72,34 @@ class IngestJobConfig(Config):
     filename: str
 
 
-@asset(
-    **ASSET_HEADER_JOB_PROCESSOR,
-    description="Parses the job file.",
-)
-def read_job_py(
-        context: AssetExecutionContext,
-        config: IngestJobConfig,
-) -> Generator[Output[Any] | AssetMaterialization | Any, Any, None]:
-
-    parent = config.filename
-
-    spec = importlib.util.spec_from_file_location(str(pathlib.Path(parent).parent).replace(os.sep, '.'), parent)
-    module_from_spec = importlib.util.module_from_spec(spec)
-    sys.modules[str(pathlib.Path(parent).parent).replace(os.sep, '.')] = module_from_spec
-    spec.loader.exec_module(module_from_spec)
-    job = module_from_spec.job
-
-    job["job_file_py"] = config.filename
-
-    yield Output(job)
-
-    yield AssetMaterialization(
-        asset_key=context.asset_key,
-        metadata={
-            # "__".join(context.asset_key.path): MetadataValue.json(job),
-            "__".join(context.asset_key.path): MetadataValue.json(json.loads(json.dumps(job, indent=2, default=str))),
-        }
-    )
+# @asset(
+#     **ASSET_HEADER_JOB_PROCESSOR,
+#     description="Parses the job file.",
+# )
+# def read_job_py(
+#         context: AssetExecutionContext,
+#         config: IngestJobConfig,
+# ) -> Generator[Output[Any] | AssetMaterialization | Any, Any, None]:
+#
+#     parent = config.filename
+#
+#     spec = importlib.util.spec_from_file_location(str(pathlib.Path(parent).parent).replace(os.sep, '.'), parent)
+#     module_from_spec = importlib.util.module_from_spec(spec)
+#     sys.modules[str(pathlib.Path(parent).parent).replace(os.sep, '.')] = module_from_spec
+#     spec.loader.exec_module(module_from_spec)
+#     job = module_from_spec.job
+#
+#     job["job_file_py"] = config.filename
+#
+#     yield Output(job)
+#
+#     yield AssetMaterialization(
+#         asset_key=context.asset_key,
+#         metadata={
+#             # "__".join(context.asset_key.path): MetadataValue.json(job),
+#             "__".join(context.asset_key.path): MetadataValue.json(json.loads(json.dumps(job, indent=2, default=str))),
+#         }
+#     )
 
 
 @asset(
