@@ -958,7 +958,9 @@ def job_title_str(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "job_title_str": AssetIn(),
+        "job_title_str": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title_str"]),
+        ),
     }
 )
 def batch_name(

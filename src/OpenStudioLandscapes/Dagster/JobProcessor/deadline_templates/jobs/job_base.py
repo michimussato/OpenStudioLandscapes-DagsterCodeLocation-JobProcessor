@@ -4,10 +4,10 @@ import uuid
 import enum
 from typing import Tuple
 
-from pydantic import BaseModel, Field
-from pydantic.v1 import PositiveInt, PositiveFloat
+from pydantic import BaseModel, Field, ConfigDict
 
-from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.plugin_base import PluginBase
+# from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.plugin_base import PluginBase
+from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins import Plugins
 
 
 class InitialStatuses(enum.StrEnum):
@@ -45,12 +45,15 @@ job: dict = {
 
 
 class JobBase(BaseModel):
+    # model_config = ConfigDict(arbitrary_types_allowed=True)
+
     job_file: os.PathLike = Field(
         default=None,
         description="The file to render",
         examples=["/server/scenes/blender/sh030_001.blend"]
     )
-    plugin_model: PluginBase = Field(
+    # plugin_model: PluginBase = Field(
+    plugin_model: Plugins = Field(
         default=None,
         description="The plugin model",
     )
