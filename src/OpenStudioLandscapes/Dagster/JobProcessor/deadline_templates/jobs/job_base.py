@@ -121,3 +121,7 @@ class JobBase(BaseModel):
         default=None,
         description="The kitsu task UUID",
     )
+    fps: float = Field(
+        default=25.0,
+        description="Frames per second",
+    )

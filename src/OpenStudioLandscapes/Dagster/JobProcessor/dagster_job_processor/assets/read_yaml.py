@@ -766,18 +766,18 @@ def props(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "read_job_py": AssetIn(),
-        "get_kitsu_task_dict": AssetIn(),
-        "CONFIG": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+        "get_kitsu_task_dict": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
+        ),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
         ),
     }
 )
 def fps(
         context: AssetExecutionContext,
-        read_job_py: dict,
         get_kitsu_task_dict: dict,
-        CONFIG: DefaultConstants,
+        job_model: JobBase,
 ) -> Generator[Output[float] | AssetMaterialization | Any, Any, None]:
 
     """
@@ -786,29 +786,31 @@ def fps(
     nb_frames = get_kitsu_task_dict["entity"]["nb_frames"]
     """
 
-    if bool(read_job_py["kitsu_task"]):
+    if bool(job_model.kitsu_task):
         if "error" in get_kitsu_task_dict:
             raise Exception(f"Kitsu task ID is set but can't get FPS from Kitsu for this shot:\n"
                             f"{get_kitsu_task_dict['error']}")
 
-    if "fps" in read_job_py:
-        if bool(read_job_py["fps"]):
-            fps = float(read_job_py["fps"])
+    # if bool(read_job_py["kitsu_task"]):
+    fps_job = job_model.fps
 
-    elif bool(read_job_py["kitsu_task"]):
-        fps = float(get_kitsu_task_dict["project"]["fps"])
-        if get_kitsu_task_dict["entity_type"]["name"] == "Shot":
-            if get_kitsu_task_dict["entity"]["data"] is not None:
-                fps = float(get_kitsu_task_dict["entity"]["data"]["fps"])
-    else:
-        fps = CONFIG.DEFAULT_FPS
+    fps_kitsu_project = float(get_kitsu_task_dict.get("project", {}).get("fps", 0))
 
-    yield Output(fps)
+    kitsu_entity_type = get_kitsu_task_dict.get("entity_type", {}).get("name", "Not defined")
+    fps_kitsu_shot = float(0)
+    if kitsu_entity_type == "Shot":
+        fps_kitsu_shot = float(get_kitsu_task_dict.get("entity", {}).get("data", {}).get("fps", 0))
+
+    yield Output(fps_job)
 
     yield AssetMaterialization(
         asset_key=context.asset_key,
         metadata={
-            "__".join(context.asset_key.path): MetadataValue.float(fps)
+            "__".join(context.asset_key.path): MetadataValue.float(fps_job),
+            "fps_job": MetadataValue.float(fps_job),
+            "fps_kitsu_project": MetadataValue.float(fps_kitsu_project),
+            "kitsu_entity_type": MetadataValue.text(kitsu_entity_type),
+            "fps_kitsu_shot": MetadataValue.float(fps_kitsu_shot),
         }
     )
 
