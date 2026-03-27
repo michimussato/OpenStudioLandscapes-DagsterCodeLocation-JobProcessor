@@ -2,6 +2,7 @@ import datetime
 import os
 import uuid
 import enum
+from typing import Tuple
 
 from pydantic import BaseModel, Field
 from pydantic.v1 import PositiveInt, PositiveFloat
@@ -123,5 +124,9 @@ class JobBase(BaseModel):
     )
     fps: float = Field(
         default=25.0,
+        description="Frames per second",
+    )
+    resolution: Tuple = Field(
+        default=(1920, 1080),
         description="Frames per second",
     )

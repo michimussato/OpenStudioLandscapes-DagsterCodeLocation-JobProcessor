@@ -422,26 +422,28 @@ def combine_dicts(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "read_job_py": AssetIn(),
         "get_kitsu_task_dict": AssetIn(),
         "show_name": AssetIn(),
         "task_name": AssetIn(),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
         ),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+        ),
     },
 )
 def render_version_directory(
         context: AssetExecutionContext,
-        read_job_py: dict,
         get_kitsu_task_dict: dict,
         show_name: str,
         task_name: str,
         CONFIG: DefaultConstants,
+        job_model: JobBase,
 ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
 
     # TODO: make this fail safe
-    if bool({read_job_py["kitsu_task"]}):
+    if bool(job_model.kitsu_task):
         entity_name = get_kitsu_task_dict["entity"]["name"]
     else:
         entity_name = "No Entity Name"
@@ -583,21 +585,25 @@ def render_output_directory(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "read_job_py": AssetIn(),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+        ),
     }
 )
 def job_title(
         context: AssetExecutionContext,
-        read_job_py: dict,
+        job_model: JobBase,
 ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
-    base, first_dot, rest = pathlib.Path(read_job_py["job_file"]).name.partition(".")
+
+    base, first_dot, rest = pathlib.Path(job_model.job_file).name.partition(".")
 
     yield Output(base)
 
     yield AssetMaterialization(
         asset_key=context.asset_key,
         metadata={
-            "__".join(context.asset_key.path): MetadataValue.text(base)
+            "__".join(context.asset_key.path): MetadataValue.text(base),
+            "job_file".join(context.asset_key.path): MetadataValue.path(job_model.job_file),
         }
     )
 
@@ -817,27 +823,29 @@ def fps(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "read_job_py": AssetIn(),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+        ),
     },
     description="Returns the output format of the render."
 )
 def output_format(
         context: AssetExecutionContext,
-        read_job_py: dict,
+        job_model: JobBase,
 ) -> Generator[Output[Any] | AssetMaterialization | Any, Any, None]:
 
-    if read_job_py["output_format"] is None:
-        raise ValueError("output_format is not defined.")
+    # if read_job_py["output_format"] is None:
+    #     raise ValueError("output_format is not defined.")
 
-    if read_job_py["output_format"] not in read_job_py["plugin_dict"]["submitter"]["output_formats_plugin"]:
-        raise ValueError(f"output_format is not supported: {read_job_py['output_format']}")
+    # if job_model.output_format not in read_job_py["plugin_dict"]["submitter"]["output_formats_plugin"]:
+    #     raise ValueError(f"output_format is not supported: {read_job_py['output_format']}")
 
-    yield Output(read_job_py["output_format"])
+    yield Output(job_model.output_format)
 
     yield AssetMaterialization(
         asset_key=context.asset_key,
         metadata={
-            "__".join(context.asset_key.path): MetadataValue.text(read_job_py["output_format"])
+            "__".join(context.asset_key.path): MetadataValue.text(job_model.output_format)
         }
     )
 
@@ -1523,43 +1531,34 @@ def resolution_draft(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "get_kitsu_task_dict": AssetIn(),
-        "read_job_py": AssetIn(),
-        "CONFIG": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+        "get_kitsu_task_dict": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
+        ),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
         ),
     }
 )
 def resolution(
         context: AssetExecutionContext,
         get_kitsu_task_dict: dict,
-        read_job_py: dict,
-        CONFIG: DefaultConstants,
+        job_model: JobBase,
 ) -> Generator[Output[tuple[int, ...] | None | tuple[int, int] | Any] | AssetMaterialization | Any, Any, None]:
 
-    resolution_project = get_kitsu_task_dict["project"]["resolution"]
-    resolution_shot = get_kitsu_task_dict["entity"]["data"]["resolution"]
+    resolution_job = job_model.resolution
 
-    resolution_manual = None
+    resolution_kitsu_project = tuple(int(i) for i in str(get_kitsu_task_dict.get("project", {}).get("resolution", "0x0")).split("x"))
+    resolution_kitsu_shot = tuple(int(i) for i in str(get_kitsu_task_dict.get("entity", {}).get("data", {}).get("resolution", "0x0")).split("x"))
 
-    if "resolution" in read_job_py:
-        resolution_manual = read_job_py["resolution"]
-
-    if bool(read_job_py["kitsu_task"]):
-        if get_kitsu_task_dict["entity_type"]["name"] == "Shot":
-            r = resolution_shot
-        else:
-            r = resolution_project
-        w_h = tuple(int(i) for i in str(r).split("x"))
-    else:
-        w_h = resolution_manual or CONFIG.DEFAULT_RESOLUTION
-
-    yield Output(w_h)
+    yield Output(resolution_job)
 
     yield AssetMaterialization(
         asset_key=context.asset_key,
         metadata={
-            "__".join(context.asset_key.path): MetadataValue.json(w_h)
+            "__".join(context.asset_key.path): MetadataValue.json(resolution_job),
+            "resolution_job": MetadataValue.json(resolution_job),
+            "resolution_kitsu_project": MetadataValue.json(resolution_kitsu_project),
+            "resolution_kitsu_shot": MetadataValue.json(resolution_kitsu_shot),
         }
     )
 
