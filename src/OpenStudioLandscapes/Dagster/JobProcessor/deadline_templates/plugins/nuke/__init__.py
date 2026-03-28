@@ -1,7 +1,7 @@
 from typing import List
 
 from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.plugin_base import PluginBase
-from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.jobs.job_base import job
+# from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.jobs.job_base import job
 
 
 # # plugin['submitter']['type'] = 'NukeSubmitter'
@@ -39,7 +39,7 @@ class PluginNukeBase(PluginBase):
         "--nukex",
         "-t",  # terminal only (no gui); if <script> is a .py file it will be executed
         "-f",  # render at full size (turns off proxy; use -p to force render at proxy)
-        "-X", f'{",".join(job["write_nodes"])}'
+        # "-X", f'{",".join(job["write_nodes"])}'
         "-F", "<STARTFRAME>-<ENDFRAME>",  # if bool(job["write_nodes"])
         "-x",
         "<QUOTE>{job_file}<QUOTE>",
