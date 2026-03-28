@@ -2473,6 +2473,9 @@ def job_kitsu_publish(
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
         ),
+        "get_task_url": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_task_url"])
+        ),
     },
 )
 def export_combined_dict(
@@ -2481,9 +2484,19 @@ def export_combined_dict(
         job_submission_tree: Dict,
         CONFIG: DefaultConstants,
         job_model: JobBase,
+        get_task_url: str,
 ) -> Generator[Output[Path] | AssetMaterialization | Any, Any, None]:
 
+    """
+    Before:
+    cat "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/037/4_1197-1254_4/combined_dict.json"
+
+    After
+    cat "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/045/4_0997-1104_4/combined_dict.json"
+    """
+
     job_model.farm_cmd = job_submission_tree
+    job_model.task_url = get_task_url
 
     out = render_output_directory / "combined_dict.json"
 

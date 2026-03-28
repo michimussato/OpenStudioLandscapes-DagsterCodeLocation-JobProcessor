@@ -75,6 +75,11 @@ class JobBase(BaseModel):
         description="The command to run to send the job to the render farm",
     )
 
+    task_url: str = Field(
+        default_factory=str,
+        description="The URL to the Kitsu task",
+    )
+
     plugin_model: Union[
         PluginBlender_4_1_1,
         PluginHoudini_19_5_805,
