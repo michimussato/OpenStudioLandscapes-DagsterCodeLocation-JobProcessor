@@ -1702,25 +1702,42 @@ def paste_job_py(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "combine_dicts": AssetIn(),
-        "render_output_directory": AssetIn(),
-        "render_output_filename": AssetIn(),
+        # "combine_dicts": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "combine_dicts"])
+        # ),
+        "render_output_directory": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
+        ),
+        "render_output_filename": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_filename"])
+        ),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+        ),
     }
 )
 def render_arguments(
         context: AssetExecutionContext,
-        combine_dicts: dict,
+        # combine_dicts: dict,
         render_output_directory: pathlib.Path,
         render_output_filename: dict,
+        job_model: JobBase,
 ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
-    args = combine_dicts["yaml_submission"]["plugin_dict"]["submitter"]["args"]
+    args = job_model.plugin_model.args
 
-    combine_dicts["yaml_submission"]["output_format"] = combine_dicts["yaml_submission"]["output_format"].upper()
+    # why output_format has to be capital here?
+    # combine_dicts["yaml_submission"]["output_format"] = combine_dicts["yaml_submission"]["output_format"].upper()
     render_output = str(render_output_directory / "raw" / render_output_filename["padding_command"])
 
     ret = " ".join(args).format(
         render_output=render_output,
-        **combine_dicts["yaml_submission"],
+        **json.loads(
+            job_model.model_dump_json(
+                fallback=str,
+            )
+        ),
+
+        # **combine_dicts["yaml_submission"],
     )
 
     yield Output(ret)
