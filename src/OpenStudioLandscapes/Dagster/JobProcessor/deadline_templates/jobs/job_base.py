@@ -70,6 +70,11 @@ class JobBase(BaseModel):
         description="The command to run to send the job to the render farm",
     )
 
+    farm_job_queued: bool = Field(
+        default=False,
+        description="The command to run to send the job to the render farm",
+    )
+
     plugin_model: Union[
         PluginBlender_4_1_1,
         PluginHoudini_19_5_805,

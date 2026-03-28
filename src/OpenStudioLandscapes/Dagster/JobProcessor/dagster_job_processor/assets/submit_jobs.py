@@ -53,7 +53,7 @@ def submit_job(
     try:
 
         proc = subprocess.Popen(
-            args=combine_dicts["deadline_cmd"]["deadline_cmd"],
+            args=combine_dicts["farm_cmd"]["deadline_cmd"],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT
         )

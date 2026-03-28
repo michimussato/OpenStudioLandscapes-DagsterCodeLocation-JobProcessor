@@ -7,7 +7,7 @@ from dagster import (
     sensor,
     SensorEvaluationContext,
     AssetSelection,
-    AutomationConditionSensorDefinition, DefaultSensorStatus,
+    AutomationConditionSensorDefinition,
 )
 
 import os
@@ -59,11 +59,11 @@ def submission_sensor(
             with open(combine_dict_path, 'r+') as f:
                 combined_dict = json.load(f)
 
-                if 'deadline_job_queued' not in combined_dict:
+                if 'farm_job_queued' not in combined_dict:
                     # current_state[str(file_path)] = str(combine_dict_path)
                     continue
-                elif 'deadline_job_queued' in combined_dict:
-                    if combined_dict['deadline_job_queued'] is True:
+                elif 'farm_job_queued' in combined_dict:
+                    if combined_dict['farm_job_queued'] is True:
                         # current_state[str(file_path)] = str(combine_dict_path)
                         continue
                     else:
@@ -94,7 +94,7 @@ def submission_sensor(
 
                             # This is just the Dagster Job, not the actual
                             # submission to deadline.
-                            combined_dict['deadline_job_queued'] = True
+                            combined_dict['farm_job_queued'] = True
 
                             f.seek(0)  # rewind
                             json.dump(combined_dict, f, ensure_ascii=False, indent=4)
