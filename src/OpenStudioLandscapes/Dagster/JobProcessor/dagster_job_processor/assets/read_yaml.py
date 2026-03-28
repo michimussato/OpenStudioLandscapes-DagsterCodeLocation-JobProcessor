@@ -1019,9 +1019,9 @@ def batch_name(
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
         ),
-        "render_output_filename": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_filename"])
-        ),
+        # "render_output_filename": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_filename"])
+        # ),
         "batch_name": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "batch_name"])
         ),
@@ -1036,7 +1036,7 @@ def batch_name(
 def props(
         context: AssetExecutionContext,
         render_output_directory: pathlib.Path,
-        render_output_filename: Dict,
+        # render_output_filename: Dict,
         batch_name: str,
         job_model: JobBase,
         # CONFIG: DefaultConstants,
@@ -1808,7 +1808,7 @@ def job_draft_mov(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
         ),
         "resolution": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "resolution"]),
         ),
     }
 )
