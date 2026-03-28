@@ -5,5 +5,5 @@ from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.nuke.p
 
 
 class Plugins(enum.Enum):
-    BLENDER_4_1_1 = PluginBlender_4_1_1()
-    NUKE_15_0 = PluginNuke_15_0()
+    BLENDER_4_1_1 = PluginBlender_4_1_1
+    NUKE_15_0 = PluginNuke_15_0

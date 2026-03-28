@@ -225,5 +225,5 @@ my_custom_auto_materialize_sensor = AutomationConditionSensorDefinition(
     "my_custom_auto_materialize_sensor",
     target=AssetSelection.all(include_sources=True),
     minimum_interval_seconds=15,
-    default_status=DefaultSensorStatus.RUNNING,
+    default_status=DefaultSensorStatus.STOPPED,
 )

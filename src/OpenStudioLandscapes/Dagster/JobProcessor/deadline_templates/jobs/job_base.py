@@ -56,6 +56,7 @@ class JobBase(BaseModel):
     plugin_model: Plugins = Field(
         default=None,
         description="The plugin model",
+        examples=[i.name for i in Plugins],
     )
     plugin_file: os.PathLike = Field(
         # This is probably not necessary anymore when working with YAML files
