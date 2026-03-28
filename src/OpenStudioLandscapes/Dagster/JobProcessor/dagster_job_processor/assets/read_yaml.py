@@ -4,7 +4,7 @@ import re
 import shutil
 import textwrap
 from pathlib import Path
-from typing import Any, Generator, Dict
+from typing import Any, Generator, Dict, List
 
 import yaml
 from dagster import (
@@ -1260,9 +1260,6 @@ def frames(
         frame_end_absolute: int,
         job_model: JobBase,
 ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
-
-    # frame_start_absolute =
-    # frame_end_absolute = combine_dicts["yaml_submission"]["frame_end"]
 
     # make sure we filter frame jumps according to the chunk_size
     # for nuke, render time could be way slower if it has
