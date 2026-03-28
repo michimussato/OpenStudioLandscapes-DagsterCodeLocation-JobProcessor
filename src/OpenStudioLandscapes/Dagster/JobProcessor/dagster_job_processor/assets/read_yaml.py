@@ -1016,26 +1016,34 @@ def batch_name(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "combine_dicts": AssetIn(),
-        "render_output_directory": AssetIn(),
-        "render_output_filename": AssetIn(),
-        "batch_name": AssetIn(),
+        "render_output_directory": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
+        ),
+        "render_output_filename": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_filename"])
+        ),
+        "batch_name": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "batch_name"])
+        ),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+        ),
     }
 )
 def props(
         context: AssetExecutionContext,
-        combine_dicts: dict,
         render_output_directory: pathlib.Path,
-        render_output_filename: dict,
+        render_output_filename: Dict,
         batch_name: str,
-) -> Generator[Output[list[str]] | AssetMaterialization | Any, Any, None]:
+        job_model: JobBase,
+) -> Generator[Output[List[str]] | AssetMaterialization | Any, Any, None]:
 
     props = [
-        ('Comment', f'{combine_dicts["yaml_submission"]["comment"]}'),  # TODO
+        ('Comment', f'{job_model.comment}'),  # TODO
         ('ForceReloadPlugin', True),
-        ('InitialStatus', combine_dicts["yaml_submission"]["deadline_initial_status"]),
+        ('InitialStatus', job_model.deadline_initial_status),
         ('OutputDirectory0', f'{render_output_directory}'),
-        ('OutputFilename0', f'{render_output_filename["padding_deadline"]}'),
+        ('OutputFilename0', f'{job_model.padding_deadline}'),
         ('BatchName', f'{batch_name}'),
         # This should not end up in plugin_info_file it seems: https://docs.thinkboxsoftware.com/products/deadline/10.1/1_User%20Manual/manual/manual-submission.html#job-info-ref-label
     ]
@@ -1231,27 +1239,37 @@ def frame_end_absolute(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "combine_dicts": AssetIn(),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+        ),
+        "frame_start_absolute": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_start_absolute"])
+        ),
+        "frame_end_absolute": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_end_absolute"])
+        ),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
         ),
     }
 )
 def frames(
         context: AssetExecutionContext,
-        combine_dicts: dict,
         CONFIG: DefaultConstants,
+        frame_start_absolute: int,
+        frame_end_absolute: int,
+        job_model: JobBase,
 ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
 
-    frame_start_absolute = combine_dicts["yaml_submission"]["frame_start"]
-    frame_end_absolute = combine_dicts["yaml_submission"]["frame_end"]
+    # frame_start_absolute =
+    # frame_end_absolute = combine_dicts["yaml_submission"]["frame_end"]
 
     # make sure we filter frame jumps according to the chunk_size
     # for nuke, render time could be way slower if it has
     # to be launched for every single frame
     # frame_jumps = [i for i in constants.FRAME_JUMPS if i <= combine_dicts["yaml_submission"]["chunk_size"]]
 
-    if combine_dicts["yaml_submission"]["chunk_size"] > 1:
+    if job_model.chunk_size > 1:
         frame_jumps = [min(CONFIG.FRAME_JUMPS)]
     else:
         frame_jumps = CONFIG.FRAME_JUMPS
