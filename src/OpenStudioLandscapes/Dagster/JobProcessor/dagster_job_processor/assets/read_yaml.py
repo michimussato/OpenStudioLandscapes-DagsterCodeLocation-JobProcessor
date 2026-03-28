@@ -502,7 +502,7 @@ def get_task_url(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "resolution"]),
         ),
         "job_model": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_model"])
         ),
         "get_kitsu_task_dict": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
@@ -515,7 +515,7 @@ def annotations_string(
         CONFIG: DefaultConstants,
         resolution: tuple,
         job_model: JobBase,
-        get_kitsu_task_dict: dict,
+        get_kitsu_task_dict: Dict,
 ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
     """Returns the annotations string for the Deadline Draft jobs as a MaterializeResult object in the JSON format."""
 
@@ -810,28 +810,40 @@ def render_output_filename(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "combine_dicts": AssetIn(),
-        "version": AssetIn(),
+        "version": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "version"]),
+        ),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+        ),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_model"])
+        ),
+        "render_version_directory": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_version_directory"])
+        ),
+        "get_kitsu_task_dict": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
         ),
     }
 )
 def render_output_directory(
         context: AssetExecutionContext,
-        combine_dicts: dict,
         version: str,
         CONFIG: DefaultConstants,
+        job_model: JobBase,
+        render_version_directory: pathlib.Path,
+        get_kitsu_task_dict: Dict,
 ) -> Generator[Output[Path] | AssetMaterialization | Any, Any, None]:
 
-    handles = combine_dicts["yaml_submission"]["handles"]
-    render_version_directory = pathlib.Path(combine_dicts["yaml_submission"]["render_version_directory"])
+    handles = job_model.handles
 
     _out = render_version_directory / version
 
-    if bool(combine_dicts["yaml_submission"]["kitsu_task"]):
-        if combine_dicts["entity_type"]["name"] == 'Shot':
-            _out = _out / f'{str(handles)}_{str(combine_dicts["yaml_submission"]["frame_start"]).zfill(CONFIG.PADDING)}-{str(combine_dicts["yaml_submission"]["frame_end"]).zfill(CONFIG.PADDING)}_{str(handles)}'  # _out.joinpath(f'')
+    if bool(job_model.kitsu_task):
+        entity_type = get_entity_type(get_kitsu_task_dict)
+        if entity_type == 'Shot':
+            _out = _out / f'{str(handles)}_{str(job_model.cut_in - job_model.handles).zfill(CONFIG.PADDING)}-{str(job_model.cut_out + job_model.handles).zfill(CONFIG.PADDING)}_{str(handles)}'  # _out.joinpath(f'')
 
     yield Output(_out)
 
