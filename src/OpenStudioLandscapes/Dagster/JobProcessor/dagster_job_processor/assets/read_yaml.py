@@ -2461,9 +2461,12 @@ def job_kitsu_publish(
         "paste_job_py",
     ],
     ins={
-        "render_output_directory": AssetIn(),
-        "combine_dicts": AssetIn(),
-        "job_submission_tree": AssetIn(),
+        "render_output_directory": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"]),
+        ),
+        "job_submission_tree": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_submission_tree"]),
+        ),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
         ),
@@ -2475,15 +2478,12 @@ def job_kitsu_publish(
 def export_combined_dict(
         context: AssetExecutionContext,
         render_output_directory: pathlib.Path,
-        combine_dicts: dict,
-        job_submission_tree: dict,
+        job_submission_tree: Dict,
         CONFIG: DefaultConstants,
         job_model: JobBase,
 ) -> Generator[Output[Path] | AssetMaterialization | Any, Any, None]:
 
     job_model.farm_cmd = job_submission_tree
-
-    combine_dicts["deadline_cmd"] = job_submission_tree
 
     out = render_output_directory / "combined_dict.json"
 
