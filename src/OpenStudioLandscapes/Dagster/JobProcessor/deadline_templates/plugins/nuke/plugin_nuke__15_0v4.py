@@ -6,5 +6,5 @@ from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.nuke i
 # plugin["submitter"]["executable"] = REZ_PACKAGES / "nuke" / "15.0v4" / "Nuke15.0"
 
 
-class PluginNuke_15_0(PluginNukeBase):
+class PluginNuke_15_0v4(PluginNukeBase):
     executable: os.PathLike = REZ_PACKAGES / "nuke" / "15.0v4" / "Nuke15.0"

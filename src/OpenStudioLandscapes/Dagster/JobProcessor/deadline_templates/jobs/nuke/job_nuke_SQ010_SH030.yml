@@ -1,0 +1,24 @@
+job_file: /data/share/AWSPortalRoot1/fixtures/nuke/fixture_v001.nk
+plugin_model:
+  PluginNuke_15_0v4: {}
+deadline_initial_status: Active
+kitsu_task: 9bb09bfa-0a97-40c6-a6e6-27405b198570  # SQ010 / SQ010_SH030  Layout  http://miniboss/productions/6c5dfed4-0f11-48f7-aba2-4d4d5cce85fc/shots/tasks/9bb09bfa-0a97-40c6-a6e6-27405b198570
+append_draft_job_png: true
+append_draft_job_mov: true
+with_kitsu_publish: true
+deadline_job_with_draft: true
+comment: This is Nuke job comment
+frame_start: 1051
+frame_end: 1100
+chunk_size: 10
+
+
+# Paste this file in
+# ${OPENSTUDIOLANDSCAPES__DAGSTER_JOBS_IN} (/data/share/in)
+#
+# After processing file
+# - https://dagster-mb.pangolin.openstudiolandscapes.cloud-ip.cc/locations/OpenStudioLandscapes-Dagster-JobProcessor%20Package%20Code%20Location/sensors/ingestion_sensor
+# Run command locally:
+# (because deadlinecommand is not available in OpenStudioLandscapes-Dagster image)
+#
+# /opt/Thinkbox/Deadline10/bin/deadlinecommand -SubmitMultipleJobsV2 -jsonfilepath "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/008/4_1197-1254_4/submission.json"

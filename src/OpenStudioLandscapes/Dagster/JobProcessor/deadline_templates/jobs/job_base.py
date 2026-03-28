@@ -7,6 +7,7 @@ from typing import Tuple, Union
 from pydantic import BaseModel, Field
 
 from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.blender.plugin_blender__4_1_1 import PluginBlender_4_1_1
+from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.nuke.plugin_nuke__15_0v4 import PluginNuke_15_0v4
 
 
 class InitialStatuses(enum.StrEnum):
@@ -53,6 +54,7 @@ class JobBase(BaseModel):
     )
     plugin_model: Union[
         PluginBlender_4_1_1,
+        PluginNuke_15_0v4,
     ] = Field(
         # default=None,
         description="The plugin model",
