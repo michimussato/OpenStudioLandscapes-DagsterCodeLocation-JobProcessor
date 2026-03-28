@@ -4,10 +4,10 @@ import uuid
 import enum
 from typing import Tuple
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field
 
 # from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.plugin_base import PluginBase
-from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.jobs.enum_plugins import Plugins
+from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.enum_plugins import Plugins
 
 
 class InitialStatuses(enum.StrEnum):
