@@ -2103,6 +2103,9 @@ def job_draft_png(
         "job_title_str": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title_str"]),
         ),
+        "job_title": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title"]),
+        ),
         "resolution_draft": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "resolution_draft"]),
         ),
@@ -2132,6 +2135,7 @@ def job_draft_mov(
         render_output_filename: Dict,
         batch_name: str,
         job_title_str: str,
+        job_title: str,
         resolution_draft: tuple,
         annotations_string: str,
         CONFIG: DefaultConstants,
