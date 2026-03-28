@@ -17,8 +17,6 @@ import json
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.config.models import DefaultConstants
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.resources import KitsuResource
 from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.jobs.job_base import JobBase
-from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.blender.plugin_blender__4_1_1 import \
-    PluginBlender_4_1_1
 
 # TODO
 #  rename to generate_job_submission_scripts
@@ -494,50 +492,63 @@ def get_task_url(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "combine_dicts": AssetIn(),
-        "version": AssetIn(),
+        "version": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "version"]),
+        ),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+        ),
+        "resolution": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "resolution"]),
+        ),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+        ),
+        "get_kitsu_task_dict": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
         ),
     },
 )
 def annotations_string(
         context: AssetExecutionContext,
-        combine_dicts: dict,
         version: str,
         CONFIG: DefaultConstants,
+        resolution: tuple,
+        job_model: JobBase,
+        get_kitsu_task_dict: dict,
 ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
     """Returns the annotations string for the Deadline Draft jobs as a MaterializeResult object in the JSON format."""
 
-    frame_start_absolute = combine_dicts["yaml_submission"]["frame_start"]
-    frame_end_absolute = combine_dicts["yaml_submission"]["frame_end"]
-    handles = combine_dicts["yaml_submission"]["handles"]
+    handles = job_model.handles
 
-    resolution = combine_dicts["yaml_submission"]["resolution"]
+    fps = job_model.fps
 
-    fps = combine_dicts["yaml_submission"]["fps"]
+    fi = job_model.cut_in
+    fo = job_model.cut_in
 
-    fi = frame_start_absolute + handles
-    fo = frame_end_absolute - handles
-
-    if bool(combine_dicts["yaml_submission"]["kitsu_task"]):
-        if combine_dicts["entity_type"]["name"] == "Shot":
-            fi = combine_dicts["entity"]["data"]["frame_in"]
-            fo = combine_dicts["entity"]["data"]["frame_out"]
+    fi_kitsu = 0
+    fo_kitsu = 0
+    if bool(job_model.kitsu_task):
+        if get_task_name(get_kitsu_task_dict) == "Shot":
+            fi_kitsu = get_kitsu_task_dict.get("entity", {}).get("data", {}).get("frame_in", 0)
+            fo_kitsu = get_kitsu_task_dict.get("entity", {}).get("data", {}).get("frame_out", 0)
 
     fi_fo = (fi, fo)
+
+    entity_name = get_entity_name(get_kitsu_task_dict)
+    task_name = get_task_name(get_kitsu_task_dict)
 
     rgb = 95
     draft_annotations_string = {
         "NorthWest": {
-            "text": f"{combine_dicts['entity']['name']}/{combine_dicts['task_type']['name']}",  # Todo: Add Sequence name to Shot if Shot and Shot is part of Sequence
+            "text": f"{entity_name}/{task_name}",  # Todo: Add Sequence name to Shot if Shot and Shot is part of Sequence
             "colorR": rgb,
             "colorG": rgb,
             "colorB": rgb,
             "type": ""
         },
         "NorthCenter": {
-            "text": f"{pathlib.Path(combine_dicts['yaml_submission']['job_file']).name}",
+            "text": f"{pathlib.Path(job_model.job_file).name}",
             "colorR": rgb,
             "colorG": rgb,
             "colorB": rgb,
@@ -556,7 +567,7 @@ def annotations_string(
             "type": ""
         },
         "SouthCenter": {
-            "text": f"{handles}_{str(fi_fo[0]).zfill(CONFIG.PADDING)}||{handles}_{str(frame_start_absolute + handles).zfill(CONFIG.PADDING)}|$frame|{str(frame_end_absolute - handles).zfill(CONFIG.PADDING)}_{handles}||{str(fi_fo[1]).zfill(CONFIG.PADDING)}_{handles} @{fps}",
+            "text": f"{handles}_{str(fi_fo[0]).zfill(CONFIG.PADDING)}||{handles}_{str(job_model.cut_in).zfill(CONFIG.PADDING)}|$frame|{str(job_model.cut_out).zfill(CONFIG.PADDING)}_{handles}||{str(fi_fo[1]).zfill(CONFIG.PADDING)}_{handles} @{fps}",
             "colorR": rgb,
             "colorG": rgb,
             "colorB": rgb,
@@ -577,7 +588,9 @@ def annotations_string(
         asset_key=context.asset_key,
         metadata={
             "__".join(context.asset_key.path): MetadataValue.json(draft_annotations_string),
-            "annotations_string": MetadataValue.text(json.dumps(draft_annotations_string))
+            "annotations_string": MetadataValue.text(json.dumps(draft_annotations_string)),
+            "cut_in_kitsu": MetadataValue.int(fi_kitsu),
+            "cut_out_kitsu": MetadataValue.int(fo_kitsu),
         }
     )
 
