@@ -7,7 +7,7 @@ from typing import Tuple
 from pydantic import BaseModel, Field, ConfigDict
 
 # from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.plugin_base import PluginBase
-from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins import Plugins
+from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.plugins import Plugins
 
 
 class InitialStatuses(enum.StrEnum):
