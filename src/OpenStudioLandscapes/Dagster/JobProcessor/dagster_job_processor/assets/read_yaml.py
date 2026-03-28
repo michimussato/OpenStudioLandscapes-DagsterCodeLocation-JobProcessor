@@ -1028,6 +1028,9 @@ def batch_name(
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
         ),
+        # "CONFIG": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+        # ),
     }
 )
 def props(
@@ -1036,6 +1039,7 @@ def props(
         render_output_filename: Dict,
         batch_name: str,
         job_model: JobBase,
+        # CONFIG: DefaultConstants,
 ) -> Generator[Output[List[str]] | AssetMaterialization | Any, Any, None]:
 
     props = [
@@ -1043,7 +1047,7 @@ def props(
         ('ForceReloadPlugin', True),
         ('InitialStatus', job_model.deadline_initial_status),
         ('OutputDirectory0', f'{render_output_directory}'),
-        ('OutputFilename0', f'{job_model.padding_deadline}'),
+        ('OutputFilename0', f'{job_model.plugin_model.padding_deadline}'),
         ('BatchName', f'{batch_name}'),
         # This should not end up in plugin_info_file it seems: https://docs.thinkboxsoftware.com/products/deadline/10.1/1_User%20Manual/manual/manual-submission.html#job-info-ref-label
     ]
@@ -1800,19 +1804,21 @@ def job_draft_mov(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "combine_dicts": AssetIn(),
         "CONFIG": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+        ),
+        "resolution": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
         ),
     }
 )
 def resolution_draft(
         context: AssetExecutionContext,
-        combine_dicts: dict,
         CONFIG: DefaultConstants,
+        resolution: tuple,
 ) -> Generator[Output[tuple[float | Any, ...]] | AssetMaterialization | Any, Any, None]:
 
-    resolution = combine_dicts["yaml_submission"]["resolution"]
+    # resolution = combine_dicts["yaml_submission"]["resolution"]
 
     ret = tuple(ti * CONFIG.RESOLUTION_DRAFT_SCALE for ti in resolution)
 
