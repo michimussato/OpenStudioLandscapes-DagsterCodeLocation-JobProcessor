@@ -1,5 +1,5 @@
 from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins import *
-from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.jobs.nuke.job_template_nuke import job
+from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.jobs.nuke.old.job_template_nuke import job
 from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.nuke.plugin_nuke__15_0v4 import plugin
 
 job["job_file"] = TEST_FIXTURES / "nuke" / "fixture_v001.nk"

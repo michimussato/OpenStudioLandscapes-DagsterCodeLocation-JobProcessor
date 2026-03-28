@@ -7,6 +7,7 @@ from typing import Tuple, Union
 from pydantic import BaseModel, Field
 
 from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.blender.plugin_blender__4_1_1 import PluginBlender_4_1_1
+from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.houdini.plugin_houdini__19_5_805 import PluginHoudini_19_5_805
 from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins.nuke.plugin_nuke__15_0v4 import PluginNuke_15_0v4
 
 
@@ -45,7 +46,6 @@ class OutputFormats(enum.StrEnum):
 
 
 class JobBase(BaseModel):
-    # model_config = ConfigDict(arbitrary_types_allowed=True)
 
     job_file: os.PathLike = Field(
         default=None,
@@ -57,19 +57,19 @@ class JobBase(BaseModel):
     )
     plugin_model: Union[
         PluginBlender_4_1_1,
+        PluginHoudini_19_5_805,
         PluginNuke_15_0v4,
     ] = Field(
-        # https://docs.pydantic.dev/latest/concepts/unions/#discriminated-unions-with-callable-discriminator
-        # default=None,
+        # Help on discriminator:
+        # - https://docs.pydantic.dev/latest/concepts/unions/#discriminated-unions-with-callable-discriminator
         description="The plugin model",
         discriminator="plugin_type",
-        # examples=[i.value for i in Plugins],
     )
-    plugin_file: os.PathLike = Field(
-        # This is probably not necessary anymore when working with YAML files
-        default=None,
-        description="The file that defines the plugin model",
-    )
+    # plugin_file: os.PathLike = Field(
+    #     # This is probably not necessary anymore when working with YAML files
+    #     default=None,
+    #     description="The file that defines the plugin model",
+    # )
     job_uuid: uuid.UUID = Field(
         default_factory=uuid.uuid4,
         exclude=True,

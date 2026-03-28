@@ -1,17 +1,16 @@
-job_file: /data/share/AWSPortalRoot1/fixtures/nuke/fixture_v001.nk
+job_file: /data/share/AWSPortalRoot1/fixtures/houdini/project/vivi_025.hip
 plugin_model:
-  plugin_type: PluginNuke_15_0v4
+  plugin_type: PluginHoudini_19_5_805
 deadline_initial_status: Active
-kitsu_task: 9bb09bfa-0a97-40c6-a6e6-27405b198570  # SQ010 / SQ010_SH030  Layout  http://miniboss/productions/6c5dfed4-0f11-48f7-aba2-4d4d5cce85fc/shots/tasks/9bb09bfa-0a97-40c6-a6e6-27405b198570
+kitsu_task: 9890944f-fe39-4408-baf3-bcd34dc9807d  # SQ010 / SQ010_SH020  Layout  http://miniboss/productions/6c5dfed4-0f11-48f7-aba2-4d4d5cce85fc/shots/tasks/9890944f-fe39-4408-baf3-bcd34dc9807d
 append_draft_job_png: true
 append_draft_job_mov: true
 with_kitsu_publish: true
 deadline_job_with_draft: true
-comment: This is Nuke job comment
-frame_start: 1051
-frame_end: 1100
-chunk_size: 10
-
+comment: This is Houdini job comment
+frame_start: 1001
+frame_end: 1010
+rop: /stage/usdrender_rop_camera2
 
 # Paste this file in
 # ${OPENSTUDIOLANDSCAPES__DAGSTER_JOBS_IN} (/data/share/in)
