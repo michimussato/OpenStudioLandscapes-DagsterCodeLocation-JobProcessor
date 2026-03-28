@@ -413,10 +413,8 @@ def read_job_yaml(
     context.log.debug(f"{config.filename = }")
 
     job_model: JobBase = JobBase(
-        **job_dict
-        **{
-              "job_file_yaml": config.filename,
-          }
+        **job_dict,
+        job_file_yaml=config.filename,
     )
 
     context.log.debug(f"{job_model = }")
