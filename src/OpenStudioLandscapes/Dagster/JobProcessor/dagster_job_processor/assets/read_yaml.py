@@ -1736,13 +1736,21 @@ def render_arguments(
         )
     )
 
+    plugin_model_dict = json.loads(
+        job_model.plugin_model.model_dump_json(
+            fallback=str,
+        )
+    )
+
     context.log.debug(f"{args = }")
     context.log.debug(f"{render_output = }")
     context.log.debug(f"{job_model_dict = }")
+    context.log.debug(f"{plugin_model_dict = }")
 
     ret = " ".join(args).format(
         render_output=render_output,
         **job_model_dict,
+        **plugin_model_dict,
     )
 
     yield Output(ret)
