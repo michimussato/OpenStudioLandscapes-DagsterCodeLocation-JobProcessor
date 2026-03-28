@@ -598,48 +598,48 @@ def annotations_string(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "get_kitsu_task_dict": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
-        ),
-        "get_task_url": AssetIn(),
+        # "get_kitsu_task_dict": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
+        # ),
+        # "get_task_url": AssetIn(),
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
         ),
-        "frame_start_absolute": AssetIn(),
-        "frame_end_absolute": AssetIn(),
-        "resolution": AssetIn(),
-        "show_name": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "show_name"])
-        ),
-        "job_title": AssetIn(),
-        "render_version_directory": AssetIn(),
-        "task_name": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "task_name"]),
-        ),
-        "fps": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "fps"]),
-        ),
-        "output_format": AssetIn(),
-        "CONFIG": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
-        ),
+        # "frame_start_absolute": AssetIn(),
+        # "frame_end_absolute": AssetIn(),
+        # "resolution": AssetIn(),
+        # "show_name": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "show_name"])
+        # ),
+        # "job_title": AssetIn(),
+        # "render_version_directory": AssetIn(),
+        # "task_name": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "task_name"]),
+        # ),
+        # "fps": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "fps"]),
+        # ),
+        # "output_format": AssetIn(),
+        # "CONFIG": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+        # ),
     },
 )
 def combine_dicts(
         context: AssetExecutionContext,
-        get_kitsu_task_dict: dict,
-        get_task_url: str,
+        # get_kitsu_task_dict: dict,
+        # get_task_url: str,
         job_model: JobBase,
-        frame_start_absolute: int,
-        frame_end_absolute: int,
-        resolution: tuple,
-        show_name: str,
-        job_title: str,
-        render_version_directory: str,
-        task_name: str,
-        fps: float,
-        output_format: str,
-        CONFIG: DefaultConstants,
+        # frame_start_absolute: int,
+        # frame_end_absolute: int,
+        # resolution: tuple,
+        # show_name: str,
+        # job_title: str,
+        # render_version_directory: str,
+        # task_name: str,
+        # fps: float,
+        # output_format: str,
+        # CONFIG: DefaultConstants,
 ) -> Generator[Output[dict] | AssetMaterialization | Any, Any, None]:
 
     read_job_py = job_model.model_dump()
@@ -1360,14 +1360,20 @@ def job_info_file(
         "job_submission_tree",
     ],
     ins={
-        "render_output_directory": AssetIn(),
+        "render_output_directory": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
+        ),
         "combine_dicts": AssetIn(),
+        # "job_model": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+        # ),
     }
 )
 def paste_job_py(
         context: AssetExecutionContext,
         render_output_directory: pathlib.Path,
         combine_dicts: dict,
+        # job_model: JobBase,
 ) -> Generator[Output[Path] | AssetMaterialization | Any, Any, None]:
 
     job_py = pathlib.Path(combine_dicts["yaml_submission"]["job_file_py"])
@@ -1896,6 +1902,9 @@ def resolution(
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
         ),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+        ),
     }
 )
 def job_kitsu_publish(
@@ -1908,6 +1917,7 @@ def job_kitsu_publish(
         batch_name: str,
         job_title_str: str,
         CONFIG: DefaultConstants,
+        job_model: JobBase,
 ) -> Generator[Output[dict[str, str]] | AssetMaterialization | Any, Any, None]:
     """
     The Kitsu-Publish Job
@@ -1918,7 +1928,7 @@ def job_kitsu_publish(
 
     extension = "mov"
 
-    handles = combine_dicts["yaml_submission"]["handles"]
+    handles = job_model.handles
     job_title = combine_dicts["yaml_submission"]["job_title"]
 
     # TODO this is needed to find the movie, but could be more elegant
