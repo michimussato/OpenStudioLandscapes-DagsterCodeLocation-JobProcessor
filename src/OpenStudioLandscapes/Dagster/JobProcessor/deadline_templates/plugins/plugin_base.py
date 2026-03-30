@@ -13,10 +13,15 @@ class PluginBase(BaseModel):
         default_factory=list,
     )
     padding_deadline: str = Field(
-        default="'#' * EVAL_PADDING",
+        default="'#' * EVAL_PADDING",  # Results in ####
         description="The padding character for Deadline",
     )
     padding_command: str = Field(
-        default="'#' * EVAL_PADDING",
+        default="'#' * EVAL_PADDING",  # Results in #####
+        description="The padding character for arbitrary commands",
+    )
+    padding_oiiotool: str = Field(
+        # default="'#' * EVAL_PADDING",
+        default="'%' + str(EVAL_PADDING).zfill(2) + 'd'",  # Results in '%04d'
         description="The padding character for arbitrary commands",
     )

@@ -1,10 +1,12 @@
 import enum
 import pathlib
 import re
+import shlex
 import shutil
 import textwrap
 from pathlib import Path
 from typing import Any, Generator, Dict, List
+from collections import namedtuple
 
 import yaml
 from dagster import (
@@ -17,6 +19,7 @@ import json
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.config.models import DefaultConstants
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.resources import KitsuResource
 from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.jobs.job_base import JobBase
+from OpenStudioLandscapes.Dagster_Streaming_Process import submit_cmds
 
 # TODO
 #  rename to generate_job_submission_scripts
@@ -1095,6 +1098,7 @@ def render_output_filename(
 
     padding_deadline = f"{job_model.plugin_model.padding_deadline}"
     padding_command = f"{job_model.plugin_model.padding_command}"
+    padding_oiiotool = f"{job_model.plugin_model.padding_oiiotool}"
 
     # # Don't uncomment
     # # Required to eval(padding_deadline) and eval(padding_command)
@@ -1104,6 +1108,7 @@ def render_output_filename(
     ret = {
         "padding_deadline": f"{job_title}.{eval(padding_deadline)}.{output_format}",
         "padding_command": f"{job_title}.{eval(padding_command)}.{output_format}",
+        "padding_oiiotool": f"{job_title}.{eval(padding_oiiotool)}.{output_format}",
     }
 
     yield Output(ret)
@@ -1663,6 +1668,81 @@ def job_info_file(
 
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
+    ins={
+        "render_output_directory": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
+        ),
+        "render_arguments": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_arguments"])
+        ),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+        ),
+    }
+)
+def plugin_info_file(
+        context: AssetExecutionContext,
+        render_output_directory: pathlib.Path,
+        render_arguments: str,
+        job_model: JobBase,
+) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
+
+    # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/manual-submission.html#plug-in-info-file
+    render_output_directory.mkdir(parents=True, exist_ok=True)
+    path = pathlib.Path(f"{render_output_directory}/plugin_info.txt")
+    with open(path, "w") as job_info_file:
+        job_info_file.write(f'Executable={job_model.plugin_model.executable.as_posix()}\n')
+        job_info_file.write(f'Arguments="{render_arguments}"\n')
+
+    yield Output(path)
+
+    yield AssetMaterialization(
+        asset_key=context.asset_key,
+        metadata={
+            "__".join(context.asset_key.path): MetadataValue.path(path)
+        }
+    )
+
+
+@asset(
+    **ASSET_HEADER_JOB_PROCESSOR,
+    deps=[
+        # Todo:
+        #  - [ ] add full AssetKey
+        "job_submission_tree",
+    ],
+    ins={
+        "job_info_file": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["job_info_file"], "render_output_directory"])
+        ),
+        "plugin_info_file": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["plugin_info_file"], "read_job_yaml"])
+        ),
+    }
+)
+def job_main(
+        context: AssetExecutionContext,
+        job_info_file: pathlib.Path,
+        plugin_info_file: pathlib.Path,
+) -> Generator[Output[Dict[str, str]] | AssetMaterialization | Any, Any, None]:
+
+    ret = {
+        "JobInfoFilePath": job_info_file.as_posix(),
+        "PluginInfoFilePath": plugin_info_file.as_posix(),
+    }
+
+    yield Output(ret)
+
+    yield AssetMaterialization(
+        asset_key=context.asset_key,
+        metadata={
+            "__".join(context.asset_key.path): MetadataValue.json(ret)
+        }
+    )
+
+
+@asset(
+    **ASSET_HEADER_JOB_PROCESSOR,
     deps=[
         # Todo:
         #  - [ ] add full AssetKey
@@ -1720,7 +1800,7 @@ def render_arguments(
         context: AssetExecutionContext,
         # combine_dicts: dict,
         render_output_directory: pathlib.Path,
-        render_output_filename: dict,
+        render_output_filename: Dict,
         job_model: JobBase,
 ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
     args = job_model.plugin_model.args
@@ -1769,50 +1849,6 @@ def render_arguments(
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
         ),
-        "render_arguments": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_arguments"])
-        ),
-        "job_model": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
-        ),
-    }
-)
-def plugin_info_file(
-        context: AssetExecutionContext,
-        render_output_directory: pathlib.Path,
-        render_arguments: str,
-        job_model: JobBase,
-) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
-
-    # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/manual-submission.html#plug-in-info-file
-    render_output_directory.mkdir(parents=True, exist_ok=True)
-    path = pathlib.Path(f"{render_output_directory}/plugin_info.txt")
-    with open(path, "w") as job_info_file:
-        job_info_file.write(f'Executable={job_model.plugin_model.executable.as_posix()}\n')
-        job_info_file.write(f'Arguments="{render_arguments}"\n')
-
-    yield Output(path)
-
-    yield AssetMaterialization(
-        asset_key=context.asset_key,
-        metadata={
-            "__".join(context.asset_key.path): MetadataValue.path(path)
-        }
-    )
-
-
-@asset(
-    **ASSET_HEADER_JOB_PROCESSOR,
-    ins={
-        "render_output_directory": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
-        ),
-        "job_info_file": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_info_file"])
-        ),
-        "plugin_info_file": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "plugin_info_file"])
-        ),
         "job_draft_png": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_draft_png"])
         ),
@@ -1828,18 +1864,20 @@ def plugin_info_file(
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
         ),
+        "job_main": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_main"])
+        ),
     }
 )
 def job_submission_tree(
         context: AssetExecutionContext,
         render_output_directory: pathlib.Path,
-        job_info_file: pathlib.Path,
-        plugin_info_file: pathlib.Path,
-        job_draft_png: dict,
-        job_draft_mov: dict,
-        job_kitsu_publish: dict,
+        job_draft_png: Dict,
+        job_draft_mov: Dict,
+        job_kitsu_publish: Dict,
         CONFIG: DefaultConstants,
         job_model: JobBase,
+        job_main: Dict[str, str],
 ) -> Generator[Output[dict[str, list[str]]] | AssetMaterialization | Any, Any, None]:
 
     ####
@@ -1868,8 +1906,7 @@ def job_submission_tree(
 
     job_dict_template = CONFIG.JOB_DICT_TEMPLATE
     job_dict_main = job_dict_template.copy()
-    job_dict_main["JobInfoFilePath"] = str(job_info_file)
-    job_dict_main["PluginInfoFilePath"] = str(plugin_info_file)
+    job_dict_main.update(job_main)
 
     i = 0
 
@@ -2534,3 +2571,100 @@ def export_combined_dict(
             "destination": MetadataValue.path(out.parent),
         }
     )
+
+
+@asset(
+    **ASSET_HEADER_JOB_PROCESSOR,
+    ins={
+        # "batch_name": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "batch_name"])
+        # ),
+        # "job_title_str": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title_str"])
+        # ),
+        "render_output_directory": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
+        ),
+        "render_output_filename": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_filename"])
+        ),
+        # "frames": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frames"])
+        # ),
+        # "props": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "props"])
+        # ),
+        # "job_model": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
+        # ),
+    }
+)
+def raw_to_oiio(
+        context: AssetExecutionContext,
+        # batch_name: str,
+        # job_title_str: str,
+        render_output_directory: pathlib.Path,
+        render_output_filename: Dict,
+        # frames: str,
+        # props: List,
+        # job_model: JobBase,
+) -> Generator[Output[Path] | AssetMaterialization | Any, Any, None]:
+    render_output_raw = pathlib.Path(render_output_directory / "raw" / render_output_filename["padding_command"])
+
+    # exrinfo "${BASE_DIR}/raw/sh030_001.${START_F}.exr"
+    proc_exrinfo_pre = [
+        shutil.which("exrinfo"),
+        render_output_raw.as_posix(),
+    ]
+
+    borders: int = 100
+    Resolution = namedtuple("resolution", ["x", "y"])
+    resolution = Resolution(x=960, y=540)
+
+    render_output_oiiotool_src = pathlib.Path(
+        render_output_directory / "raw" / render_output_filename["padding_oiiotool"])
+    render_output_oiiotool_dst = pathlib.Path(
+        render_output_directory / "oiio" / render_output_filename["padding_oiiotool"])
+
+    # oiiotool "${BASE_DIR}/raw/sh030_001.%04d.exr" --origin ${ORIGIN} --fullsize ${FULLSIZE} --create-dir -o "${BASE_DIR}/oiio/sh030_001.%04d.exr"
+    proc_oiiotool_expand_data_region = [
+        shutil.which("oiiotool"),
+        render_output_oiiotool_src.as_posix(),
+        "--origin", f"0+{borders}",
+        "--fullsize", f"{resolution.x}x{2 * borders + resolution.y}",
+        "--create-dir",
+        "-o", render_output_oiiotool_dst.as_posix()
+    ]
+
+    render_output_oiio = pathlib.Path(render_output_directory / "oiio" / render_output_filename["padding_command"])
+
+    # exrinfo "${BASE_DIR}/oiio/sh030_001.${START_F}.exr"
+    proc_exrinfo_post = [
+        shutil.which("exrinfo"),
+        render_output_oiio.as_posix(),
+    ]
+
+    cmds_oiio: List = [
+        proc_exrinfo_pre,
+        proc_oiiotool_expand_data_region,
+        proc_exrinfo_post,
+    ]
+
+    # log_records: List[str] = submit_cmds(
+    #     context=context,
+    #     cmds=cmds_oiio,
+    # )
+
+    yield Output(cmds_oiio)
+
+    yield AssetMaterialization(
+        asset_key=context.asset_key,
+        metadata={
+            "__".join(context.asset_key.path): MetadataValue.json(cmds_oiio),
+            "proc_exrinfo_pre": MetadataValue.text(shlex.join(proc_exrinfo_pre)),
+            "proc_oiiotool_expand_data_region": MetadataValue.text(shlex.join(proc_oiiotool_expand_data_region)),
+            "proc_exrinfo_post": MetadataValue.text(shlex.join(proc_exrinfo_post)),
+            # "log_records": MetadataValue.md(f"```shell\n{log_records}\n```"),
+        }
+    )
+
