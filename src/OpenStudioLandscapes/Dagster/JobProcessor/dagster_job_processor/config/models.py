@@ -22,6 +22,9 @@ Resources:
 """
 
 
+FRAME_JUMP_SERIES_LENGTH: int = 5
+
+
 from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.plugins import *
 
 class DefaultConstants(BaseModel):
@@ -47,7 +50,7 @@ class DefaultConstants(BaseModel):
         default=2,
     )
     FRAME_JUMPS: List[int] = Field(
-        default=[10, 5, 2, 1],
+        default=list(reversed([2**i for i in range(0, FRAME_JUMP_SERIES_LENGTH)])),
     )
     OUTPUT_FORMAT_DEFAULT: str = Field(
         default=[
