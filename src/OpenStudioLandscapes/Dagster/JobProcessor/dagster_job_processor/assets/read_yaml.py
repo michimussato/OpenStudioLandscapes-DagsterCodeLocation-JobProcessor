@@ -1768,7 +1768,7 @@ def job_main(
         ),
     }
 )
-def paste_job_py(
+def archive_job_py(
         context: AssetExecutionContext,
         render_output_directory: pathlib.Path,
         job_model: JobBase,
@@ -2509,9 +2509,7 @@ def job_kitsu_publish(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     deps=[
-        # Todo:
-        #  - [x] add full AssetKey
-        AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "paste_job_py"]),
+        AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "archive_job_py"]),
     ],
     ins={
         "render_output_directory": AssetIn(
