@@ -2753,7 +2753,7 @@ def raw_to_oiio(
         metadata={
             "__".join(context.asset_key.path): MetadataValue.json(cmds_oiio),
             "proc_exrinfo_pre_str": MetadataValue.md(proc_exrinfo_pre_str),
-            "proc_exrinfo_pre": MetadataValue.path(shlex.join(proc_exrinfo_pre)),
+            # "proc_exrinfo_pre": MetadataValue.path(shlex.join(proc_exrinfo_pre)),
             "proc_oiiotool_expand_data_region": MetadataValue.path(shlex.join(proc_oiiotool_expand_data_region)),
             "proc_exrinfo_post": MetadataValue.path(shlex.join(proc_exrinfo_post)),
             # "log_records": MetadataValue.md(f"```shell\n{log_records}\n```"),
