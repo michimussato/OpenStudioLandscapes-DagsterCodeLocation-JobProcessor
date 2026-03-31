@@ -2506,9 +2506,10 @@ def job_kitsu_publish(
 
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-    deps=[
-        AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "archive_job_yaml"]),
-    ],
+    # # This can fail if the job has already been archived
+    # deps=[
+    #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "archive_job_yaml"]),
+    # ],
     ins={
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"]),
@@ -2576,8 +2577,9 @@ def export_combined_dict(
         metadata={
             "__".join(context.asset_key.path): MetadataValue.path(out),
             "model_dict": MetadataValue.md(
-                f"```yaml\n{yaml.safe_dump(json.loads(json.dumps(model_dict, default=str, indent=CONFIG.JSON_INDENT)))}\n```"
+                f"```yaml\n{json.dumps(model_dict, default=str, indent=CONFIG.JSON_INDENT)}\n```"
             ),
+            # "model_dict": MetadataValue.json(model_dict),
             "destination": MetadataValue.path(out.parent),
         }
     )
