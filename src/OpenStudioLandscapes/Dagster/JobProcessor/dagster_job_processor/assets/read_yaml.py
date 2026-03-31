@@ -501,7 +501,7 @@ def get_task_url(
 
 
 @asset(
-    **ASSET_HEADER_JOB_PROCESSOR,
+    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     ins={
         "version": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "version"]),
@@ -1712,11 +1712,6 @@ def plugin_info_file(
 
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-    # deps=[
-    #     # Todo:
-    #     #  - [ ] add full AssetKey
-    #     "job_submission_tree",
-    # ],
     ins={
         "job_info_file": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_info_file"])
@@ -1751,8 +1746,8 @@ def job_main(
     **ASSET_HEADER_JOB_PROCESSOR,
     deps=[
         # Todo:
-        #  - [ ] add full AssetKey
-        AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_submission_tree"]),
+        #  - [x] add full AssetKey
+        AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_submission_tree"]),
     ],
     ins={
         "render_output_directory": AssetIn(
@@ -2021,7 +2016,7 @@ def job_submission_tree(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "resolution_draft"])
         ),
         "annotations_string": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "annotations_string"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "annotations_string"])
         ),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
@@ -2153,7 +2148,7 @@ def job_draft_png(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "resolution_draft"]),
         ),
         "annotations_string": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "annotations_string"]),
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "annotations_string"]),
         ),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
@@ -2505,8 +2500,8 @@ def job_kitsu_publish(
     **ASSET_HEADER_JOB_PROCESSOR,
     deps=[
         # Todo:
-        #  - [ ] add full AssetKey
-        "paste_job_py",
+        #  - [x] add full AssetKey
+        AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "paste_job_py"]),
     ],
     ins={
         "render_output_directory": AssetIn(
