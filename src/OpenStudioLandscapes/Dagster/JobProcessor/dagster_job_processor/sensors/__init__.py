@@ -19,7 +19,7 @@ from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor import sett
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.config.models import DefaultConstants
 # from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.assets.read_yaml import ASSET_HEADER_JOB_PROCESSOR
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.assets.read_yaml import ASSET_HEADER_JOB_PROCESSOR_READER
-from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.assets.submit_jobs import ASSET_HEADER_JOB_SUBMITTER
+from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.assets.submit_jobs import ASSET_HEADER_JOB_SUBMITTER_DEADLINE
 
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.jobs import submit_synced_jobs, ingest_synced_jobs_yaml
 
@@ -81,7 +81,7 @@ def submission_sensor(
                                 run_key=f"submit_synced_jobs_{str(file_path).replace(os.sep, '__')}",
                                 run_config={
                                     "ops": {
-                                        AssetKey([*ASSET_HEADER_JOB_SUBMITTER["key_prefix"], "submit_job"]).to_python_identifier(): {
+                                        AssetKey([*ASSET_HEADER_JOB_SUBMITTER_DEADLINE["key_prefix"], "submit_job"]).to_python_identifier(): {
                                             "config": {
                                                 "filename": str(file_path),
                                                 "combine_dict_path": str(combine_dict_path),

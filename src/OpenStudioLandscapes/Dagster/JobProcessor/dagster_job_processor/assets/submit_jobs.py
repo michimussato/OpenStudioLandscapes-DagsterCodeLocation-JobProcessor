@@ -14,14 +14,15 @@ from dagster import (
 
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.config.models import DefaultConstants
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.assets.read_yaml import ASSET_HEADER_JOB_PROCESSOR
+from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.assets.read_yaml import ASSET_HEADER_JOB_PROCESSOR_DEADLINE
 
 
-GROUP_JOB_SUBMITTER = "OpenStudioLandscapes_Dagster_JobSubmitter"
-KEY_JOB_SUBMITTER = [GROUP_JOB_SUBMITTER]
+GROUP_JOB_SUBMITTER_DEADLINE = "OpenStudioLandscapes_Dagster_JobSubmitter_Deadline"
+KEY_JOB_SUBMITTER_DEADLINE = [GROUP_JOB_SUBMITTER_DEADLINE]
 
-ASSET_HEADER_JOB_SUBMITTER = {
-    "group_name": GROUP_JOB_SUBMITTER,
-    "key_prefix": KEY_JOB_SUBMITTER,
+ASSET_HEADER_JOB_SUBMITTER_DEADLINE = {
+    "group_name": GROUP_JOB_SUBMITTER_DEADLINE,
+    "key_prefix": KEY_JOB_SUBMITTER_DEADLINE,
 }
 
 
@@ -31,14 +32,14 @@ class SubmitJobConfig(Config):
 
 
 @asset(
-    **ASSET_HEADER_JOB_SUBMITTER,
+    **ASSET_HEADER_JOB_SUBMITTER_DEADLINE,
     ins={
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
         ),
     },
     deps=[
-        AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "export_combined_dict"])
+        AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "export_combined_dict"])
     ]
 )
 def submit_job(

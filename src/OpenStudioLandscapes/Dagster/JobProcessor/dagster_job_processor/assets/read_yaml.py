@@ -2507,7 +2507,7 @@ def job_kitsu_publish(
 
 
 @asset(
-    **ASSET_HEADER_JOB_PROCESSOR,
+    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     deps=[
         # Todo:
         #  - [x] add full AssetKey
@@ -2579,6 +2579,9 @@ def export_combined_dict(
         asset_key=context.asset_key,
         metadata={
             "__".join(context.asset_key.path): MetadataValue.path(out),
+            "model_dict": MetadataValue.md(
+                f"```yaml\n{yaml.safe_dump(json.loads(model_dict.model_dump_json(fallback=str, indent=2)))}\n```"
+            ),
             "destination": MetadataValue.path(out.parent),
         }
     )
