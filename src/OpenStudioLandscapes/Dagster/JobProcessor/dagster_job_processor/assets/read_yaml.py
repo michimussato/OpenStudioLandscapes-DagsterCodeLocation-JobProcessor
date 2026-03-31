@@ -1755,8 +1755,6 @@ def job_main(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     deps=[
-        # Todo:
-        #  - [x] add full AssetKey
         AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_submission_tree"]),
     ],
     ins={
@@ -2578,7 +2576,7 @@ def export_combined_dict(
         metadata={
             "__".join(context.asset_key.path): MetadataValue.path(out),
             "model_dict": MetadataValue.md(
-                f"```yaml\n{yaml.safe_dump(json.loads(model_dict.model_dump_json(fallback=str, indent=2)))}\n```"
+                f"```yaml\n{yaml.safe_dump(json.loads(json.dumps(model_dict, default=str, indent=CONFIG.JSON_INDENT)))}\n```"
             ),
             "destination": MetadataValue.path(out.parent),
         }
