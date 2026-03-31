@@ -1768,7 +1768,7 @@ def job_main(
         ),
     }
 )
-def archive_job_py(
+def archive_job_yaml(
         context: AssetExecutionContext,
         render_output_directory: pathlib.Path,
         job_model: JobBase,
@@ -2509,7 +2509,7 @@ def job_kitsu_publish(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     deps=[
-        AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "archive_job_py"]),
+        AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "archive_job_yaml"]),
     ],
     ins={
         "render_output_directory": AssetIn(
