@@ -2637,7 +2637,7 @@ def raw_to_oiio(
 
     # exrinfo "${BASE_DIR}/raw/sh030_001.${START_F}.exr"
     proc_exrinfo_pre = [
-        shutil.which("exrinfo"),
+        shutil.which("exrinfo") or "exrinfo",  # avoid empty string if not in PATH
         render_output_raw.as_posix(),
     ]
 
@@ -2652,7 +2652,7 @@ def raw_to_oiio(
 
     # oiiotool "${BASE_DIR}/raw/sh030_001.%04d.exr" --origin ${ORIGIN} --fullsize ${FULLSIZE} --create-dir -o "${BASE_DIR}/oiio/sh030_001.%04d.exr"
     proc_oiiotool_expand_data_region = [
-        shutil.which("oiiotool"),
+        shutil.which("oiiotool") or "oiiotool",  # avoid empty string if not in PATH
         render_output_oiiotool_src.as_posix(),
         "--origin", f"0+{borders}",
         "--fullsize", f"{resolution.x}x{2 * borders + resolution.y}",
@@ -2664,7 +2664,7 @@ def raw_to_oiio(
 
     # exrinfo "${BASE_DIR}/oiio/sh030_001.${START_F}.exr"
     proc_exrinfo_post = [
-        shutil.which("exrinfo"),
+        shutil.which("exrinfo") or "exrinfo",  # avoid empty string if not in PATH
         render_output_oiio.as_posix(),
     ]
 
