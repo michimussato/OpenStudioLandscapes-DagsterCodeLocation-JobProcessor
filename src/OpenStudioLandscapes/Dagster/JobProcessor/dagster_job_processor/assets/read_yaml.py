@@ -1774,9 +1774,15 @@ def archive_job_yaml(
 
     job_yaml = job_model.job_file_yaml
 
-    shutil.move(job_yaml, render_output_directory)
+    try:
+        shutil.move(job_yaml, render_output_directory)
+    except FileNotFoundError as e:
+        context.log.warning(f"Job YAML file {job_yaml} not found: {e}")
 
     ret = pathlib.Path(render_output_directory) / job_yaml.name
+
+    if not ret.exists():
+        raise FileNotFoundError(f"Job YAML file {job_yaml.name} could not be found in {render_output_directory}")
 
     yield Output(ret)
 
