@@ -2681,7 +2681,7 @@ def raw_to_oiio(
 ) -> Generator[Output[Path] | AssetMaterialization | Any, Any, None]:
     # Doesn't work:
     # for i in {1197..1254}; do exrinfo "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/061/4_1197-1254_4/raw/sh030_001.${i}.exr"; done
-    render_output_raw = pathlib.Path(render_output_directory / "raw" / render_output_filename["padding_bash_expansion"])
+    # render_output_raw = pathlib.Path(render_output_directory / "raw" / render_output_filename["padding_bash_expansion"])
 
     # exrinfo "${BASE_DIR}/raw/sh030_001.${START_F}.exr"
 
@@ -2727,13 +2727,35 @@ def raw_to_oiio(
         "-o", render_output_oiiotool_dst.as_posix()
     ]
 
-    render_output_oiio = pathlib.Path(render_output_directory / "oiio" / render_output_filename["padding_bash_expansion"])
+    # render_output_oiio = pathlib.Path(render_output_directory / "oiio" / render_output_filename["padding_bash_expansion"])
+    #
+    # # exrinfo "${BASE_DIR}/oiio/sh030_001.${START_F}.exr"
+    # proc_exrinfo_post = [
+    #     shutil.which("exrinfo") or "exrinfo",  # avoid empty string if not in PATH
+    #     render_output_oiio.as_posix(),
+    # ]
 
-    # exrinfo "${BASE_DIR}/oiio/sh030_001.${START_F}.exr"
-    proc_exrinfo_post = [
-        shutil.which("exrinfo") or "exrinfo",  # avoid empty string if not in PATH
-        render_output_oiio.as_posix(),
-    ]
+    proc_exrinfo_post = []
+    for i in range(frame_start_absolute, frame_end_absolute + 1):
+        proc_exrinfo_post.append(
+            [
+                shutil.which("exrinfo") or "exrinfo",  # avoid empty string if not in PATH
+                pathlib.Path(render_output_directory / "oiio" / f"{job_title}.{i}.{output_format}").as_posix(),
+            ]
+        )
+
+    # proc_exrinfo_pre = [
+    #     shutil.which("exrinfo") or "exrinfo",  # avoid empty string if not in PATH
+    #     render_output_raw.as_posix(),
+    # ]
+
+    proc_exrinfo_post_str = ""
+    for cmd in proc_exrinfo_post:
+        proc_exrinfo_post_str += f"{shlex.join(cmd)};\n"
+
+    # log_records_pre: List[str] = submit_cmds(
+    #     context=context,
+    #
 
     cmds_oiio: List = [
         proc_exrinfo_pre,
@@ -2752,10 +2774,11 @@ def raw_to_oiio(
         asset_key=context.asset_key,
         metadata={
             "__".join(context.asset_key.path): MetadataValue.json(cmds_oiio),
-            "proc_exrinfo_pre_str": MetadataValue.md(proc_exrinfo_pre_str),
-            # "proc_exrinfo_pre": MetadataValue.path(shlex.join(proc_exrinfo_pre)),
+            "proc_exrinfo_pre_str": MetadataValue.md(f"```\n{proc_exrinfo_pre_str}\n```"),
             "proc_oiiotool_expand_data_region": MetadataValue.path(shlex.join(proc_oiiotool_expand_data_region)),
-            "proc_exrinfo_post": MetadataValue.path(shlex.join(proc_exrinfo_post)),
+            "proc_exrinfo_post_str": MetadataValue.md(f"```\n{proc_exrinfo_post_str}\n```"),
+            # "proc_exrinfo_pre": MetadataValue.path(shlex.join(proc_exrinfo_pre)),
+            # "proc_exrinfo_post": MetadataValue.path(shlex.join(proc_exrinfo_post)),
             # "log_records": MetadataValue.md(f"```shell\n{log_records}\n```"),
         }
     )
