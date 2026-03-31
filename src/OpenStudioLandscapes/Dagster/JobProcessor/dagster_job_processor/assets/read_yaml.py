@@ -41,7 +41,9 @@ ASSET_HEADER_JOB_PROCESSOR_READER = {
 }
 
 
-GROUP_JOB_PROCESSOR = "OpenStudioLandscapes_Dagster_JobProcessor"
+# Todo
+#  - [ ] Rename to _PREPROCESSOR
+GROUP_JOB_PROCESSOR = "OpenStudioLandscapes_Dagster_JobProcessor_PreProcessor"
 # KEY_CONSTANTS_DEFAULT = [GROUP_CONSTANTS_DEFAULT, "Constants"]
 KEY_JOB_PROCESSOR = [GROUP_JOB_PROCESSOR]
 
@@ -1773,6 +1775,9 @@ def archive_job_yaml(
 ) -> Generator[Output[Path] | AssetMaterialization | Any, Any, None]:
 
     job_yaml = job_model.job_file_yaml
+
+    if not render_output_directory.exists():
+        raise FileNotFoundError(f"Rendering output directory {render_output_directory} does not exist yet.")
 
     try:
         shutil.move(job_yaml, render_output_directory)
