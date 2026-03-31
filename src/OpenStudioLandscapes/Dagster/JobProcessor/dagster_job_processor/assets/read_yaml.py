@@ -1752,7 +1752,7 @@ def job_main(
     deps=[
         # Todo:
         #  - [ ] add full AssetKey
-        "job_submission_tree",
+        AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_submission_tree"]),
     ],
     ins={
         "render_output_directory": AssetIn(
