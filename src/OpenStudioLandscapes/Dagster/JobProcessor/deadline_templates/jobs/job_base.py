@@ -2,7 +2,7 @@ import datetime
 import pathlib
 import uuid
 import enum
-from typing import Tuple, Union, Dict
+from typing import Union, Dict, NamedTuple
 
 from pydantic import BaseModel, Field
 
@@ -20,6 +20,18 @@ class OutputFormats(enum.StrEnum):
     EXR = "exr"
     JPG = "jpg"
     TGA = "tga"
+
+class Resolution(NamedTuple):
+    x: int
+    y: int
+
+class WorkRange(NamedTuple):  # aka ShotRange
+    cut_in: int
+    cut_out: int
+
+class CutRange(NamedTuple):
+    cut_in: int
+    cut_out: int
 
 # job: dict = {
 #     "job_file": None,
@@ -162,7 +174,24 @@ class JobBase(BaseModel):
         default=25.0,
         description="Frames per second",
     )
-    resolution: Tuple = Field(
-        default=(1920, 1080),
-        description="Frames per second",
+    resolution: Resolution = Field(
+        default=Resolution(
+            x=1920,
+            y=1080,
+        ),
+        description="Resolution",
+    )
+    work_range: WorkRange = Field(
+        default=WorkRange(
+            cut_in=997,
+            cut_out=1104,
+        ),
+        description="Work range; shot range (includes handles)).",
+    )
+    cut_range: CutRange = Field(
+        default=CutRange(
+            cut_in=1001,
+            cut_out=1100,
+        ),
+        description="Cut range (excludes handles).",
     )
