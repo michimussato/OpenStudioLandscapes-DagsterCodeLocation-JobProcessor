@@ -2132,7 +2132,7 @@ def job_draft_png(
 
 
 @asset(
-    **ASSET_HEADER_JOB_PROCESSOR,
+    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     ins={
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"]),
