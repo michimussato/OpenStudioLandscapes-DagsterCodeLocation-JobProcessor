@@ -1862,7 +1862,7 @@ def render_arguments(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_draft_mov"])
         ),
         "job_kitsu_publish": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_kitsu_publish"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_kitsu_publish"])
         ),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
