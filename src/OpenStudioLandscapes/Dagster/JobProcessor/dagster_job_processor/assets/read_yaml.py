@@ -405,10 +405,6 @@ def read_job_yaml(
         config: IngestJobConfig,
 ) -> Generator[Output[JobBase] | AssetMaterialization | Any, Any, None]:
 
-    # temp = PluginBlender_4_1_1()
-    #
-    # context.log.debug(yaml.safe_dump(json.loads(temp.model_dump_json(fallback=str, indent=2))))
-
     with open(config.filename) as fr:
         job_dict = yaml.safe_load(fr)
 
@@ -1713,10 +1709,10 @@ def plugin_info_file(
     ],
     ins={
         "job_info_file": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["job_info_file"], "render_output_directory"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_info_file"])
         ),
         "plugin_info_file": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["plugin_info_file"], "read_job_yaml"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "plugin_info_file"])
         ),
     }
 )
