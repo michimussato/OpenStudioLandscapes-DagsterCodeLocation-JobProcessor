@@ -2717,6 +2717,7 @@ def raw_to_oiio(
     render_output_oiiotool_dst = pathlib.Path(
         render_output_directory / "oiio" / render_output_filename["padding_oiiotool"])
 
+    # Adjust dataWindow
     # oiiotool "${BASE_DIR}/raw/sh030_001.%04d.exr" --origin ${ORIGIN} --fullsize ${FULLSIZE} --create-dir -o "${BASE_DIR}/oiio/sh030_001.%04d.exr"
     proc_oiiotool_expand_data_region = [
         shutil.which("oiiotool") or "oiiotool",  # avoid empty string if not in PATH
@@ -2758,9 +2759,9 @@ def raw_to_oiio(
     #
 
     cmds_oiio: List = [
-        proc_exrinfo_pre,
+        *proc_exrinfo_pre,
         proc_oiiotool_expand_data_region,
-        proc_exrinfo_post,
+        *proc_exrinfo_post,
     ]
 
     # log_records: List[str] = submit_cmds(
