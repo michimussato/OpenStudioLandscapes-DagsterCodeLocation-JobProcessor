@@ -18,7 +18,7 @@ import json
 
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.config.models import DefaultConstants
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.resources import KitsuResource
-from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.jobs.job_base import JobBase
+from OpenStudioLandscapes.Dagster.JobProcessor.deadline_templates.jobs.job_base import JobBase, Resolution
 from OpenStudioLandscapes.Dagster_Streaming_Process import submit_cmds
 
 # TODO
@@ -50,6 +50,16 @@ KEY_JOB_PROCESSOR = [GROUP_JOB_PROCESSOR]
 ASSET_HEADER_JOB_PROCESSOR = {
     "group_name": GROUP_JOB_PROCESSOR,
     "key_prefix": KEY_JOB_PROCESSOR,
+}
+
+
+GROUP_JOB_PROCESSOR_PREPROCESSOR_KITSU = "OpenStudioLandscapes_Dagster_JobProcessor_PreProcessor"
+# KEY_CONSTANTS_DEFAULT = [GROUP_CONSTANTS_DEFAULT, "Constants"]
+KEY_JOB_PROCESSOR_PREPROCESSOR_KITSU = [GROUP_JOB_PROCESSOR_PREPROCESSOR_KITSU]
+
+ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU = {
+    "group_name": GROUP_JOB_PROCESSOR_PREPROCESSOR_KITSU,
+    "key_prefix": KEY_JOB_PROCESSOR_PREPROCESSOR_KITSU,
 }
 
 
@@ -453,7 +463,7 @@ def read_job_yaml(
 
 
 @asset(
-    **ASSET_HEADER_JOB_PROCESSOR,
+    **ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU,
     ins={
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
@@ -484,12 +494,16 @@ def get_kitsu_task_dict(
 
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
-    ins={"get_kitsu_task_dict": AssetIn()},
+    ins={
+        "get_kitsu_task_dict": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU["key_prefix"], "get_kitsu_task_dict"])
+        )
+    },
 )
 def get_task_url(
         context: AssetExecutionContext,
         kitsu_resource: KitsuResource,
-        get_kitsu_task_dict: dict,
+        get_kitsu_task_dict: Dict,
 ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
     """Returns a Kitsu task dict as a MaterializeResult object in the JSON format."""
 
@@ -528,7 +542,7 @@ def get_task_url(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
         ),
         "get_kitsu_task_dict": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU["key_prefix"], "get_kitsu_task_dict"])
         ),
     },
 )
@@ -536,7 +550,7 @@ def annotations_string(
         context: AssetExecutionContext,
         version: str,
         CONFIG: DefaultConstants,
-        resolution: tuple,
+        resolution: Resolution,
         job_model: JobBase,
         get_kitsu_task_dict: Dict,
 ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
@@ -597,7 +611,7 @@ def annotations_string(
             "type": ""
         },
         "SouthEast": {
-            "text": f"{resolution[0]}x{resolution[1]} (x{CONFIG.RESOLUTION_DRAFT_SCALE})",
+            "text": f"{resolution.x}x{resolution.y} (x{CONFIG.RESOLUTION_DRAFT_SCALE})",
             "colorR": rgb,
             "colorG": rgb,
             "colorB": rgb,
@@ -1007,7 +1021,7 @@ def annotations_string(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
         "get_kitsu_task_dict": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"]),
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU["key_prefix"], "get_kitsu_task_dict"])
         ),
         "show_name": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "show_name"]),
@@ -1025,7 +1039,7 @@ def annotations_string(
 )
 def render_version_directory(
         context: AssetExecutionContext,
-        get_kitsu_task_dict: dict,
+        get_kitsu_task_dict: Dict,
         show_name: str,
         task_name: str,
         CONFIG: DefaultConstants,
@@ -1155,7 +1169,7 @@ def render_output_filename(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_version_directory"])
         ),
         "get_kitsu_task_dict": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU["key_prefix"], "get_kitsu_task_dict"])
         ),
     }
 )
@@ -1219,13 +1233,13 @@ def job_title(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
         "get_kitsu_task_dict": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU["key_prefix"], "get_kitsu_task_dict"])
         ),
     }
 )
 def show_name(
         context: AssetExecutionContext,
-        get_kitsu_task_dict: dict,
+        get_kitsu_task_dict: Dict,
 ) -> Generator[Output[str | Any] | AssetMaterialization | Any, Any, None]:
 
     ret = (
@@ -1248,7 +1262,7 @@ def show_name(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
         "get_kitsu_task_dict": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU["key_prefix"], "get_kitsu_task_dict"])
         ),
     }
 )
@@ -1288,7 +1302,7 @@ def task_name(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "task_name"]),
         ),
         "get_kitsu_task_dict": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU["key_prefix"], "get_kitsu_task_dict"])
         ),
     }
 )
@@ -1299,7 +1313,7 @@ def job_title_str(
         job_model: JobBase,
         show_name: str,
         task_name: str,
-        get_kitsu_task_dict: dict,
+        get_kitsu_task_dict: Dict,
 ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
 
     entity_name = get_entity_name(get_kitsu_task_dict)
@@ -1398,7 +1412,7 @@ def props(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
         "get_kitsu_task_dict": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU["key_prefix"], "get_kitsu_task_dict"])
         ),
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
@@ -1407,7 +1421,7 @@ def props(
 )
 def fps(
         context: AssetExecutionContext,
-        get_kitsu_task_dict: dict,
+        get_kitsu_task_dict: Dict,
         job_model: JobBase,
 ) -> Generator[Output[float] | AssetMaterialization | Any, Any, None]:
 
@@ -1480,7 +1494,7 @@ def output_format(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
         "get_kitsu_task_dict": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU["key_prefix"], "get_kitsu_task_dict"])
         ),
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
@@ -1491,7 +1505,9 @@ def output_format(
     }
 )
 def frame_start_absolute(
-        # Todo: rename to `work_in`
+        # Todo:
+        #  - [ ] rename to `work_in`
+        #  - [ ] use `shot_range` instead?
         context: AssetExecutionContext,
         get_kitsu_task_dict: Dict,
         job_model: JobBase,
@@ -1530,7 +1546,7 @@ def frame_start_absolute(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
         "get_kitsu_task_dict": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU["key_prefix"], "get_kitsu_task_dict"])
         ),
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
@@ -1541,7 +1557,9 @@ def frame_start_absolute(
     }
 )
 def frame_end_absolute(
-        # Todo: rename to `work_out`
+        # Todo:
+        #  - [ ] rename to `work_out`
+        #  - [ ] use `shot_range` instead?
         context: AssetExecutionContext,
         get_kitsu_task_dict: Dict,
         job_model: JobBase,
@@ -1588,6 +1606,8 @@ def frame_end_absolute(
     }
 )
 def frames(
+        # Todo
+        #  - [ ] use `cut_range` and `shot_range`/`work_range` instead?
         context: AssetExecutionContext,
         CONFIG: DefaultConstants,
         frame_start_absolute: int,
@@ -2297,10 +2317,10 @@ def job_draft_mov(
 def resolution_draft(
         context: AssetExecutionContext,
         CONFIG: DefaultConstants,
-        resolution: tuple,
-) -> Generator[Output[tuple[float | Any, ...]] | AssetMaterialization | Any, Any, None]:
+        resolution: Resolution,
+) -> Generator[Output[Resolution] | AssetMaterialization | Any, Any, None]:
 
-    ret = tuple(ti * CONFIG.RESOLUTION_DRAFT_SCALE for ti in resolution)
+    ret = Resolution(*tuple(ti * CONFIG.RESOLUTION_DRAFT_SCALE for ti in resolution))
 
     yield Output(ret)
 
@@ -2316,7 +2336,7 @@ def resolution_draft(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
         "get_kitsu_task_dict": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_kitsu_task_dict"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU["key_prefix"], "get_kitsu_task_dict"])
         ),
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
@@ -2325,14 +2345,14 @@ def resolution_draft(
 )
 def resolution(
         context: AssetExecutionContext,
-        get_kitsu_task_dict: dict,
+        get_kitsu_task_dict: Dict,
         job_model: JobBase,
-) -> Generator[Output[tuple[int, ...] | None | tuple[int, int] | Any] | AssetMaterialization | Any, Any, None]:
+) -> Generator[Output[Resolution] | AssetMaterialization | Any, Any, None]:
 
-    resolution_job = job_model.resolution
+    resolution_job: Resolution = job_model.resolution
 
-    resolution_kitsu_project = tuple(int(i) for i in str(get_kitsu_task_dict.get("project", {}).get("resolution", "0x0")).split("x"))
-    resolution_kitsu_shot = tuple(int(i) for i in str(get_kitsu_task_dict.get("entity", {}).get("data", {}).get("resolution", "0x0")).split("x"))
+    resolution_kitsu_project = Resolution(*tuple(int(i) for i in str(get_kitsu_task_dict.get("project", {}).get("resolution", "0x0")).split("x")))
+    resolution_kitsu_shot = Resolution(*tuple(int(i) for i in str(get_kitsu_task_dict.get("entity", {}).get("data", {}).get("resolution", "0x0")).split("x")))
 
     yield Output(resolution_job)
 
