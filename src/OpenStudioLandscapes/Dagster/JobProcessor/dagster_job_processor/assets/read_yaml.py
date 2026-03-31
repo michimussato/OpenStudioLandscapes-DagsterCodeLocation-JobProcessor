@@ -2636,17 +2636,23 @@ def export_combined_dict(
         # "job_title_str": AssetIn(
         #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title_str"])
         # ),
-        # "job_title": AssetIn(
-        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title"])
-        # ),
-        # "output_format": AssetIn(
-        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "output_format"])
-        # ),
+        "job_title": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title"])
+        ),
+        "output_format": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "output_format"])
+        ),
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
         ),
         "render_output_filename": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_filename"])
+        ),
+        "frame_start_absolute": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_start_absolute"])
+        ),
+        "frame_end_absolute": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_end_absolute"])
         ),
         # "frames": AssetIn(
         #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frames"])
@@ -2663,21 +2669,44 @@ def raw_to_oiio(
         context: AssetExecutionContext,
         # batch_name: str,
         # job_title_str: str,
-        # job_title: str,
-        # output_format: str,
+        job_title: str,
+        output_format: str,
         render_output_directory: pathlib.Path,
         render_output_filename: Dict,
+        frame_start_absolute: int,
+        frame_end_absolute: int,
         # frames: str,
         # props: List,
         # job_model: JobBase,
 ) -> Generator[Output[Path] | AssetMaterialization | Any, Any, None]:
+    # Doesn't work:
+    # for i in {1197..1254}; do exrinfo "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/061/4_1197-1254_4/raw/sh030_001.${i}.exr"; done
     render_output_raw = pathlib.Path(render_output_directory / "raw" / render_output_filename["padding_bash_expansion"])
 
     # exrinfo "${BASE_DIR}/raw/sh030_001.${START_F}.exr"
-    proc_exrinfo_pre = [
-        shutil.which("exrinfo") or "exrinfo",  # avoid empty string if not in PATH
-        render_output_raw.as_posix(),
-    ]
+
+    proc_exrinfo_pre = []
+    for i in range(frame_start_absolute, frame_end_absolute + 1):
+        proc_exrinfo_pre.append(
+            [
+                shutil.which("exrinfo") or "exrinfo",  # avoid empty string if not in PATH
+                pathlib.Path(render_output_directory / "raw" / f"{job_title}.{i}.{output_format}"),
+            ]
+        )
+
+    # proc_exrinfo_pre = [
+    #     shutil.which("exrinfo") or "exrinfo",  # avoid empty string if not in PATH
+    #     render_output_raw.as_posix(),
+    # ]
+
+    proc_exrinfo_pre_str = ""
+    for cmd in proc_exrinfo_pre:
+        proc_exrinfo_pre_str += f"{shlex.join(cmd)};\n"
+
+    # log_records_pre: List[str] = submit_cmds(
+    #     context=context,
+    #     cmds=proc_exrinfo_pre,
+    # )
 
     borders: int = 100
     Resolution = namedtuple("resolution", ["x", "y"])
@@ -2723,6 +2752,7 @@ def raw_to_oiio(
         asset_key=context.asset_key,
         metadata={
             "__".join(context.asset_key.path): MetadataValue.json(cmds_oiio),
+            "proc_exrinfo_pre_str": MetadataValue.path(proc_exrinfo_pre_str),
             "proc_exrinfo_pre": MetadataValue.path(shlex.join(proc_exrinfo_pre)),
             "proc_oiiotool_expand_data_region": MetadataValue.path(shlex.join(proc_oiiotool_expand_data_region)),
             "proc_exrinfo_post": MetadataValue.path(shlex.join(proc_exrinfo_post)),
