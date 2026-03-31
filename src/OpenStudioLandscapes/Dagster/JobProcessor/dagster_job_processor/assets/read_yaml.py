@@ -1118,6 +1118,12 @@ def version(
         "output_format": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "output_format"])
         ),
+        "frame_start_absolute": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_start_absolute"])
+        ),
+        "frame_end_absolute": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_end_absolute"])
+        ),
     },
 )
 def render_output_filename(
@@ -1126,8 +1132,11 @@ def render_output_filename(
         job_model: JobBase,
         job_title: str,
         output_format: str,
-) -> Generator[Output[dict[str, str]] | AssetMaterialization | Any, Any, None]:
+        frame_start_absolute: int,
+        frame_end_absolute: int,
+) -> Generator[Output[Dict[str, str]] | AssetMaterialization | Any, Any, None]:
 
+    padding_bash_expansion = "{%i..%i}" % (frame_start_absolute, frame_end_absolute)
     padding_deadline = f"{job_model.plugin_model.padding_deadline}"
     padding_command = f"{job_model.plugin_model.padding_command}"
     padding_oiiotool = f"{job_model.plugin_model.padding_oiiotool}"
@@ -1138,6 +1147,7 @@ def render_output_filename(
     EVAL_PADDING = CONFIG.PADDING
 
     ret = {
+        "padding_bash_expansion": f"{job_title}.{padding_bash_expansion}.{output_format}",
         "padding_deadline": f"{job_title}.{eval(padding_deadline)}.{output_format}",
         "padding_command": f"{job_title}.{eval(padding_command)}.{output_format}",
         "padding_oiiotool": f"{job_title}.{eval(padding_oiiotool)}.{output_format}",
@@ -2626,6 +2636,12 @@ def export_combined_dict(
         # "job_title_str": AssetIn(
         #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title_str"])
         # ),
+        # "job_title": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title"])
+        # ),
+        # "output_format": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "output_format"])
+        # ),
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
         ),
@@ -2647,13 +2663,15 @@ def raw_to_oiio(
         context: AssetExecutionContext,
         # batch_name: str,
         # job_title_str: str,
+        # job_title: str,
+        # output_format: str,
         render_output_directory: pathlib.Path,
         render_output_filename: Dict,
         # frames: str,
         # props: List,
         # job_model: JobBase,
 ) -> Generator[Output[Path] | AssetMaterialization | Any, Any, None]:
-    render_output_raw = pathlib.Path(render_output_directory / "raw" / render_output_filename["padding_command"])
+    render_output_raw = pathlib.Path(render_output_directory / "raw" / render_output_filename["padding_bash_expansion"])
 
     # exrinfo "${BASE_DIR}/raw/sh030_001.${START_F}.exr"
     proc_exrinfo_pre = [
@@ -2680,7 +2698,7 @@ def raw_to_oiio(
         "-o", render_output_oiiotool_dst.as_posix()
     ]
 
-    render_output_oiio = pathlib.Path(render_output_directory / "oiio" / render_output_filename["padding_command"])
+    render_output_oiio = pathlib.Path(render_output_directory / "oiio" / render_output_filename["padding_bash_expansion"])
 
     # exrinfo "${BASE_DIR}/oiio/sh030_001.${START_F}.exr"
     proc_exrinfo_post = [
