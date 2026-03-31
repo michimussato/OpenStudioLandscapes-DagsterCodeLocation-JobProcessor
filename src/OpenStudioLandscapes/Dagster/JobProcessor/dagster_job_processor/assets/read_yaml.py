@@ -1702,11 +1702,11 @@ def plugin_info_file(
 
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
-    deps=[
-        # Todo:
-        #  - [ ] add full AssetKey
-        "job_submission_tree",
-    ],
+    # deps=[
+    #     # Todo:
+    #     #  - [ ] add full AssetKey
+    #     "job_submission_tree",
+    # ],
     ins={
         "job_info_file": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_info_file"])
