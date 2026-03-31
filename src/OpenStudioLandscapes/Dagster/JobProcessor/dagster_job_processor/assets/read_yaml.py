@@ -1136,7 +1136,7 @@ def render_output_filename(
         frame_end_absolute: int,
 ) -> Generator[Output[Dict[str, str]] | AssetMaterialization | Any, Any, None]:
 
-    padding_bash_expansion = "{%i..%i}" % (frame_start_absolute, frame_end_absolute)
+    # padding_bash_expansion = "{%i..%i}" % (frame_start_absolute, frame_end_absolute)
     padding_deadline = f"{job_model.plugin_model.padding_deadline}"
     padding_command = f"{job_model.plugin_model.padding_command}"
     padding_oiiotool = f"{job_model.plugin_model.padding_oiiotool}"
@@ -1147,7 +1147,7 @@ def render_output_filename(
     EVAL_PADDING = CONFIG.PADDING
 
     ret = {
-        "padding_bash_expansion": f"{job_title}.{padding_bash_expansion}.{output_format}",
+        # "padding_bash_expansion": f"{job_title}.{padding_bash_expansion}.{output_format}",
         "padding_deadline": f"{job_title}.{eval(padding_deadline)}.{output_format}",
         "padding_command": f"{job_title}.{eval(padding_command)}.{output_format}",
         "padding_oiiotool": f"{job_title}.{eval(padding_oiiotool)}.{output_format}",
@@ -2690,7 +2690,7 @@ def raw_to_oiio(
         proc_exrinfo_pre.append(
             [
                 shutil.which("exrinfo") or "exrinfo",  # avoid empty string if not in PATH
-                pathlib.Path(render_output_directory / "raw" / f"{job_title}.{i}.{output_format}"),
+                pathlib.Path(render_output_directory / "raw" / f"{job_title}.{i}.{output_format}").as_posix(),
             ]
         )
 
