@@ -1177,6 +1177,8 @@ def render_output_directory(
         if entity_type == 'Shot':
             _out = _out / f'{str(handles)}_{str(job_model.cut_in - job_model.handles).zfill(CONFIG.PADDING)}-{str(job_model.cut_out + job_model.handles).zfill(CONFIG.PADDING)}_{str(handles)}'  # _out.joinpath(f'')
 
+    _out.mkdir(parents=True, exist_ok=True)
+
     yield Output(_out)
 
     yield AssetMaterialization(
@@ -1652,7 +1654,7 @@ def job_info_file(
 ) -> Generator[Output[Path] | AssetMaterialization | Any, Any, None]:
 
     # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/manual-submission.html#job-info-file-options
-    render_output_directory.mkdir(parents=True, exist_ok=True)
+    # render_output_directory.mkdir(parents=True, exist_ok=True)
     path = render_output_directory / "jobinfo_info.txt"
 
     job_info_file_str = textwrap.dedent(
@@ -1706,7 +1708,7 @@ def plugin_info_file(
 ) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
 
     # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/manual-submission.html#plug-in-info-file
-    render_output_directory.mkdir(parents=True, exist_ok=True)
+    # render_output_directory.mkdir(parents=True, exist_ok=True)
     path = pathlib.Path(f"{render_output_directory}/plugin_info.txt")
     with open(path, "w") as job_info_file:
         job_info_file.write(f'Executable={job_model.plugin_model.executable.as_posix()}\n')
@@ -1989,7 +1991,7 @@ def job_submission_tree(
         i += 1
 
     # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/manual-submission.html#plug-in-info-file
-    render_output_directory.mkdir(parents=True, exist_ok=True)
+    # render_output_directory.mkdir(parents=True, exist_ok=True)
     submission_file = render_output_directory / CONFIG.SUBMISSION_JSON
     with open(submission_file, "w") as submit_v2:
         json.dump(multiple_jobs_v2_dict, submit_v2, ensure_ascii=False, indent=CONFIG.JSON_INDENT, sort_keys=True)
