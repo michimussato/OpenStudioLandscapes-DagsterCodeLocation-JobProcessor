@@ -1754,9 +1754,9 @@ def job_main(
 
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
-    deps=[
-        AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_submission_tree"]),
-    ],
+    # deps=[
+    #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_submission_tree"]),
+    # ],
     ins={
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
