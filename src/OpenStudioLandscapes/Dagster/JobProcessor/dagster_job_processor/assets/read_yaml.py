@@ -41,6 +41,16 @@ ASSET_HEADER_JOB_PROCESSOR = {
 }
 
 
+GROUP_JOB_PROCESSOR_DEADLINE = "OpenStudioLandscapes_Dagster_JobProcessor_Deadline"
+# KEY_CONSTANTS_DEFAULT = [GROUP_CONSTANTS_DEFAULT, "Constants"]
+KEY_JOB_PROCESSOR_DEADLINE = [GROUP_JOB_PROCESSOR_DEADLINE]
+
+ASSET_HEADER_JOB_PROCESSOR_DEADLINE = {
+    "group_name": GROUP_JOB_PROCESSOR_DEADLINE,
+    "key_prefix": KEY_JOB_PROCESSOR_DEADLINE,
+}
+
+
 """
 kitsu_task_dict example
 {
@@ -1324,7 +1334,7 @@ def batch_name(
 
 
 @asset(
-    **ASSET_HEADER_JOB_PROCESSOR,
+    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     ins={
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
@@ -1597,7 +1607,7 @@ def frames(
 
 
 @asset(
-    **ASSET_HEADER_JOB_PROCESSOR,
+    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     ins={
         "batch_name": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "batch_name"])
@@ -1612,7 +1622,7 @@ def frames(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frames"])
         ),
         "props": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "props"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "props"])
         ),
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
@@ -1663,7 +1673,7 @@ def job_info_file(
 
 
 @asset(
-    **ASSET_HEADER_JOB_PROCESSOR,
+    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     ins={
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
@@ -1701,7 +1711,7 @@ def plugin_info_file(
 
 
 @asset(
-    **ASSET_HEADER_JOB_PROCESSOR,
+    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     # deps=[
     #     # Todo:
     #     #  - [ ] add full AssetKey
@@ -1709,10 +1719,10 @@ def plugin_info_file(
     # ],
     ins={
         "job_info_file": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_info_file"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_info_file"])
         ),
         "plugin_info_file": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "plugin_info_file"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "plugin_info_file"])
         ),
     }
 )
@@ -1840,16 +1850,16 @@ def render_arguments(
 
 
 @asset(
-    **ASSET_HEADER_JOB_PROCESSOR,
+    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     ins={
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
         ),
         "job_draft_png": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_draft_png"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_draft_png"])
         ),
         "job_draft_mov": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_draft_mov"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_draft_mov"])
         ),
         "job_kitsu_publish": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_kitsu_publish"])
@@ -1861,7 +1871,7 @@ def render_arguments(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
         ),
         "job_main": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_main"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_main"])
         ),
     }
 )
@@ -1989,7 +1999,7 @@ def job_submission_tree(
 
 
 @asset(
-    **ASSET_HEADER_JOB_PROCESSOR,
+    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     ins={
         # "combine_dicts": AssetIn(),
         "render_output_directory": AssetIn(
@@ -2322,7 +2332,7 @@ def resolution(
 
 
 @asset(
-    **ASSET_HEADER_JOB_PROCESSOR,
+    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     ins={
         "render_arguments": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_arguments"])
@@ -2503,7 +2513,7 @@ def job_kitsu_publish(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"]),
         ),
         "job_submission_tree": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_submission_tree"]),
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_submission_tree"]),
         ),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
