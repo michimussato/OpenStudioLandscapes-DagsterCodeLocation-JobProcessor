@@ -17,7 +17,8 @@ import shutil
 
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor import settings
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.config.models import DefaultConstants
-from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.assets.read_yaml import ASSET_HEADER_JOB_PROCESSOR
+# from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.assets.read_yaml import ASSET_HEADER_JOB_PROCESSOR
+from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.assets.read_yaml import ASSET_HEADER_JOB_PROCESSOR_READER
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.assets.submit_jobs import ASSET_HEADER_JOB_SUBMITTER
 
 from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.jobs import submit_synced_jobs, ingest_synced_jobs_yaml
@@ -199,7 +200,7 @@ def ingestion_sensor_yaml(
                 run_key=f"ingested_jobs__{datetime.datetime.timestamp(datetime.datetime.now())}__{str(job_yaml).replace(os.sep, '__')}",
                 run_config={
                     "ops": {
-                        AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"]).to_python_identifier(): {
+                        AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"]).to_python_identifier(): {
                             "config": {
                                 "filename": str(output_file),
                                 }
