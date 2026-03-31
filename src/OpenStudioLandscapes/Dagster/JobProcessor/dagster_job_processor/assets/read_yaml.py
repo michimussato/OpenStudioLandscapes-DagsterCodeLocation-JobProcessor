@@ -2577,9 +2577,8 @@ def export_combined_dict(
         metadata={
             "__".join(context.asset_key.path): MetadataValue.path(out),
             "model_dict": MetadataValue.md(
-                f"```yaml\n{json.dumps(model_dict, default=str, indent=CONFIG.JSON_INDENT)}\n```"
+                f"```json\n{json.dumps(model_dict, default=str, indent=CONFIG.JSON_INDENT)}\n```"
             ),
-            # "model_dict": MetadataValue.json(model_dict),
             "destination": MetadataValue.path(out.parent),
         }
     )
