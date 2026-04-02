@@ -450,87 +450,88 @@ spec_buf_overlay.alpha_channel = 3
 text_overlay_buf = oiio.ImageBuf(spec_buf_overlay)
 
 text_border = 10
+handle_marker_height = 4
 overlay_text_size_frame = 24
 overlay_text_size_scaledown = 8
 
-pos = int(spec_buf_overlay.y + text_border) + overlay_text_size_frame
+pos_y = int(spec_buf_overlay.y + text_border) + overlay_text_size_frame + handle_marker_height
 oiio.ImageBufAlgo.render_text(
   text_overlay_buf,
   x=text_border,
   # y=int(spec_buf_overlay.full_height - (overlay_text_size_frame / 2)), 
-  y=pos,
+  y=pos_y,
   text=f"Frame: {frame}",
   fontsize=overlay_text_size_frame,
   textcolor=[1, 1, 1, 1]
 ) or print("error")
 
 overlay_text_size_camera = overlay_text_size_frame - overlay_text_size_scaledown
-pos += text_border + overlay_text_size_camera
+pos_y += text_border + overlay_text_size_camera
 oiio.ImageBufAlgo.render_text(
   text_overlay_buf,
-  x=10,
+  x=text_border,
   # y=int((spec_buf_overlay.full_height - overlay_text_size_camera) - (overlay_text_size_frame / 2)), 
-  y=pos,
+  y=pos_y,
   text=f"Camera: {camera}",
   fontsize=overlay_text_size_camera,
   textcolor=[1, 1, 1, 1]
 ) or print("error")
 
 overlay_text_size_resolution = overlay_text_size_frame - overlay_text_size_scaledown
-pos += text_border + overlay_text_size_resolution
+pos_y += text_border + overlay_text_size_resolution
 oiio.ImageBufAlgo.render_text(
   text_overlay_buf,
-  x=10,
+  x=text_border,
   # y=int((spec_buf_overlay.full_height - overlay_text_size_resolution) - (overlay_text_size_resolution / 2)), 
-  y=pos,
+  y=pos_y,
   text=f"Resolution: {resolution}",
   fontsize=overlay_text_size_resolution,
   textcolor=[1, 1, 1, 1]
 ) or print("error")
 
 overlay_text_size_rendertime = overlay_text_size_frame - overlay_text_size_scaledown
-pos += text_border + overlay_text_size_rendertime
+pos_y += text_border + overlay_text_size_rendertime
 oiio.ImageBufAlgo.render_text(
   text_overlay_buf,
-  x=10,
+  x=text_border,
   # y=int((spec_buf_overlay.full_height - overlay_text_size_resolution) - (overlay_text_size_resolution / 2)), 
-  y=pos,
+  y=pos_y,
   text=f"RenderTime: {render_time}",
   fontsize=overlay_text_size_rendertime,
   textcolor=[1, 1, 1, 1]
 ) or print("error")
 
 overlay_text_size_file = overlay_text_size_frame - overlay_text_size_scaledown
-pos += text_border + overlay_text_size_file
+pos_y += text_border + overlay_text_size_file
 oiio.ImageBufAlgo.render_text(
   text_overlay_buf,
-  x=10,
+  x=text_border,
   # y=int((spec_buf_overlay.full_height - overlay_text_size_resolution) - (overlay_text_size_resolution / 2)), 
-  y=pos,
+  y=pos_y,
   text=f"File: {file_}",
   fontsize=overlay_text_size_rendertime,
   textcolor=[1, 1, 1, 1]
 ) or print("error")
 
 overlay_text_size_show = overlay_text_size_frame - overlay_text_size_scaledown
-pos += text_border + overlay_text_size_show
+pos_y += text_border + overlay_text_size_show
 oiio.ImageBufAlgo.render_text(
   text_overlay_buf,
-  x=10,
+  x=text_border,
   # y=int((spec_buf_overlay.full_height - overlay_text_size_resolution) - (overlay_text_size_resolution / 2)), 
-  y=pos,
+  y=pos_y,
   text=f"Show: {raw_spec.getattribute('Show')}",
   fontsize=overlay_text_size_show,
   textcolor=[1, 1, 1, 1]
 ) or print("error")
 
 overlay_text_size_shot = overlay_text_size_frame - overlay_text_size_scaledown
-pos += text_border + overlay_text_size_shot
+pos_y += text_border + overlay_text_size_shot
 oiio.ImageBufAlgo.render_text(
   text_overlay_buf,
-  x=10,
+  x=text_border,
   # y=int((spec_buf_overlay.full_height - overlay_text_size_resolution) - (overlay_text_size_resolution / 2)), 
-  y=pos,
+  y=pos_y,
   text=f"Shot: {raw_spec.getattribute('Sequence')}_{raw_spec.getattribute('Shot')}",
   fontsize=overlay_text_size_shot,
   textcolor=[1, 1, 1, 1]
@@ -540,21 +541,31 @@ text_overlay_buf.write(pathlib.Path(
   "/home/michael/sh030_001.text_overlay.1197.exr"
 ).as_posix())
 
-# Overlay Handle
-box_height = 20
+# Overlay Handle Marker
 handle_overlay_buf = oiio.ImageBuf(spec_buf_overlay)
 frame_is_handle = False
 colors = {
-  True: [1,0,0,1],
-  False: [0,1,0,1]
+  True: [1, 0, 0, 1],
+  False: [0, 1, 0, 1]
 }
+# Top Marker
 oiio.ImageBufAlgo.render_box(
-  handle_overlay_buf, 
-  x1=0, 
-  y1=spec_buf_overlay.height - box_height, 
-  x2=spec_buf_overlay.width, 
-  y2=spec_buf_overlay.height, 
-  fill=True, 
+  handle_overlay_buf,
+  x1=0,
+  y1=0,
+  x2=spec_buf_overlay.width,
+  y2=handle_marker_height,
+  fill=True,
+  color=colors[frame_is_handle]
+) or print("error")
+# Bottom Marker
+oiio.ImageBufAlgo.render_box(
+  handle_overlay_buf,
+  x1=0,
+  y1=spec_buf_overlay.height - handle_marker_height,
+  x2=spec_buf_overlay.width,
+  y2=spec_buf_overlay.height,
+  fill=True,
   color=colors[frame_is_handle]
 ) or print("error")
 
