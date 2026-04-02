@@ -4,7 +4,6 @@ import re
 import shlex
 import shutil
 import textwrap
-from pathlib import Path
 from typing import Any, Generator, Dict, List
 from collections import namedtuple
 
@@ -1190,7 +1189,7 @@ def render_output_directory(
         job_model: JobBase,
         render_version_directory: pathlib.Path,
         get_kitsu_task_dict: Dict,
-) -> Generator[Output[Path] | AssetMaterialization | Any, Any, None]:
+) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
 
     handles = job_model.handles
 
@@ -1681,7 +1680,7 @@ def job_info_file(
         frames: str,
         props: List,
         job_model: JobBase,
-) -> Generator[Output[Path] | AssetMaterialization | Any, Any, None]:
+) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
 
     # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/manual-submission.html#job-info-file-options
     # render_output_directory.mkdir(parents=True, exist_ok=True)
@@ -1804,7 +1803,7 @@ def archive_job_yaml(
         context: AssetExecutionContext,
         render_output_directory: pathlib.Path,
         job_model: JobBase,
-) -> Generator[Output[Path] | AssetMaterialization | Any, Any, None]:
+) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
 
     job_yaml = job_model.job_file_yaml
 
@@ -2578,7 +2577,7 @@ def export_combined_dict(
         CONFIG: DefaultConstants,
         job_model: JobBase,
         get_task_url: str,
-) -> Generator[Output[Path] | AssetMaterialization | Any, Any, None]:
+) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
 
     """
     Before:
@@ -2783,4 +2782,3 @@ def raw_to_oiio(
             # "log_records": MetadataValue.md(f"```shell\n{log_records}\n```"),
         }
     )
-
