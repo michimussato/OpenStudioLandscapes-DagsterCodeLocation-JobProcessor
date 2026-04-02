@@ -406,6 +406,19 @@ import pathlib
 import OpenEXR
 
 
+# Todo:
+#  - [ ] Create CLI
+#  - [ ] Move to Dagster Code Location
+#  - [ ] Slate
+#        - https://partnerhelp.netflixstudios.com/hc/en-us/articles/360057627293-VFX-Slates-Overlays-Guidelines
+#        - https://editingtools.io/slate/
+#  - [ ] Countdown
+#        - https://pixabay.com/videos/search/movie%20countdown/
+#  - [ ] Black frames
+#  - [ ] Guides
+#        - https://ohiostate.pressbooks.pub/introfilm/chapter/cinematography-i/
+
+
 raw_render = pathlib.Path(
   "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/062/4_1197-1254_4/raw/sh030_001.1197.exr")
 header_data = OpenEXR.File(filename=raw_render.as_posix(), header_only=True)
@@ -436,11 +449,12 @@ file_ = raw_spec.getattribute("File")
 
 # Don't change anything to the raw_spec. 
 # Just set custom metadata.
-raw_spec["Show"] = "My Show"
-raw_spec["Sequence"] = "SQ030"
-raw_spec["Shot"] = "SH010"
-raw_spec["Version"] = "001"
-raw_spec["Author.email"] = "michimussato@gmail.com"
+raw_spec["openstudiolandscapes.show"] = "My Show"
+raw_spec["openstudiolandscapes.sequence"] = "SQ030"
+raw_spec["openstudiolandscapes.shot"] = "SH010"
+raw_spec["openstudiolandscapes.kitsu.task"] = "b0cfdac7-afa9-4382-a75d-3c80a388e136"
+raw_spec["openstudiolandscapes.version"] = "001"
+raw_spec["openstudiolandscapes.author.email"] = "michimussato@gmail.com"
 
 # Create overlay ImagaBuf
 spec_buf_overlay = raw_spec.copy()
@@ -449,126 +463,158 @@ spec_buf_overlay.channelnames = ("R", "G", "B", "A")
 spec_buf_overlay.alpha_channel = 3
 text_overlay_buf = oiio.ImageBuf(spec_buf_overlay)
 
+# Text settings
 text_border = 10
-handle_marker_height = 4
+text_spacing = 4
+handle_marker_height = 10
 overlay_text_size_frame = 24
 overlay_text_size_scaledown = 8
 
-pos_y = int(spec_buf_overlay.y + text_border) + overlay_text_size_frame + handle_marker_height
-oiio.ImageBufAlgo.render_text(
-  text_overlay_buf,
-  x=text_border,
-  # y=int(spec_buf_overlay.full_height - (overlay_text_size_frame / 2)), 
-  y=pos_y,
-  text=f"Frame: {frame}",
-  fontsize=overlay_text_size_frame,
-  textcolor=[1, 1, 1, 1]
-) or print("error")
+def add_overlay_text(
+        buf: oiio.ImageBuf,
+) -> None:
 
-overlay_text_size_camera = overlay_text_size_frame - overlay_text_size_scaledown
-pos_y += text_border + overlay_text_size_camera
-oiio.ImageBufAlgo.render_text(
-  text_overlay_buf,
-  x=text_border,
-  # y=int((spec_buf_overlay.full_height - overlay_text_size_camera) - (overlay_text_size_frame / 2)), 
-  y=pos_y,
-  text=f"Camera: {camera}",
-  fontsize=overlay_text_size_camera,
-  textcolor=[1, 1, 1, 1]
-) or print("error")
+  pos_y = int(spec_buf_overlay.y + text_border) + overlay_text_size_frame + handle_marker_height
+  oiio.ImageBufAlgo.render_text(
+    buf,
+    x=text_border,
+    # y=int(spec_buf_overlay.full_height - (overlay_text_size_frame / 2)), 
+    y=pos_y,
+    text=f"Frame: {frame}",
+    fontsize=overlay_text_size_frame,
+    textcolor=[1, 1, 1, 1]
+  ) or print("error")
 
-overlay_text_size_resolution = overlay_text_size_frame - overlay_text_size_scaledown
-pos_y += text_border + overlay_text_size_resolution
-oiio.ImageBufAlgo.render_text(
-  text_overlay_buf,
-  x=text_border,
-  # y=int((spec_buf_overlay.full_height - overlay_text_size_resolution) - (overlay_text_size_resolution / 2)), 
-  y=pos_y,
-  text=f"Resolution: {resolution}",
-  fontsize=overlay_text_size_resolution,
-  textcolor=[1, 1, 1, 1]
-) or print("error")
+  overlay_text_size_camera = overlay_text_size_frame - overlay_text_size_scaledown
+  pos_y += text_spacing + overlay_text_size_camera
+  oiio.ImageBufAlgo.render_text(
+    buf,
+    x=text_border,
+    # y=int((spec_buf_overlay.full_height - overlay_text_size_camera) - (overlay_text_size_frame / 2)), 
+    y=pos_y,
+    text=f"Camera: {camera}",
+    fontsize=overlay_text_size_camera,
+    textcolor=[1, 1, 1, 1]
+  ) or print("error")
 
-overlay_text_size_rendertime = overlay_text_size_frame - overlay_text_size_scaledown
-pos_y += text_border + overlay_text_size_rendertime
-oiio.ImageBufAlgo.render_text(
-  text_overlay_buf,
-  x=text_border,
-  # y=int((spec_buf_overlay.full_height - overlay_text_size_resolution) - (overlay_text_size_resolution / 2)), 
-  y=pos_y,
-  text=f"RenderTime: {render_time}",
-  fontsize=overlay_text_size_rendertime,
-  textcolor=[1, 1, 1, 1]
-) or print("error")
+  overlay_text_size_taskid = overlay_text_size_frame - overlay_text_size_scaledown
+  pos_y += text_spacing + overlay_text_size_taskid
+  oiio.ImageBufAlgo.render_text(
+    buf,
+    x=text_border,
+    # y=int((spec_buf_overlay.full_height - overlay_text_size_camera) - (overlay_text_size_frame / 2)), 
+    y=pos_y,
+    text=f"Task: {raw_spec.getattribute('openstudiolandscapes.kitsu.task')}",
+    fontsize=overlay_text_size_taskid,
+    textcolor=[1, 1, 1, 1]
+  ) or print("error")
 
-overlay_text_size_file = overlay_text_size_frame - overlay_text_size_scaledown
-pos_y += text_border + overlay_text_size_file
-oiio.ImageBufAlgo.render_text(
-  text_overlay_buf,
-  x=text_border,
-  # y=int((spec_buf_overlay.full_height - overlay_text_size_resolution) - (overlay_text_size_resolution / 2)), 
-  y=pos_y,
-  text=f"File: {file_}",
-  fontsize=overlay_text_size_rendertime,
-  textcolor=[1, 1, 1, 1]
-) or print("error")
+  overlay_text_size_resolution = overlay_text_size_frame - overlay_text_size_scaledown
+  pos_y += text_spacing + overlay_text_size_resolution
+  oiio.ImageBufAlgo.render_text(
+    buf,
+    x=text_border,
+    # y=int((spec_buf_overlay.full_height - overlay_text_size_resolution) - (overlay_text_size_resolution / 2)), 
+    y=pos_y,
+    text=f"Resolution: {resolution}",
+    fontsize=overlay_text_size_resolution,
+    textcolor=[1, 1, 1, 1]
+  ) or print("error")
 
-overlay_text_size_show = overlay_text_size_frame - overlay_text_size_scaledown
-pos_y += text_border + overlay_text_size_show
-oiio.ImageBufAlgo.render_text(
-  text_overlay_buf,
-  x=text_border,
-  # y=int((spec_buf_overlay.full_height - overlay_text_size_resolution) - (overlay_text_size_resolution / 2)), 
-  y=pos_y,
-  text=f"Show: {raw_spec.getattribute('Show')}",
-  fontsize=overlay_text_size_show,
-  textcolor=[1, 1, 1, 1]
-) or print("error")
+  overlay_text_size_rendertime = overlay_text_size_frame - overlay_text_size_scaledown
+  pos_y += text_spacing + overlay_text_size_rendertime
+  oiio.ImageBufAlgo.render_text(
+    buf,
+    x=text_border,
+    # y=int((spec_buf_overlay.full_height - overlay_text_size_resolution) - (overlay_text_size_resolution / 2)), 
+    y=pos_y,
+    text=f"RenderTime: {render_time}",
+    fontsize=overlay_text_size_rendertime,
+    textcolor=[1, 1, 1, 1]
+  ) or print("error")
 
-overlay_text_size_shot = overlay_text_size_frame - overlay_text_size_scaledown
-pos_y += text_border + overlay_text_size_shot
-oiio.ImageBufAlgo.render_text(
-  text_overlay_buf,
-  x=text_border,
-  # y=int((spec_buf_overlay.full_height - overlay_text_size_resolution) - (overlay_text_size_resolution / 2)), 
-  y=pos_y,
-  text=f"Shot: {raw_spec.getattribute('Sequence')}_{raw_spec.getattribute('Shot')}",
-  fontsize=overlay_text_size_shot,
-  textcolor=[1, 1, 1, 1]
-) or print("error")
+  overlay_text_size_file = overlay_text_size_frame - overlay_text_size_scaledown
+  pos_y += text_spacing + overlay_text_size_file
+  oiio.ImageBufAlgo.render_text(
+    buf,
+    x=text_border,
+    # y=int((spec_buf_overlay.full_height - overlay_text_size_resolution) - (overlay_text_size_resolution / 2)), 
+    y=pos_y,
+    text=f"File: {file_}",
+    fontsize=overlay_text_size_rendertime,
+    textcolor=[1, 1, 1, 1]
+  ) or print("error")
 
+  overlay_text_size_show = overlay_text_size_frame - overlay_text_size_scaledown
+  pos_y += text_spacing + overlay_text_size_show
+  oiio.ImageBufAlgo.render_text(
+    buf,
+    x=text_border,
+    # y=int((spec_buf_overlay.full_height - overlay_text_size_resolution) - (overlay_text_size_resolution / 2)), 
+    y=pos_y,
+    text=f"Show: {raw_spec.getattribute('openstudiolandscapes.show')}",
+    fontsize=overlay_text_size_show,
+    textcolor=[1, 1, 1, 1]
+  ) or print("error")
+
+  overlay_text_size_shot = overlay_text_size_frame - overlay_text_size_scaledown
+  pos_y += text_spacing + overlay_text_size_shot
+  oiio.ImageBufAlgo.render_text(
+    buf,
+    x=text_border,
+    # y=int((spec_buf_overlay.full_height - overlay_text_size_resolution) - (overlay_text_size_resolution / 2)), 
+    y=pos_y,
+    text=f"Shot: {raw_spec.getattribute('openstudiolandscapes.sequence')}_{raw_spec.getattribute('openstudiolandscapes.shot')}",
+    fontsize=overlay_text_size_shot,
+    textcolor=[1, 1, 1, 1]
+  ) or print("error")
+
+  return None
+
+
+add_overlay_text(text_overlay_buf)
 text_overlay_buf.write(pathlib.Path(
   "/home/michael/sh030_001.text_overlay.1197.exr"
 ).as_posix())
 
 # Overlay Handle Marker
 handle_overlay_buf = oiio.ImageBuf(spec_buf_overlay)
-frame_is_handle = False
+
+
+frame_is_handle = True
 colors = {
   True: [1, 0, 0, 1],
   False: [0, 1, 0, 1]
 }
-# Top Marker
-oiio.ImageBufAlgo.render_box(
-  handle_overlay_buf,
-  x1=0,
-  y1=0,
-  x2=spec_buf_overlay.width,
-  y2=handle_marker_height,
-  fill=True,
-  color=colors[frame_is_handle]
-) or print("error")
-# Bottom Marker
-oiio.ImageBufAlgo.render_box(
-  handle_overlay_buf,
-  x1=0,
-  y1=spec_buf_overlay.height - handle_marker_height,
-  x2=spec_buf_overlay.width,
-  y2=spec_buf_overlay.height,
-  fill=True,
-  color=colors[frame_is_handle]
-) or print("error")
 
+def add_overlay_handle(
+        buf: oiio.ImageBuf,
+) -> None:
+  # Top Marker
+  oiio.ImageBufAlgo.render_box(
+    buf,
+    x1=0,
+    y1=0,
+    x2=spec_buf_overlay.width,
+    y2=handle_marker_height,
+    fill=True,
+    color=colors[frame_is_handle]
+  ) or print("error")
+  # Bottom Marker
+  oiio.ImageBufAlgo.render_box(
+    buf,
+    x1=0,
+    y1=spec_buf_overlay.height - handle_marker_height,
+    x2=spec_buf_overlay.width,
+    y2=spec_buf_overlay.height,
+    fill=True,
+    color=colors[frame_is_handle]
+  ) or print("error")
+
+  return None
+
+
+add_overlay_handle(handle_overlay_buf)
 handle_overlay_buf.write(pathlib.Path(
   "/home/michael/sh030_001.handle_overlay.1197.exr"
 ).as_posix())
