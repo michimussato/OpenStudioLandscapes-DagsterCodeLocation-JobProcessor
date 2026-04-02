@@ -30,6 +30,8 @@ dependencies = [
     "dagster==1.9.11",
     "dagster-webserver",
     "gazu[cli]",
+    "OpenImageIO",
+    "OpenEXR",
     "OpenStudioLandscapes-Dagster-Streaming-Process @ git+https://github.com/michimussato/OpenStudioLandscapes-Dagster-Streaming-Process.git",
 ]
 
