@@ -32,7 +32,7 @@ dependencies = [
     "gazu[cli]",
 #    "OpenImageIO",
 #    "OpenEXR",
-#    "OpenStudioLandscapes-Dagster-Streaming-Process @ git+https://github.com/michimussato/OpenStudioLandscapes-Dagster-Streaming-Process.git",
+    "OpenStudioLandscapes.Dagster.StreamingProcess @ git+https://github.com/michimussato/OpenStudioLandscapes-Dagster-StreamingProcess.git",
 ]
 
 [project.optional-dependencies]
