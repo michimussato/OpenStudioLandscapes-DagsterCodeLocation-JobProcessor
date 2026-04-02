@@ -17,7 +17,7 @@ classifiers = [
     "Framework :: OpenStudioLandscapes",
     "Programming Language :: Python",
 ]
-name = "OpenStudioLandscapes.Dagster.JobProcessor"
+name = "OpenStudioLandscapes.DagsterCodeLocation.JobProcessor"
 dynamic = [
     "version",
 ]
@@ -32,7 +32,7 @@ dependencies = [
     "gazu[cli]",
 #    "OpenImageIO",
 #    "OpenEXR",
-    "OpenStudioLandscapes.Dagster.StreamingProcess @ git+https://github.com/michimussato/OpenStudioLandscapes-Dagster-StreamingProcess.git",
+    "OpenStudioLandscapes.DagsterCodeLocation.StreamingProcess @ git+https://github.com/michimussato/OpenStudioLandscapes-DagsterCodeLocation-StreamingProcess.git",
 ]
 
 [project.optional-dependencies]
@@ -46,12 +46,12 @@ content-type = "text/markdown; charset=UTF-8"
 file = "README.md"
 
 [project.urls]
-Homepage = "https://github.com/michimussato/OpenStudioLandscapes-Dagster-JobProcessor"
+Homepage = "https://github.com/michimussato/OpenStudioLandscapes-DagsterCodeLocation-JobProcessor"
 
 [tool.dagster]
-module_name = "OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.definitions"
+module_name = "OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.definitions"
 working_directory = "src"
-project_name = "OpenStudioLandscapes-Dagster-JobProcessor"
+project_name = "OpenStudioLandscapes-DagsterCodeLocation-JobProcessor"
 
 #[tool.setuptools]
 #include-package-data = true
@@ -64,7 +64,7 @@ project_name = "OpenStudioLandscapes-Dagster-JobProcessor"
 #    "tests",
 #]
 #include = [
-#    "OpenStudioLandscapes.Dagster.JobProcessor"
+#    "OpenStudioLandscapes.DagsterCodeLocation.JobProcessor"
 #]
 #namespaces = true
 #where = [
@@ -74,7 +74,7 @@ project_name = "OpenStudioLandscapes-Dagster-JobProcessor"
 [tool.setuptools]
 include-package-data = true
 #packages = [
-#    "OpenStudioLandscapes.Dagster.JobProcessor",
+#    "OpenStudioLandscapes.DagsterCodeLocation.JobProcessor",
 #]
 platforms = [
     "Linux",
@@ -85,7 +85,7 @@ exclude = [
 ]
 namespaces = true
 where = [
-    "src/",
+    "src",
 ]
-#include = ["OpenStudioLandscapes.Dagster.JobProcessor"]
-include = ["JobProcessor"]
+#include = ["OpenStudioLandscapes.DagsterCodeLocation.JobProcessor"]
+include = ["OpenStudioLandscapes.DagsterCodeLocation.*"]
