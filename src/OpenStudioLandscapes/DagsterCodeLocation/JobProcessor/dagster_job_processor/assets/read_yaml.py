@@ -18,7 +18,7 @@ import json
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.config.models import DefaultConstants
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.resources import KitsuResource
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.jobs.job_base import JobBase, Resolution
-from OpenStudioLandscapes.DagsterCodeLocation.StreamingProcess import submit_cmds
+# from OpenStudioLandscapes.DagsterCodeLocation.StreamingProcess import submit_cmds
 
 # TODO
 #  rename to generate_job_submission_scripts
@@ -30,7 +30,7 @@ group_name = "DEADLINE_GENERATE_JOB_SCRIPTS"
 test_jobs = ["blender", "houdini", "nuke"][0]
 
 
-GROUP_JOB_PROCESSOR_READER = "OpenStudioLandscapes_Dagster_JobProcessor_Reader"
+GROUP_JOB_PROCESSOR_READER = "OpenStudioLandscapes_DagsterCodeLocation_JobProcessor_Reader"
 # KEY_CONSTANTS_DEFAULT = [GROUP_CONSTANTS_DEFAULT, "Constants"]
 KEY_JOB_PROCESSOR_READER = [GROUP_JOB_PROCESSOR_READER]
 
@@ -42,7 +42,7 @@ ASSET_HEADER_JOB_PROCESSOR_READER = {
 
 # Todo
 #  - [ ] Rename to _PREPROCESSOR
-GROUP_JOB_PROCESSOR = "OpenStudioLandscapes_Dagster_JobProcessor_PreProcessor"
+GROUP_JOB_PROCESSOR = "OpenStudioLandscapes_DagsterCodeLocation_JobProcessor_PreProcessor"
 # KEY_CONSTANTS_DEFAULT = [GROUP_CONSTANTS_DEFAULT, "Constants"]
 KEY_JOB_PROCESSOR = [GROUP_JOB_PROCESSOR]
 
@@ -52,7 +52,7 @@ ASSET_HEADER_JOB_PROCESSOR = {
 }
 
 
-GROUP_JOB_PROCESSOR_PREPROCESSOR_KITSU = "OpenStudioLandscapes_Dagster_JobProcessor_Kitsu"
+GROUP_JOB_PROCESSOR_PREPROCESSOR_KITSU = "OpenStudioLandscapes_DagsterCodeLocation_JobProcessor_Kitsu"
 # KEY_CONSTANTS_DEFAULT = [GROUP_CONSTANTS_DEFAULT, "Constants"]
 KEY_JOB_PROCESSOR_PREPROCESSOR_KITSU = [GROUP_JOB_PROCESSOR_PREPROCESSOR_KITSU]
 
@@ -62,7 +62,7 @@ ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU = {
 }
 
 
-GROUP_JOB_PROCESSOR_DEADLINE = "OpenStudioLandscapes_Dagster_JobProcessor_Deadline"
+GROUP_JOB_PROCESSOR_DEADLINE = "OpenStudioLandscapes_DagsterCodeLocation_JobProcessor_Deadline"
 # KEY_CONSTANTS_DEFAULT = [GROUP_CONSTANTS_DEFAULT, "Constants"]
 KEY_JOB_PROCESSOR_DEADLINE = [GROUP_JOB_PROCESSOR_DEADLINE]
 
@@ -2235,7 +2235,6 @@ def job_draft_mov(
     """
     The QuickDraft MOV Job
 
-    :param parents:
     :return:
     """
 
@@ -2427,7 +2426,6 @@ def job_kitsu_publish(
     """
     The Kitsu-Publish Job
 
-    :param parents:
     :return:
     """
 

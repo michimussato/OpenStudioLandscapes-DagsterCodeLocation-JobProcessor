@@ -17,7 +17,7 @@ from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.assets.read_yaml import ASSET_HEADER_JOB_PROCESSOR_DEADLINE
 
 
-GROUP_JOB_SUBMITTER_DEADLINE = "OpenStudioLandscapes_Dagster_JobSubmitter_Deadline"
+GROUP_JOB_SUBMITTER_DEADLINE = "OpenStudioLandscapes_DagsterCodeLocation_JobSubmitter_Deadline"
 KEY_JOB_SUBMITTER_DEADLINE = [GROUP_JOB_SUBMITTER_DEADLINE]
 
 ASSET_HEADER_JOB_SUBMITTER_DEADLINE = {
