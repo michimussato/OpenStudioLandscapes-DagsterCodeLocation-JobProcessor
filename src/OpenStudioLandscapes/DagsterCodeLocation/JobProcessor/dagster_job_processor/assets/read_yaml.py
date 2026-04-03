@@ -2677,7 +2677,7 @@ def raw_to_oiio(
         # frames: str,
         # props: List,
         # job_model: JobBase,
-) -> Generator[Output[Path] | AssetMaterialization | Any, Any, None]:
+) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
     # Doesn't work:
     # for i in {1197..1254}; do exrinfo "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/061/4_1197-1254_4/raw/sh030_001.${i}.exr"; done
     # render_output_raw = pathlib.Path(render_output_directory / "raw" / render_output_filename["padding_bash_expansion"])
