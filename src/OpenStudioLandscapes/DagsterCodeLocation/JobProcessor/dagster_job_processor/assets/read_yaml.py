@@ -1194,11 +1194,14 @@ def render_output_directory(
     handles = job_model.handles
 
     _out = render_version_directory / version
+    _out.mkdir(parents=True, exist_ok=True)
 
     if bool(job_model.kitsu_task):
         entity_type = get_entity_type(get_kitsu_task_dict)
         if entity_type == 'Shot':
-            _out = _out / f'{str(handles)}_{str(job_model.cut_in - job_model.handles).zfill(CONFIG.PADDING)}-{str(job_model.cut_out + job_model.handles).zfill(CONFIG.PADDING)}_{str(handles)}'  # _out.joinpath(f'')
+            filename = f'{str(handles)}_{str(job_model.cut_in - job_model.handles).zfill(CONFIG.PADDING)}-{str(job_model.cut_out + job_model.handles).zfill(CONFIG.PADDING)}_{str(handles)}'
+            with open(_out / filename, "w") as fw:
+                fw.write(f"{job_model.kitsu_task = }")
 
     _out.mkdir(parents=True, exist_ok=True)
 
