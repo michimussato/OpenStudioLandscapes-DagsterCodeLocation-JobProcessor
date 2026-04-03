@@ -18,7 +18,7 @@ import json
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.config.models import DefaultConstants
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.resources import KitsuResource
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.jobs.job_base import JobBase, Resolution
-from OpenStudioLandscapes.DagsterCodeLocation.StreamingProcessor import submit_cmds
+from OpenStudioLandscapes.DagsterCodeLocation.StreamingProcess import submit_cmds
 
 # TODO
 #  rename to generate_job_submission_scripts
