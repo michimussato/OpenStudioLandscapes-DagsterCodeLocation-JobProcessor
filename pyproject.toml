@@ -17,7 +17,7 @@ classifiers = [
     "Framework :: OpenStudioLandscapes",
     "Programming Language :: Python",
 ]
-name = "OpenStudioLandscapes.DagsterCodeLocation.JobProcessor"
+name = "OpenStudioLandscapes-DagsterCodeLocation-JobProcessor"
 dynamic = [
     "version",
 ]
@@ -32,7 +32,7 @@ dependencies = [
     "gazu[cli]",
 #    "OpenImageIO",
 #    "OpenEXR",
-    "OpenStudioLandscapes.DagsterCodeLocation.StreamingProcess @ git+https://github.com/michimussato/OpenStudioLandscapes-DagsterCodeLocation-StreamingProcess.git",
+    "OpenStudioLandscapes-DagsterCodeLocation-StreamingProcess @ git+https://github.com/michimussato/OpenStudioLandscapes-DagsterCodeLocation-StreamingProcess.git",
 ]
 
 [project.optional-dependencies]
