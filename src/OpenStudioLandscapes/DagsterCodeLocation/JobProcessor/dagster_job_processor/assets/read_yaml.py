@@ -1199,7 +1199,7 @@ def render_output_directory(
         if entity_type == 'Shot':
             filename = f'{str(handles)}_{str(job_model.cut_in - job_model.handles).zfill(CONFIG.PADDING)}-{str(job_model.cut_out + job_model.handles).zfill(CONFIG.PADDING)}_{str(handles)}'
             with open(_out / filename, "w") as fw:
-                fw.write(f"{job_model.kitsu_task = }")
+                fw.write(f"{str(job_model.kitsu_task) = }")
             with open(_out / "kitsu_task_id.txt", "w") as fw:
                 fw.write(str(job_model.kitsu_task))
             with open(_out / "kitsu_task.json", "w") as fw:
