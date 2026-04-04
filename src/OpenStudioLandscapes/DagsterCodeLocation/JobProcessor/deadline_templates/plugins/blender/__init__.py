@@ -22,15 +22,98 @@ class RenderEngine(enum.StrEnum):
     WORKBENCH = "WORKBENCH"
 
 
+class CyclesDevices(enum.StrEnum):
+    # maybe there is a dynamic way
+    # that also supports indexing
+    """
+    Cycles Render Options:
+            Cycles add-on options must be specified following a double dash.
+
+    --cycles-device <device>
+            Set the device used for rendering.
+            Valid options are: 'CPU' 'CUDA' 'OPTIX' 'HIP' 'ONEAPI' 'METAL'.
+
+            Append +CPU to a GPU device to render on both CPU and GPU.
+
+            Example:
+            # blender -b file.blend -f 20 -- --cycles-device OPTIX
+    --cycles-print-stats
+            Log statistics about render memory and time usage.
+    """
+    CPU = "CPU"
+    CUDA = "CUDA"
+    CUDA_CPU = "CUDA+CPU"
+    OPTIX = "OPTIX"
+    OPTIX_CPU = "OPTIX+CPU"
+    HIP = "HIP"
+    HIP_CPU = "HIP+CPU"
+    ONEAPI = "ONEAPI"
+    ONEAPI_CPU = "ONEAPI+CPU"
+    METAL = "METAL"
+    METAL_CPU = "METAL+CPU"
+
+
+class OutputFormatsBlender(enum.StrEnum):
+    TGA = "TGA"
+    RAWTGA = "RAWTGA"
+    JPEG = "JPEG"
+    IRIS = "IRIS"
+    AVIRAW ="AVIRAW"
+    AVIJPEG = "AVIJPEG"
+    PNG = "PNG"
+    BMP = "BMP"
+    HDR = "HDR"
+    TIFF = "TIFF"
+    EXR = "EXR"
+    OPEN_EXR = "EXR"
+    OPEN_EXR_MULTILAYER = "EXR"
+    FFMPEG = "FFMPEG"
+    CINEON = "CINEON"
+    DPX = "DPX"
+    JP2 = "JP2"
+    WEBP = "WEBP"
+
+
+class UseExtension(enum.StrEnum):
+    TRUE = "1"
+    FALSE = "0"
+
+
 class PluginBlenderBase(PluginBase):
+    """
+    -o or --render-output <path>
+        Set the render path and file name.
+        Use '//' at the start of the path to render relative to the blend-file.
+
+        The '#' characters are replaced by the frame number, and used to define zero padding.
+
+        * 'animation_##_test.png' becomes 'animation_01_test.png'
+        * 'test-######.png' becomes 'test-000001.png'
+
+        When the filename does not contain '#', the suffix '####' is added to the filename.
+
+        The frame number will be added at the end of the filename, eg:
+        # blender -b animation.blend -o //render_ -F PNG -x 1 -a
+        '//render_' becomes '//render_####', writing frames as '//render_0001.png'
+
+    """
     args: List = [
+        "--enable-autoexec",
         "--background",
         '<QUOTE>"{job_file}"<QUOTE>',
         "--render-output", '<QUOTE>"{render_output}"<QUOTE>',
-        "--render-format", "{output_format}",
+        "--render-format", "{output_format.upper()}",
+        # "--use-extension", "{use_extension}",
         "--engine", "{render_engine}",
         "--frame-start", "<STARTFRAME>",
         "--frame-end", "<ENDFRAME>",
         "--threads", "0",
         "--render-anim",
+        "--",
+        "--cycles-print-stats",
     ]
+
+    # output_formats_plugin: OutputFormatsBlender = Field(
+    #     default=OutputFormatsBlender.EXR.value,
+    #     examples=[i.name for i in OutputFormatsBlender],
+    # )

@@ -1848,6 +1848,9 @@ def archive_job_yaml(
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
         ),
+        "CONFIG": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "CONFIG"])
+        ),
     }
 )
 def render_arguments(
@@ -1856,19 +1859,21 @@ def render_arguments(
         render_output_directory: pathlib.Path,
         render_output_filename: Dict,
         job_model: JobBase,
+        CONFIG: DefaultConstants,
 ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
     args = job_model.plugin_model.args
-    render_output = str(render_output_directory / "raw" / render_output_filename["padding_command"])
+    render_output = str(render_output_directory / CONFIG.RENDER_RAW_OUT / render_output_filename["padding_command"])
 
     job_model_dict = json.loads(
         job_model.model_dump_json(
             fallback=str,
         )
     )
-    # Todo:
-    #  - [ ] why output_format had to be capital here?
-    #        combine_dicts["yaml_submission"]["output_format"] = combine_dicts["yaml_submission"]["output_format"].upper()
-    job_model_dict["output_format"]: str = job_model_dict["output_format"].upper()
+    # # Todo:
+    # #  - [x] why output_format had to be capital here?
+    # #        combine_dicts["yaml_submission"]["output_format"] = combine_dicts["yaml_submission"]["output_format"].upper()
+    # #        -> Blender requires that. Logic moved to the Blender Plugin
+    # job_model_dict["output_format"]: str = job_model_dict["output_format"].upper()
 
     plugin_model_dict = json.loads(
         job_model.plugin_model.model_dump_json(
@@ -2157,7 +2162,7 @@ def job_draft_png(
         ScriptArg16=taskEndFrame={frame_end_absolute}
         ScriptArg17=outFolder="{draft_out_dir}"
         ScriptArg18=outFile="{draft_out_dir}/{job_title}.{"#" * CONFIG.PADDING}.{codec}"
-        ScriptArg19=inFile="{pathlib.Path(render_output_directory / "raw" / render_output_filename["padding_deadline"]).as_posix()}"
+        ScriptArg19=inFile="{pathlib.Path(render_output_directory / CONFIG.RENDER_RAW_OUT / render_output_filename["padding_deadline"]).as_posix()}"
         """
     )
 
@@ -2291,7 +2296,7 @@ def job_draft_mov(
         ScriptArg17=frameRate={fps}
         ScriptArg18=outFolder="{draft_out_dir}"
         ScriptArg19=outFile="{draft_out_dir}/{job_title}.{extension}"
-        ScriptArg20=inFile="{pathlib.Path(render_output_directory/ "raw" / render_output_filename["padding_deadline"]).as_posix()}"
+        ScriptArg20=inFile="{pathlib.Path(render_output_directory/ CONFIG.RENDER_RAW_OUT / render_output_filename["padding_deadline"]).as_posix()}"
         """
     )
 

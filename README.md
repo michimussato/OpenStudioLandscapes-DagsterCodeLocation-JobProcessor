@@ -7,6 +7,7 @@ from six import text_typefrom tkinter import image_types[![ Logo OpenStudioLands
   * [Install into OpenStudioLandscapes-Dagster](#install-into-openstudiolandscapes-dagster)
   * [Demo Jobs](#demo-jobs)
     * [Blender](#blender)
+  * [Development/Debugging in Docker Container (OpenStudioLandscapes)](#developmentdebugging-in-docker-container-openstudiolandscapes)
 <!-- TOC -->
 
 ---
@@ -24,10 +25,10 @@ dagster_code_locations:
   load_from:
   # [...]
   - python_module:
-      location_name: OpenStudioLandscapes-Dagster-JobProcessor Package Code Location
-      module_name: OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.definitions
+      location_name: OpenStudioLandscapes-DagsterCodeLocation-JobProcessor Package Code Location
+      module_name: OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.definitions
       working_directory: src
-      pip_path: OpenStudioLandscapes-Dagster-JobProcessor @ git+https://github.com/michimussato/OpenStudioLandscapes-Dagster-JobProcessor.git@main
+      pip_path: OpenStudioLandscapes-DagsterCodeLocation-JobProcessor @ git+https://github.com/michimussato/OpenStudioLandscapes-DagsterCodeLocation-JobProcessor.git@main
   # [...]
 ```
 
@@ -61,7 +62,7 @@ cut_out: 1250  # frame_end
 Force reinstall updated package without re-deployment:
 
 ```shell
-python3.11 -m pip install --root-user-action=ignore --force-reinstall 'OpenStudioLandscapes-Dagster-JobProcessor @ git+https://github.com/michimussato/OpenStudioLandscapes-Dagster-JobProcessor.git@main'
+python3.11 -m pip install --root-user-action=ignore --force-reinstall 'OpenStudioLandscapes-DagsterCodeLocation-JobProcessor @ git+https://github.com/michimussato/OpenStudioLandscapes-DagsterCodeLocation-JobProcessor.git@yaml-migration'
 ```
 
 > [!TIP]
@@ -70,5 +71,5 @@ python3.11 -m pip install --root-user-action=ignore --force-reinstall 'OpenStudi
 > 
 > ```shell
 > docker exec -it dagster.2026-01-21_17-22-54__seasoned-jelly-wholesale-mixer bash
-> pip3 install --root-user-action=ignore --editable OpenStudioLandscapes-Dagster-JobProcessor@git+https://github.com/michimussato/OpenStudioLandscapes-Dagster-JobProcessor.git@yaml-migration
+> pip3 install --root-user-action=ignore --editable 'OpenStudioLandscapes-DagsterCodeLocation-JobProcessor @ git+https://github.com/michimussato/OpenStudioLandscapes-DagsterCodeLocation-JobProcessor.git@yaml-migration'
 > ```

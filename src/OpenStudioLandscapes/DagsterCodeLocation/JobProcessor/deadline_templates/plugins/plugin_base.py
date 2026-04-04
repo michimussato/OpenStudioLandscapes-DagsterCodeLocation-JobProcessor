@@ -8,7 +8,11 @@ class PluginBase(BaseModel):
     executable: pathlib.Path = Field(
         default=None,
     )
-    output_formats_plugin: List[str] = ["png", "exr", "jpg"]
+    output_formats_plugin: List[str] = [
+        "png",
+        "exr",
+        "jpg",
+    ]
     args: List[str] = Field(
         default_factory=list,
     )

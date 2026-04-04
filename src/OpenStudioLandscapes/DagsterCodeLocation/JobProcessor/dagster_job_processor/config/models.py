@@ -89,6 +89,10 @@ class DefaultConstants(BaseModel):
             "AuxiliaryFiles": []
         },
     )
+    RENDER_RAW_OUT: str = Field(
+        default="raw",
+        description="The subfolder where the raw renders will go."
+    )
 
 
 class Submitter(BaseModel):
