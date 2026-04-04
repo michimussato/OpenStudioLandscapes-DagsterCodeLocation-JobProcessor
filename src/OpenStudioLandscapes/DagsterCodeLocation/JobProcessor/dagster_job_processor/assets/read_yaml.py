@@ -1858,7 +1858,7 @@ def archive_job_yaml(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
         ),
         "CONFIG": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "CONFIG"])
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"])
         ),
     }
 )
