@@ -1166,9 +1166,9 @@ def render_output_filename(
         "version": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "version"]),
         ),
-        "CONFIG": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
-        ),
+        # "CONFIG": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+        # ),
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
         ),
@@ -1183,13 +1183,13 @@ def render_output_filename(
 def render_output_directory(
         context: AssetExecutionContext,
         version: str,
-        CONFIG: DefaultConstants,
+        # CONFIG: DefaultConstants,
         job_model: JobBase,
         render_version_directory: pathlib.Path,
         get_kitsu_task_dict: Dict,
 ) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
 
-    handles = job_model.handles
+    # handles = job_model.handles
 
     _out = render_version_directory / version
     _out.mkdir(parents=True, exist_ok=True)
@@ -1197,9 +1197,9 @@ def render_output_directory(
     if bool(job_model.kitsu_task):
         entity_type = get_entity_type(get_kitsu_task_dict)
         if entity_type == 'Shot':
-            filename = f'{str(handles)}_{str(job_model.cut_in - job_model.handles).zfill(CONFIG.PADDING)}-{str(job_model.cut_out + job_model.handles).zfill(CONFIG.PADDING)}_{str(handles)}'
-            with open(_out / filename, "w") as fw:
-                fw.write(f"{str(job_model.kitsu_task) = }")
+            # filename = f'{str(handles)}_{str(job_model.cut_in - job_model.handles).zfill(CONFIG.PADDING)}-{str(job_model.cut_out + job_model.handles).zfill(CONFIG.PADDING)}_{str(handles)}'
+            # with open(_out / filename, "w") as fw:
+            #     fw.write(f"{str(job_model.kitsu_task) = }")
             with open(_out / "kitsu_task_id.txt", "w") as fw:
                 fw.write(str(job_model.kitsu_task))
             with open(_out / "kitsu_task.json", "w") as fw:
