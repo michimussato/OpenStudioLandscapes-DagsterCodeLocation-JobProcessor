@@ -1,11 +1,9 @@
 import enum
 import pathlib
 import re
-import shlex
 import shutil
 import textwrap
 from typing import Any, Generator, Dict, List
-from collections import namedtuple
 
 import yaml
 from dagster import (
@@ -1202,6 +1200,17 @@ def render_output_directory(
             filename = f'{str(handles)}_{str(job_model.cut_in - job_model.handles).zfill(CONFIG.PADDING)}-{str(job_model.cut_out + job_model.handles).zfill(CONFIG.PADDING)}_{str(handles)}'
             with open(_out / filename, "w") as fw:
                 fw.write(f"{job_model.kitsu_task = }")
+            with open(_out / "kitsu_task_id.txt", "w") as fw:
+                fw.write(str(job_model.kitsu_task))
+            with open(_out / "kitsu_task.json", "w") as fw:
+                json.dump(
+                    get_kitsu_task_dict,
+                    fw,
+                    indent=2,
+                    default=str,
+                    ensure_ascii=True,
+                    sort_keys=True,
+                )
 
     _out.mkdir(parents=True, exist_ok=True)
 
