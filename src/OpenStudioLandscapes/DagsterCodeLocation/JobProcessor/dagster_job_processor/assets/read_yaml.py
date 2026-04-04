@@ -1878,11 +1878,11 @@ def render_arguments(
             fallback=str,
         )
     )
-    # # Todo:
-    # #  - [x] why output_format had to be capital here?
-    # #        combine_dicts["yaml_submission"]["output_format"] = combine_dicts["yaml_submission"]["output_format"].upper()
-    # #        -> Blender requires that. Logic moved to the Blender Plugin
-    # job_model_dict["output_format"]: str = job_model_dict["output_format"].upper()
+    # Todo:
+    #  - [x] why output_format had to be capital here?
+    #        combine_dicts["yaml_submission"]["output_format"] = combine_dicts["yaml_submission"]["output_format"].upper()
+    #        -> Blender requires that. Logic moved to the Blender Plugin
+    job_model_dict["output_format"]: str = job_model_dict["output_format"].upper()
 
     plugin_model_dict = json.loads(
         job_model.plugin_model.model_dump_json(

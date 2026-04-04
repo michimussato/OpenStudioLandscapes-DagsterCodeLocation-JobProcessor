@@ -1,5 +1,6 @@
 import enum
 from typing import List
+from pydantic import field_validator
 
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.plugins.plugin_base import PluginBase
 
@@ -102,7 +103,17 @@ class PluginBlenderBase(PluginBase):
         "--background",
         '<QUOTE>"{job_file}"<QUOTE>',
         "--render-output", '<QUOTE>"{render_output}"<QUOTE>',
-        "--render-format", "{output_format.upper()}",
+        # "--render-format", "{output_format.upper()}",
+        # AttributeError: 'str' object has no attribute 'upper()'
+        #   File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/execution/plan/utils.py", line 56, in op_execution_error_boundary
+        #     yield
+        #   File "/opt/python3.11/lib/python3.11/site-packages/dagster/_utils/__init__.py", line 480, in iterate_with_context
+        #     next_output = next(iterator)
+        #                   ^^^^^^^^^^^^^^
+        #   File "/opt/python3.11/lib/python3.11/site-packages/OpenStudioLandscapes/DagsterCodeLocation/JobProcessor/dagster_job_processor/assets/read_yaml.py", line 1898, in render_arguments
+        #     ret = " ".join(args).format(
+        #           ^^^^^^^^^^^^^^^^^^^^^^
+        "--render-format", "{output_format}",
         # "--use-extension", "{use_extension}",
         "--engine", "{render_engine}",
         "--frame-start", "<STARTFRAME>",
@@ -117,3 +128,10 @@ class PluginBlenderBase(PluginBase):
     #     default=OutputFormatsBlender.EXR.value,
     #     examples=[i.name for i in OutputFormatsBlender],
     # )
+
+    # @field_validator(
+    #     "output_format",
+    #     mode="wrap",
+    # )
+    # def validate_output_format(cls, value):
+    #     return value.upper()
