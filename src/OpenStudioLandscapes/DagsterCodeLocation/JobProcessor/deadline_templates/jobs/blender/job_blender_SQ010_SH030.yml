@@ -5,15 +5,16 @@
 
 
 job_file: /data/share/AWSPortalRoot1/fixtures/blender/sh030_001.blend
+# job_file: /data/share/AWSPortalRoot1/fixtures/blender/sh030_001_256smpls.blend
 plugin_model:
   plugin_type: PluginBlender_4_1_1
   render_engine: CYCLES
 deadline_initial_status: Active
 kitsu_task: b0cfdac7-afa9-4382-a75d-3c80a388e136  # SQ010 / SQ010_SH030  Rendering  https://kitsu.pangolin.openstudiolandscapes.cloud-ip.cc/productions/3ede4117-b73c-4bd3-83a2-40d66bc954c5/shots/tasks/b0cfdac7-afa9-4382-a75d-3c80a388e136
-append_draft_job_png: true
-append_draft_job_mov: true
-with_kitsu_publish: true
-deadline_job_with_draft: true
+# append_draft_job_png: true
+# append_draft_job_mov: true
+# with_kitsu_publish: true
+# deadline_job_with_draft: true
 comment: This is a new Bender job comment
 cut_in: 1201  # frame_start
 cut_out: 1250  # frame_end
