@@ -1320,9 +1320,9 @@ def render_arguments(
         "job_draft_mov": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_draft_mov"])
         ),
-        "job_kitsu_publish": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_kitsu_publish"])
-        ),
+        # "job_kitsu_publish": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_kitsu_publish"])
+        # ),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
         ),
@@ -1339,7 +1339,7 @@ def job_submission_tree(
         render_output_directory: pathlib.Path,
         job_draft_png: Dict,
         job_draft_mov: Dict,
-        job_kitsu_publish: Dict,
+        # job_kitsu_publish: Dict,
         CONFIG: DefaultConstants,
         job_model: JobBase,
         job_main: Dict[str, str],
@@ -1415,23 +1415,23 @@ def job_submission_tree(
         job_draft_mov_index = i
         i += 1
 
-    if bool(job_model.kitsu_task) and job_model.with_kitsu_publish:
-
-        job = job_dict_template.copy()
-        job["JobInfoFilePath"] = str(job_kitsu_publish["JobInfoFilePath"])
-        job["PluginInfoFilePath"] = str(job_kitsu_publish["PluginInfoFilePath"])
-        job_dependencies = job["JobDependencies"] = []  # Change from None to []
-
-        parents = [job_draft_mov_index]
-
-        for i_ in parents:
-            job_dependencies.append(f"index://{i_}")
-
-        # self.LOGGER.info(f'Generating Kitsu Publish Job (MOV)...')
-        # job_kitsu_publish_, job_kitsu_publish_jobinfo, job_kitsu_publish_plugininfo = self.job_kitsu_publish(parents=[job_draft_mov_index])
-        jobs.append(job)
-        job_draft_kitsu_publish_index = i
-        i += 1
+    # if bool(job_model.kitsu_task) and job_model.with_kitsu_publish:
+    #
+    #     job = job_dict_template.copy()
+    #     job["JobInfoFilePath"] = str(job_kitsu_publish["JobInfoFilePath"])
+    #     job["PluginInfoFilePath"] = str(job_kitsu_publish["PluginInfoFilePath"])
+    #     job_dependencies = job["JobDependencies"] = []  # Change from None to []
+    #
+    #     parents = [job_draft_mov_index]
+    #
+    #     for i_ in parents:
+    #         job_dependencies.append(f"index://{i_}")
+    #
+    #     # self.LOGGER.info(f'Generating Kitsu Publish Job (MOV)...')
+    #     # job_kitsu_publish_, job_kitsu_publish_jobinfo, job_kitsu_publish_plugininfo = self.job_kitsu_publish(parents=[job_draft_mov_index])
+    #     jobs.append(job)
+    #     job_draft_kitsu_publish_index = i
+    #     i += 1
 
     # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/manual-submission.html#plug-in-info-file
     # render_output_directory.mkdir(parents=True, exist_ok=True)
@@ -1789,173 +1789,173 @@ def resolution(
     )
 
 
-@asset(
-    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-    ins={
-        "render_arguments": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_arguments"])
-        ),
-        "render_output_directory": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
-        ),
-        "version": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "version"])
-        ),
-        "batch_name": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "batch_name"])
-        ),
-        "job_title_str": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title_str"])
-        ),
-        "job_title": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title"])
-        ),
-        "CONFIG": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
-        ),
-        "job_model": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
-        ),
-        "frame_start_absolute": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_start_absolute"])
-        ),
-        "frame_end_absolute": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_end_absolute"])
-        ),
-    }
-)
-def job_kitsu_publish(
-        context: AssetExecutionContext,
-        render_arguments: str,
-        render_output_directory: pathlib.Path,
-        version: str,
-        batch_name: str,
-        job_title_str: str,
-        job_title: str,
-        CONFIG: DefaultConstants,
-        job_model: JobBase,
-        frame_start_absolute: int,
-        frame_end_absolute: int,
-) -> Generator[Output[Dict[str, str]] | AssetMaterialization | Any, Any, None]:
-    """
-    The Kitsu-Publish Job
-
-    :return:
-    """
-
-    extension = "mov"
-
-    handles = job_model.handles
-
-    # TODO this is needed to find the movie, but could be more elegant
-    draft_out_dir = render_output_directory / "draft" / extension
-
-    kitsu_job_out_dir = render_output_directory / "kitsu"
-    kitsu_job_out_dir.mkdir(parents=True, exist_ok=True)
-
-    executable = CONFIG.GAZU_PY
-    args = []
-    # Todo:
-    #  - [ ] Use gazu[cli] directly
-    #        - [CLI](https://github.com/cgwire/gazu?tab=readme-ov-file#cli)
-    #          root@dagster:/dagster# gazu-cli --help
-    #          Usage: gazu-cli [OPTIONS] COMMAND [ARGS]...
-    #
-    #            Gazu CLI - Command-line client for the Kitsu API.
-    #
-    #          Options:
-    #            --json     Output as JSON.
-    #            --version  Show the version and exit.
-    #            --help     Show this message and exit.
-    #
-    #          Commands:
-    #            asset          Show details for an asset.
-    #            asset-types    List asset types.
-    #            assets         List assets for a project.
-    #            comment        Post a comment on a task (with status change).
-    #            episodes       List episodes for a project.
-    #            login          Log in to a Kitsu instance and store credentials.
-    #            logout         Log out and clear stored credentials.
-    #            my-tasks       List tasks assigned to current user.
-    #            persons        List all persons.
-    #            project        Show details for a project.
-    #            projects       List projects.
-    #            search         Search for entities across the Kitsu instance.
-    #            sequences      List sequences for a project.
-    #            shot-casting   Show casting (assets linked) for a shot.
-    #            shots          List shots for a project.
-    #            status         Show current connection status.
-    #            task           Show details for a task (by ID).
-    #            task-statuses  List task statuses.
-    #            task-types     List task types.
-    #            tasks          List tasks for a project.
-    args.extend(['<QUOTE>/data/local/.openstudiolandscapes/.landscapes/.persistent/OpenStudioLandscapes-Deadline-10-2/data/opt/Thinkbox/DeadlineRepository10/custom/events/Kitsu/kitsu_submission_cli.py<QUOTE>'])
-    args.extend(['--very-verbose'])
-    args.extend(['--task-id', '<QUOTE>{}<QUOTE>'.format(str(job_model.kitsu_task))])
-    args.extend(['--comment', f'<QUOTE>'
-                              f'Output directory: `{render_output_directory}`<br>'
-                              f'Version: `{version}`<br>'
-                              f'Frames: `{handles}_{frame_start_absolute}-{frame_end_absolute}_{handles}`<br>'
-                              f'Comment: {job_model.comment}<br>'
-                              f'<br>'
-                              f'---<br>'
-                              f'<br>'
-                              f'Execution Command: `{job_model.plugin_model.executable.as_posix()} {render_arguments}`<br>'
-                              f'Submission Command: Todo<br>'
-                              f'Job file: `{job_model.job_file.as_posix()}`<br>'
-                              f'<QUOTE>'
-                              f''])
-    args.extend(['--host', f'<QUOTE>{"http://10.1.2.15:4545/api"}<QUOTE>'])  # Todo: make dynamic
-    args.extend(['--user', f'<QUOTE>{"admin@example.com"}<QUOTE>'])  # Todo: make dynamic
-    args.extend(['--password', f'<QUOTE>{"mysecretpassword"}<QUOTE>'])  # Todo: make dynamic
-    args.extend(['--movie-file', f'<QUOTE>{draft_out_dir}/{job_title}.{extension}<QUOTE>'])
-    args.extend(['--version', f'<QUOTE>{version}<QUOTE>'])
-
-    path_job_info = kitsu_job_out_dir / "job_kitsu_publish_info_job.txt"
-
-    job_info_file_str = textwrap.dedent(
-        f"""\
-        BatchName={batch_name}
-        Name={job_title_str} (Kitsu Publish)
-        Frames=1
-        Priority=0
-        ChunkSize=1000000
-        OutputDirectory0={draft_out_dir}
-        OutputFilename0={job_model.plugin_model.padding_deadline}
-        InitialStatus={job_model.deadline_initial_status}
-        Plugin=CommandLine
-        ForceReloadPlugin=True
-        """
-    )
-
-    with open(path_job_info, "w") as job_info_file:
-        job_info_file.write(job_info_file_str)
-
-    path_plugin_info = kitsu_job_out_dir / "job_draft_kitsu_publish_info_plugin.txt"
-
-    plugin_info_file_str = textwrap.dedent(
-        f"""\
-        Executable={executable}
-        Arguments={" ".join(args)}
-        """
-    )
-
-    with open(path_plugin_info, "w") as plugin_info_file:
-        plugin_info_file.write(plugin_info_file_str)
-
-    ret = {
-        "JobInfoFilePath": str(path_job_info),
-        "PluginInfoFilePath": str(path_plugin_info),
-    }
-
-    yield Output(ret)
-
-    yield AssetMaterialization(
-        asset_key=context.asset_key,
-        metadata={
-            "__".join(context.asset_key.path): MetadataValue.json(ret)
-        }
-    )
+# @asset(
+#     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+#     ins={
+#         "render_arguments": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_arguments"])
+#         ),
+#         "render_output_directory": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
+#         ),
+#         "version": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "version"])
+#         ),
+#         "batch_name": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "batch_name"])
+#         ),
+#         "job_title_str": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title_str"])
+#         ),
+#         "job_title": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title"])
+#         ),
+#         "CONFIG": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+#         ),
+#         "job_model": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
+#         ),
+#         "frame_start_absolute": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_start_absolute"])
+#         ),
+#         "frame_end_absolute": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_end_absolute"])
+#         ),
+#     }
+# )
+# def job_kitsu_publish(
+#         context: AssetExecutionContext,
+#         render_arguments: str,
+#         render_output_directory: pathlib.Path,
+#         version: str,
+#         batch_name: str,
+#         job_title_str: str,
+#         job_title: str,
+#         CONFIG: DefaultConstants,
+#         job_model: JobBase,
+#         frame_start_absolute: int,
+#         frame_end_absolute: int,
+# ) -> Generator[Output[Dict[str, str]] | AssetMaterialization | Any, Any, None]:
+#     """
+#     The Kitsu-Publish Job
+#
+#     :return:
+#     """
+#
+#     extension = "mov"
+#
+#     handles = job_model.handles
+#
+#     # TODO this is needed to find the movie, but could be more elegant
+#     draft_out_dir = render_output_directory / "draft" / extension
+#
+#     kitsu_job_out_dir = render_output_directory / "kitsu"
+#     kitsu_job_out_dir.mkdir(parents=True, exist_ok=True)
+#
+#     executable = CONFIG.GAZU_PY
+#     args = []
+#     # Todo:
+#     #  - [ ] Use gazu[cli] directly
+#     #        - [CLI](https://github.com/cgwire/gazu?tab=readme-ov-file#cli)
+#     #          root@dagster:/dagster# gazu-cli --help
+#     #          Usage: gazu-cli [OPTIONS] COMMAND [ARGS]...
+#     #
+#     #            Gazu CLI - Command-line client for the Kitsu API.
+#     #
+#     #          Options:
+#     #            --json     Output as JSON.
+#     #            --version  Show the version and exit.
+#     #            --help     Show this message and exit.
+#     #
+#     #          Commands:
+#     #            asset          Show details for an asset.
+#     #            asset-types    List asset types.
+#     #            assets         List assets for a project.
+#     #            comment        Post a comment on a task (with status change).
+#     #            episodes       List episodes for a project.
+#     #            login          Log in to a Kitsu instance and store credentials.
+#     #            logout         Log out and clear stored credentials.
+#     #            my-tasks       List tasks assigned to current user.
+#     #            persons        List all persons.
+#     #            project        Show details for a project.
+#     #            projects       List projects.
+#     #            search         Search for entities across the Kitsu instance.
+#     #            sequences      List sequences for a project.
+#     #            shot-casting   Show casting (assets linked) for a shot.
+#     #            shots          List shots for a project.
+#     #            status         Show current connection status.
+#     #            task           Show details for a task (by ID).
+#     #            task-statuses  List task statuses.
+#     #            task-types     List task types.
+#     #            tasks          List tasks for a project.
+#     args.extend(['<QUOTE>/data/local/.openstudiolandscapes/.landscapes/.persistent/OpenStudioLandscapes-Deadline-10-2/data/opt/Thinkbox/DeadlineRepository10/custom/events/Kitsu/kitsu_submission_cli.py<QUOTE>'])
+#     args.extend(['--very-verbose'])
+#     args.extend(['--task-id', '<QUOTE>{}<QUOTE>'.format(str(job_model.kitsu_task))])
+#     args.extend(['--comment', f'<QUOTE>'
+#                               f'Output directory: `{render_output_directory}`<br>'
+#                               f'Version: `{version}`<br>'
+#                               f'Frames: `{handles}_{frame_start_absolute}-{frame_end_absolute}_{handles}`<br>'
+#                               f'Comment: {job_model.comment}<br>'
+#                               f'<br>'
+#                               f'---<br>'
+#                               f'<br>'
+#                               f'Execution Command: `{job_model.plugin_model.executable.as_posix()} {render_arguments}`<br>'
+#                               f'Submission Command: Todo<br>'
+#                               f'Job file: `{job_model.job_file.as_posix()}`<br>'
+#                               f'<QUOTE>'
+#                               f''])
+#     args.extend(['--host', f'<QUOTE>{"http://10.1.2.15:4545/api"}<QUOTE>'])  # Todo: make dynamic
+#     args.extend(['--user', f'<QUOTE>{"admin@example.com"}<QUOTE>'])  # Todo: make dynamic
+#     args.extend(['--password', f'<QUOTE>{"mysecretpassword"}<QUOTE>'])  # Todo: make dynamic
+#     args.extend(['--movie-file', f'<QUOTE>{draft_out_dir}/{job_title}.{extension}<QUOTE>'])
+#     args.extend(['--version', f'<QUOTE>{version}<QUOTE>'])
+#
+#     path_job_info = kitsu_job_out_dir / "job_kitsu_publish_info_job.txt"
+#
+#     job_info_file_str = textwrap.dedent(
+#         f"""\
+#         BatchName={batch_name}
+#         Name={job_title_str} (Kitsu Publish)
+#         Frames=1
+#         Priority=0
+#         ChunkSize=1000000
+#         OutputDirectory0={draft_out_dir}
+#         OutputFilename0={job_model.plugin_model.padding_deadline}
+#         InitialStatus={job_model.deadline_initial_status}
+#         Plugin=CommandLine
+#         ForceReloadPlugin=True
+#         """
+#     )
+#
+#     with open(path_job_info, "w") as job_info_file:
+#         job_info_file.write(job_info_file_str)
+#
+#     path_plugin_info = kitsu_job_out_dir / "job_draft_kitsu_publish_info_plugin.txt"
+#
+#     plugin_info_file_str = textwrap.dedent(
+#         f"""\
+#         Executable={executable}
+#         Arguments={" ".join(args)}
+#         """
+#     )
+#
+#     with open(path_plugin_info, "w") as plugin_info_file:
+#         plugin_info_file.write(plugin_info_file_str)
+#
+#     ret = {
+#         "JobInfoFilePath": str(path_job_info),
+#         "PluginInfoFilePath": str(path_plugin_info),
+#     }
+#
+#     yield Output(ret)
+#
+#     yield AssetMaterialization(
+#         asset_key=context.asset_key,
+#         metadata={
+#             "__".join(context.asset_key.path): MetadataValue.json(ret)
+#         }
+#     )
 
 
 @asset(
