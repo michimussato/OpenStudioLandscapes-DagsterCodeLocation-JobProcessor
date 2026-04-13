@@ -305,110 +305,110 @@ def get_task_url(
     )
 
 
-@asset(
-    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-    ins={
-        "version": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "version"]),
-        ),
-        "CONFIG": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
-        ),
-        "resolution": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "resolution"]),
-        ),
-        "job_model": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
-        ),
-        "get_kitsu_task_dict": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU["key_prefix"], "get_kitsu_task_dict"])
-        ),
-    },
-)
-def annotations_string(
-        context: AssetExecutionContext,
-        version: str,
-        CONFIG: DefaultConstants,
-        resolution: Resolution,
-        job_model: JobBase,
-        get_kitsu_task_dict: Dict,
-) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
-    """Returns the annotations string for the Deadline Draft jobs as a MaterializeResult object in the JSON format."""
-
-    handles = job_model.handles
-
-    # fps = job_model.fps
-    #
-    # fi = job_model.cut_in
-    # fo = job_model.cut_out
-
-    fi_kitsu = 0
-    fo_kitsu = 0
-    if bool(job_model.kitsu_task):
-        if get_task_name(get_kitsu_task_dict) == "Shot":
-            fi_kitsu = get_kitsu_task_dict.get("entity", {}).get("data", {}).get("frame_in", 0)
-            fo_kitsu = get_kitsu_task_dict.get("entity", {}).get("data", {}).get("frame_out", 0)
-
-    # fi_fo = (fi, fo)
-
-    entity_name = get_entity_name(get_kitsu_task_dict)
-    task_name = get_task_name(get_kitsu_task_dict)
-
-    rgb = 95
-    draft_annotations_string = {
-        "NorthWest": {
-            "text": f"{entity_name}/{task_name}",  # Todo: Add Sequence name to Shot if Shot and Shot is part of Sequence
-            "colorR": rgb,
-            "colorG": rgb,
-            "colorB": rgb,
-            "type": ""
-        },
-        "NorthCenter": {
-            "text": f"{job_model.job_file.name}",
-            "colorR": rgb,
-            "colorG": rgb,
-            "colorB": rgb,
-            "type": ""
-        }, "NorthEast": {
-            "text": f"$time ({version})",
-            "colorR": rgb,
-            "colorG": rgb,
-            "colorB": rgb,
-            "type": ""
-        }, "SouthWest": {
-            "text": f"",
-            "colorR": rgb,
-            "colorG": rgb,
-            "colorB": rgb,
-            "type": ""
-        },
-        "SouthCenter": {
-            "text": f"{handles}_{str(job_model.cut_in).zfill(CONFIG.PADDING)}||{handles}_{str(job_model.cut_in).zfill(CONFIG.PADDING)}|$frame|{str(job_model.cut_out).zfill(CONFIG.PADDING)}_{handles}||{str(job_model.cut_out).zfill(CONFIG.PADDING)}_{handles} @{job_model.fps}",
-            "colorR": rgb,
-            "colorG": rgb,
-            "colorB": rgb,
-            "type": ""
-        },
-        "SouthEast": {
-            "text": f"{resolution.x}x{resolution.y} (x{CONFIG.RESOLUTION_DRAFT_SCALE})",
-            "colorR": rgb,
-            "colorG": rgb,
-            "colorB": rgb,
-            "type": ""
-        }
-    }
-
-    yield Output(json.dumps(draft_annotations_string))
-
-    yield AssetMaterialization(
-        asset_key=context.asset_key,
-        metadata={
-            "__".join(context.asset_key.path): MetadataValue.json(draft_annotations_string),
-            "annotations_string": MetadataValue.text(json.dumps(draft_annotations_string)),
-            "cut_in_kitsu": MetadataValue.int(fi_kitsu),
-            "cut_out_kitsu": MetadataValue.int(fo_kitsu),
-        }
-    )
+# @asset(
+#     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+#     ins={
+#         "version": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "version"]),
+#         ),
+#         "CONFIG": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+#         ),
+#         "resolution": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "resolution"]),
+#         ),
+#         "job_model": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
+#         ),
+#         "get_kitsu_task_dict": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU["key_prefix"], "get_kitsu_task_dict"])
+#         ),
+#     },
+# )
+# def annotations_string(
+#         context: AssetExecutionContext,
+#         version: str,
+#         CONFIG: DefaultConstants,
+#         resolution: Resolution,
+#         job_model: JobBase,
+#         get_kitsu_task_dict: Dict,
+# ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
+#     """Returns the annotations string for the Deadline Draft jobs as a MaterializeResult object in the JSON format."""
+#
+#     handles = job_model.handles
+#
+#     # fps = job_model.fps
+#     #
+#     # fi = job_model.cut_in
+#     # fo = job_model.cut_out
+#
+#     fi_kitsu = 0
+#     fo_kitsu = 0
+#     if bool(job_model.kitsu_task):
+#         if get_task_name(get_kitsu_task_dict) == "Shot":
+#             fi_kitsu = get_kitsu_task_dict.get("entity", {}).get("data", {}).get("frame_in", 0)
+#             fo_kitsu = get_kitsu_task_dict.get("entity", {}).get("data", {}).get("frame_out", 0)
+#
+#     # fi_fo = (fi, fo)
+#
+#     entity_name = get_entity_name(get_kitsu_task_dict)
+#     task_name = get_task_name(get_kitsu_task_dict)
+#
+#     rgb = 95
+#     draft_annotations_string = {
+#         "NorthWest": {
+#             "text": f"{entity_name}/{task_name}",  # Todo: Add Sequence name to Shot if Shot and Shot is part of Sequence
+#             "colorR": rgb,
+#             "colorG": rgb,
+#             "colorB": rgb,
+#             "type": ""
+#         },
+#         "NorthCenter": {
+#             "text": f"{job_model.job_file.name}",
+#             "colorR": rgb,
+#             "colorG": rgb,
+#             "colorB": rgb,
+#             "type": ""
+#         }, "NorthEast": {
+#             "text": f"$time ({version})",
+#             "colorR": rgb,
+#             "colorG": rgb,
+#             "colorB": rgb,
+#             "type": ""
+#         }, "SouthWest": {
+#             "text": f"",
+#             "colorR": rgb,
+#             "colorG": rgb,
+#             "colorB": rgb,
+#             "type": ""
+#         },
+#         "SouthCenter": {
+#             "text": f"{handles}_{str(job_model.cut_in).zfill(CONFIG.PADDING)}||{handles}_{str(job_model.cut_in).zfill(CONFIG.PADDING)}|$frame|{str(job_model.cut_out).zfill(CONFIG.PADDING)}_{handles}||{str(job_model.cut_out).zfill(CONFIG.PADDING)}_{handles} @{job_model.fps}",
+#             "colorR": rgb,
+#             "colorG": rgb,
+#             "colorB": rgb,
+#             "type": ""
+#         },
+#         "SouthEast": {
+#             "text": f"{resolution.x}x{resolution.y} (x{CONFIG.RESOLUTION_DRAFT_SCALE})",
+#             "colorR": rgb,
+#             "colorG": rgb,
+#             "colorB": rgb,
+#             "type": ""
+#         }
+#     }
+#
+#     yield Output(json.dumps(draft_annotations_string))
+#
+#     yield AssetMaterialization(
+#         asset_key=context.asset_key,
+#         metadata={
+#             "__".join(context.asset_key.path): MetadataValue.json(draft_annotations_string),
+#             "annotations_string": MetadataValue.text(json.dumps(draft_annotations_string)),
+#             "cut_in_kitsu": MetadataValue.int(fi_kitsu),
+#             "cut_out_kitsu": MetadataValue.int(fo_kitsu),
+#         }
+#     )
 
 
 @asset(
@@ -1314,21 +1314,21 @@ def render_arguments(
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
         ),
-        "job_draft_png": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_draft_png"])
-        ),
-        "job_draft_mov": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_draft_mov"])
-        ),
+        # "job_draft_png": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_draft_png"])
+        # ),
+        # "job_draft_mov": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_draft_mov"])
+        # ),
         # "job_kitsu_publish": AssetIn(
         #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_kitsu_publish"])
         # ),
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
         ),
-        "job_model": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
-        ),
+        # "job_model": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
+        # ),
         "job_main": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_main"])
         ),
@@ -1337,11 +1337,11 @@ def render_arguments(
 def job_submission_tree(
         context: AssetExecutionContext,
         render_output_directory: pathlib.Path,
-        job_draft_png: Dict,
-        job_draft_mov: Dict,
+        # job_draft_png: Dict,
+        # job_draft_mov: Dict,
         # job_kitsu_publish: Dict,
         CONFIG: DefaultConstants,
-        job_model: JobBase,
+        # job_model: JobBase,
         job_main: Dict[str, str],
 ) -> Generator[Output[dict[str, list[str]]] | AssetMaterialization | Any, Any, None]:
 
@@ -1383,37 +1383,37 @@ def job_submission_tree(
     jobs.append(job_0)
     i += 1
 
-    if job_model.append_draft_job_png:
+    # if job_model.append_draft_job_png:
+    #
+    #     job = job_dict_template.copy()
+    #     job["JobInfoFilePath"] = str(job_draft_png["JobInfoFilePath"])
+    #     job["PluginInfoFilePath"] = str(job_draft_png["PluginInfoFilePath"])
+    #     job_dependencies = job["JobDependencies"] = []  # Change from None to []
+    #
+    #     parents = [job_0_index]
+    #
+    #     for i_ in parents:
+    #         job_dependencies.append(f"index://{i_}")
+    #
+    #     jobs.append(job)
+    #     job_draft_png_index = i
+    #     i += 1
 
-        job = job_dict_template.copy()
-        job["JobInfoFilePath"] = str(job_draft_png["JobInfoFilePath"])
-        job["PluginInfoFilePath"] = str(job_draft_png["PluginInfoFilePath"])
-        job_dependencies = job["JobDependencies"] = []  # Change from None to []
-
-        parents = [job_0_index]
-
-        for i_ in parents:
-            job_dependencies.append(f"index://{i_}")
-
-        jobs.append(job)
-        job_draft_png_index = i
-        i += 1
-
-    if job_model.append_draft_job_mov:
-
-        job = job_dict_template.copy()
-        job["JobInfoFilePath"] = str(job_draft_mov["JobInfoFilePath"])
-        job["PluginInfoFilePath"] = str(job_draft_mov["PluginInfoFilePath"])
-        job_dependencies = job["JobDependencies"] = []  # Change from None to []
-
-        parents = [job_0_index]
-
-        for i_ in parents:
-            job_dependencies.append(f"index://{i_}")
-
-        jobs.append(job)
-        job_draft_mov_index = i
-        i += 1
+    # if job_model.append_draft_job_mov:
+    #
+    #     job = job_dict_template.copy()
+    #     job["JobInfoFilePath"] = str(job_draft_mov["JobInfoFilePath"])
+    #     job["PluginInfoFilePath"] = str(job_draft_mov["PluginInfoFilePath"])
+    #     job_dependencies = job["JobDependencies"] = []  # Change from None to []
+    #
+    #     parents = [job_0_index]
+    #
+    #     for i_ in parents:
+    #         job_dependencies.append(f"index://{i_}")
+    #
+    #     jobs.append(job)
+    #     job_draft_mov_index = i
+    #     i += 1
 
     # if bool(job_model.kitsu_task) and job_model.with_kitsu_publish:
     #
@@ -1457,272 +1457,272 @@ def job_submission_tree(
     )
 
 
-@asset(
-    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-    ins={
-        # "combine_dicts": AssetIn(),
-        "render_output_directory": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
-        ),
-        "render_output_filename": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_filename"])
-        ),
-        "batch_name": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "batch_name"])
-        ),
-        "job_title_str": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title_str"])
-        ),
-        "job_title": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title"])
-        ),
-        "resolution_draft": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "resolution_draft"])
-        ),
-        "annotations_string": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "annotations_string"])
-        ),
-        "CONFIG": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
-        ),
-        "frame_start_absolute": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_start_absolute"])
-        ),
-        "frame_end_absolute": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_end_absolute"])
-        ),
-        "job_model": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
-        ),
-    }
-)
-def job_draft_png(
-        context: AssetExecutionContext,
-        # combine_dicts: dict,
-        render_output_directory: pathlib.Path,
-        render_output_filename: dict,
-        batch_name: str,
-        job_title_str: str,
-        job_title: str,
-        resolution_draft: tuple,
-        annotations_string: str,
-        CONFIG: DefaultConstants,
-        frame_start_absolute: int,
-        frame_end_absolute: int,
-        job_model: JobBase,
-) -> Generator[Output[dict[str, str]] | AssetMaterialization | Any, Any, None]:
-    """
-    The QuickDraft PNG Job
+# @asset(
+#     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+#     ins={
+#         # "combine_dicts": AssetIn(),
+#         "render_output_directory": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
+#         ),
+#         "render_output_filename": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_filename"])
+#         ),
+#         "batch_name": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "batch_name"])
+#         ),
+#         "job_title_str": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title_str"])
+#         ),
+#         "job_title": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title"])
+#         ),
+#         "resolution_draft": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "resolution_draft"])
+#         ),
+#         "annotations_string": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "annotations_string"])
+#         ),
+#         "CONFIG": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+#         ),
+#         "frame_start_absolute": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_start_absolute"])
+#         ),
+#         "frame_end_absolute": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_end_absolute"])
+#         ),
+#         "job_model": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
+#         ),
+#     }
+# )
+# def job_draft_png(
+#         context: AssetExecutionContext,
+#         # combine_dicts: dict,
+#         render_output_directory: pathlib.Path,
+#         render_output_filename: dict,
+#         batch_name: str,
+#         job_title_str: str,
+#         job_title: str,
+#         resolution_draft: tuple,
+#         annotations_string: str,
+#         CONFIG: DefaultConstants,
+#         frame_start_absolute: int,
+#         frame_end_absolute: int,
+#         job_model: JobBase,
+# ) -> Generator[Output[dict[str, str]] | AssetMaterialization | Any, Any, None]:
+#     """
+#     The QuickDraft PNG Job
+#
+#     :param parents:
+#     :return:
+#     """
+#
+#     # job_title =  combine_dicts["yaml_submission"]["job_title"]
+#
+#     quick_type = "createImages"
+#     codec = "png"
+#
+#     draft_out_dir = render_output_directory / "draft" / codec
+#     draft_out_dir.mkdir(parents=True, exist_ok=True)
+#
+#     path_job_info = draft_out_dir / f"job_draft_{codec}_info_job.txt"
+#
+#     job_info_file_str = textwrap.dedent(
+#         f"""\
+#         BatchName={batch_name}
+#         Name={job_title_str} (Draft {codec.upper()})
+#         Frames={frame_start_absolute}-{frame_end_absolute}
+#         Priority=0
+#         ChunkSize=1000000
+#         Plugin=DraftPlugin
+#         OutputDirectory0={draft_out_dir}
+#         OutputFilename0={job_model.plugin_model.padding_deadline}
+#         InitialStatus={job_model.deadline_initial_status}
+#         """
+#     )
+#
+#     with open(path_job_info, "w") as job_info_file:
+#         job_info_file.write(job_info_file_str)
+#
+#     path_plugin_info = draft_out_dir/f"job_draft_{codec}_info_plugin.txt"
+#
+#     plugin_info_file_str = textwrap.dedent(
+#         f"""\
+#         ScriptArg0=resolution="{CONFIG.RESOLUTION_DRAFT_SCALE}"
+#         ScriptArg1=codec="{codec}"
+#         ScriptArg2=colorSpaceIn="Identity"
+#         ScriptArg3=colorSpaceOut="Identity"
+#         ScriptArg4=annotationsString="{annotations_string}"
+#         ScriptArg5=annotationsImageString="None"
+#         ScriptArg6=annotationsResWidthString="{resolution_draft[0]}"
+#         ScriptArg7=annotationsResHeightString="{resolution_draft[1]}"
+#         ScriptArg8=annotationsFramePaddingSize="{CONFIG.PADDING}"
+#         ScriptArg9=quality="85"
+#         ScriptArg10=quickType="{quick_type}"
+#         ScriptArg11=isDistributed="False"
+#         ScriptArg12=frameList={frame_start_absolute}-{frame_end_absolute}
+#         ScriptArg13=startFrame={frame_start_absolute}
+#         ScriptArg14=endFrame={frame_end_absolute}
+#         ScriptArg15=taskStartFrame={frame_start_absolute}
+#         ScriptArg16=taskEndFrame={frame_end_absolute}
+#         ScriptArg17=outFolder="{draft_out_dir}"
+#         ScriptArg18=outFile="{draft_out_dir}/{job_title}.{"#" * CONFIG.PADDING}.{codec}"
+#         ScriptArg19=inFile="{pathlib.Path(render_output_directory / CONFIG.RENDER_RAW_OUT / render_output_filename["padding_deadline"]).as_posix()}"
+#         """
+#     )
+#
+#     with open(path_plugin_info, "w") as plugin_info_file:
+#         plugin_info_file.write(plugin_info_file_str)
+#
+#     ret = {
+#         "JobInfoFilePath": str(path_job_info),
+#         "PluginInfoFilePath": str(path_plugin_info),
+#     }
+#
+#     yield Output(ret)
+#
+#     yield AssetMaterialization(
+#         asset_key=context.asset_key,
+#         metadata={
+#             "__".join(context.asset_key.path): MetadataValue.json(ret)
+#         }
+#     )
 
-    :param parents:
-    :return:
-    """
 
-    # job_title =  combine_dicts["yaml_submission"]["job_title"]
-
-    quick_type = "createImages"
-    codec = "png"
-
-    draft_out_dir = render_output_directory / "draft" / codec
-    draft_out_dir.mkdir(parents=True, exist_ok=True)
-
-    path_job_info = draft_out_dir / f"job_draft_{codec}_info_job.txt"
-
-    job_info_file_str = textwrap.dedent(
-        f"""\
-        BatchName={batch_name}
-        Name={job_title_str} (Draft {codec.upper()})
-        Frames={frame_start_absolute}-{frame_end_absolute}
-        Priority=0
-        ChunkSize=1000000
-        Plugin=DraftPlugin
-        OutputDirectory0={draft_out_dir}
-        OutputFilename0={job_model.plugin_model.padding_deadline}
-        InitialStatus={job_model.deadline_initial_status}
-        """
-    )
-
-    with open(path_job_info, "w") as job_info_file:
-        job_info_file.write(job_info_file_str)
-
-    path_plugin_info = draft_out_dir/f"job_draft_{codec}_info_plugin.txt"
-
-    plugin_info_file_str = textwrap.dedent(
-        f"""\
-        ScriptArg0=resolution="{CONFIG.RESOLUTION_DRAFT_SCALE}"
-        ScriptArg1=codec="{codec}"
-        ScriptArg2=colorSpaceIn="Identity"
-        ScriptArg3=colorSpaceOut="Identity"
-        ScriptArg4=annotationsString="{annotations_string}"
-        ScriptArg5=annotationsImageString="None"
-        ScriptArg6=annotationsResWidthString="{resolution_draft[0]}"
-        ScriptArg7=annotationsResHeightString="{resolution_draft[1]}"
-        ScriptArg8=annotationsFramePaddingSize="{CONFIG.PADDING}"
-        ScriptArg9=quality="85"
-        ScriptArg10=quickType="{quick_type}"
-        ScriptArg11=isDistributed="False"
-        ScriptArg12=frameList={frame_start_absolute}-{frame_end_absolute}
-        ScriptArg13=startFrame={frame_start_absolute}
-        ScriptArg14=endFrame={frame_end_absolute}
-        ScriptArg15=taskStartFrame={frame_start_absolute}
-        ScriptArg16=taskEndFrame={frame_end_absolute}
-        ScriptArg17=outFolder="{draft_out_dir}"
-        ScriptArg18=outFile="{draft_out_dir}/{job_title}.{"#" * CONFIG.PADDING}.{codec}"
-        ScriptArg19=inFile="{pathlib.Path(render_output_directory / CONFIG.RENDER_RAW_OUT / render_output_filename["padding_deadline"]).as_posix()}"
-        """
-    )
-
-    with open(path_plugin_info, "w") as plugin_info_file:
-        plugin_info_file.write(plugin_info_file_str)
-
-    ret = {
-        "JobInfoFilePath": str(path_job_info),
-        "PluginInfoFilePath": str(path_plugin_info),
-    }
-
-    yield Output(ret)
-
-    yield AssetMaterialization(
-        asset_key=context.asset_key,
-        metadata={
-            "__".join(context.asset_key.path): MetadataValue.json(ret)
-        }
-    )
-
-
-@asset(
-    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-    ins={
-        "render_output_directory": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"]),
-        ),
-        "render_output_filename": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_filename"]),
-        ),
-        "batch_name": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "batch_name"]),
-        ),
-        "job_title_str": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title_str"]),
-        ),
-        "job_title": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title"]),
-        ),
-        "resolution_draft": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "resolution_draft"]),
-        ),
-        "annotations_string": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "annotations_string"]),
-        ),
-        "CONFIG": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
-        ),
-        "frame_start_absolute": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_start_absolute"])
-        ),
-        "frame_end_absolute": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_end_absolute"])
-        ),
-        "job_model": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
-        ),
-        "fps": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "fps"])
-        ),
-    }
-)
-def job_draft_mov(
-        context: AssetExecutionContext,
-        render_output_directory: pathlib.Path,
-        render_output_filename: Dict,
-        batch_name: str,
-        job_title_str: str,
-        job_title: str,
-        resolution_draft: tuple,
-        annotations_string: str,
-        CONFIG: DefaultConstants,
-        frame_start_absolute: int,
-        frame_end_absolute: int,
-        job_model: JobBase,
-        fps: float,
-) -> Generator[Output[dict[str, str]] | AssetMaterialization | Any, Any, None]:
-    """
-    The QuickDraft MOV Job
-
-    :return:
-    """
-
-    quick_type = "createMovie"
-    extension = "mov"
-    _codec = "h264"
-
-    draft_out_dir = render_output_directory / "draft" / extension
-    draft_out_dir.mkdir(parents=True, exist_ok=True)
-
-    path_job_info = draft_out_dir / f"job_draft_{extension}_info_job.txt"
-
-    job_info_file_str = textwrap.dedent(
-        f"""\
-        BatchName={batch_name}
-        Name={job_title_str} (Draft {extension.upper()})
-        Frames={frame_start_absolute}-{frame_end_absolute}
-        Priority=0
-        ChunkSize=1000000
-        Plugin=DraftPlugin
-        OutputDirectory0={draft_out_dir}
-        OutputFilename0={job_model.plugin_model.padding_deadline}
-        InitialStatus={job_model.deadline_initial_status}
-        """
-    )
-
-    with open(path_job_info, "w") as job_info_file:
-        job_info_file.write(job_info_file_str)
-
-    path_plugin_info = draft_out_dir / f"job_draft_{extension}_info_plugin.txt"
-
-    plugin_info_file_str = textwrap.dedent(
-        f"""\
-        ScriptArg0=resolution="{CONFIG.RESOLUTION_DRAFT_SCALE}"
-        ScriptArg1=codec="{_codec}"
-        ScriptArg2=colorSpaceIn="Identity"
-        ScriptArg3=colorSpaceOut="Identity"
-        ScriptArg4=annotationsString="{annotations_string}"
-        ScriptArg5=annotationsImageString="None"
-        ScriptArg6=annotationsResWidthString="{resolution_draft[0]}"
-        ScriptArg7=annotationsResHeightString="{resolution_draft[1]}"
-        ScriptArg8=annotationsFramePaddingSize="{CONFIG.PADDING}"
-        ScriptArg9=quality="85"
-        ScriptArg10=quickType="{quick_type}"
-        ScriptArg11=isDistributed="False"
-        ScriptArg12=frameList={frame_start_absolute}-{frame_end_absolute}
-        ScriptArg13=startFrame={frame_start_absolute}
-        ScriptArg14=endFrame={frame_end_absolute}
-        ScriptArg15=taskStartFrame=={frame_start_absolute}
-        ScriptArg16=taskEndFrame=={frame_end_absolute}
-        ScriptArg17=frameRate={fps}
-        ScriptArg18=outFolder="{draft_out_dir}"
-        ScriptArg19=outFile="{draft_out_dir}/{job_title}.{extension}"
-        ScriptArg20=inFile="{pathlib.Path(render_output_directory/ CONFIG.RENDER_RAW_OUT / render_output_filename["padding_deadline"]).as_posix()}"
-        """
-    )
-
-    with open(path_plugin_info, "w") as plugin_info_file:
-        plugin_info_file.write(plugin_info_file_str)
-        # TODO show and shot fps
-
-    ret = {
-        "JobInfoFilePath": str(path_job_info),
-        "PluginInfoFilePath": str(path_plugin_info),
-    }
-
-    yield Output(ret)
-
-    yield AssetMaterialization(
-        asset_key=context.asset_key,
-        metadata={
-            "__".join(context.asset_key.path): MetadataValue.json(ret)
-        }
-    )
+# @asset(
+#     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+#     ins={
+#         "render_output_directory": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"]),
+#         ),
+#         "render_output_filename": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_filename"]),
+#         ),
+#         "batch_name": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "batch_name"]),
+#         ),
+#         "job_title_str": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title_str"]),
+#         ),
+#         "job_title": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "job_title"]),
+#         ),
+#         "resolution_draft": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "resolution_draft"]),
+#         ),
+#         "annotations_string": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "annotations_string"]),
+#         ),
+#         "CONFIG": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+#         ),
+#         "frame_start_absolute": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_start_absolute"])
+#         ),
+#         "frame_end_absolute": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_end_absolute"])
+#         ),
+#         "job_model": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
+#         ),
+#         "fps": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "fps"])
+#         ),
+#     }
+# )
+# def job_draft_mov(
+#         context: AssetExecutionContext,
+#         render_output_directory: pathlib.Path,
+#         render_output_filename: Dict,
+#         batch_name: str,
+#         job_title_str: str,
+#         job_title: str,
+#         resolution_draft: tuple,
+#         annotations_string: str,
+#         CONFIG: DefaultConstants,
+#         frame_start_absolute: int,
+#         frame_end_absolute: int,
+#         job_model: JobBase,
+#         fps: float,
+# ) -> Generator[Output[dict[str, str]] | AssetMaterialization | Any, Any, None]:
+#     """
+#     The QuickDraft MOV Job
+#
+#     :return:
+#     """
+#
+#     quick_type = "createMovie"
+#     extension = "mov"
+#     _codec = "h264"
+#
+#     draft_out_dir = render_output_directory / "draft" / extension
+#     draft_out_dir.mkdir(parents=True, exist_ok=True)
+#
+#     path_job_info = draft_out_dir / f"job_draft_{extension}_info_job.txt"
+#
+#     job_info_file_str = textwrap.dedent(
+#         f"""\
+#         BatchName={batch_name}
+#         Name={job_title_str} (Draft {extension.upper()})
+#         Frames={frame_start_absolute}-{frame_end_absolute}
+#         Priority=0
+#         ChunkSize=1000000
+#         Plugin=DraftPlugin
+#         OutputDirectory0={draft_out_dir}
+#         OutputFilename0={job_model.plugin_model.padding_deadline}
+#         InitialStatus={job_model.deadline_initial_status}
+#         """
+#     )
+#
+#     with open(path_job_info, "w") as job_info_file:
+#         job_info_file.write(job_info_file_str)
+#
+#     path_plugin_info = draft_out_dir / f"job_draft_{extension}_info_plugin.txt"
+#
+#     plugin_info_file_str = textwrap.dedent(
+#         f"""\
+#         ScriptArg0=resolution="{CONFIG.RESOLUTION_DRAFT_SCALE}"
+#         ScriptArg1=codec="{_codec}"
+#         ScriptArg2=colorSpaceIn="Identity"
+#         ScriptArg3=colorSpaceOut="Identity"
+#         ScriptArg4=annotationsString="{annotations_string}"
+#         ScriptArg5=annotationsImageString="None"
+#         ScriptArg6=annotationsResWidthString="{resolution_draft[0]}"
+#         ScriptArg7=annotationsResHeightString="{resolution_draft[1]}"
+#         ScriptArg8=annotationsFramePaddingSize="{CONFIG.PADDING}"
+#         ScriptArg9=quality="85"
+#         ScriptArg10=quickType="{quick_type}"
+#         ScriptArg11=isDistributed="False"
+#         ScriptArg12=frameList={frame_start_absolute}-{frame_end_absolute}
+#         ScriptArg13=startFrame={frame_start_absolute}
+#         ScriptArg14=endFrame={frame_end_absolute}
+#         ScriptArg15=taskStartFrame=={frame_start_absolute}
+#         ScriptArg16=taskEndFrame=={frame_end_absolute}
+#         ScriptArg17=frameRate={fps}
+#         ScriptArg18=outFolder="{draft_out_dir}"
+#         ScriptArg19=outFile="{draft_out_dir}/{job_title}.{extension}"
+#         ScriptArg20=inFile="{pathlib.Path(render_output_directory/ CONFIG.RENDER_RAW_OUT / render_output_filename["padding_deadline"]).as_posix()}"
+#         """
+#     )
+#
+#     with open(path_plugin_info, "w") as plugin_info_file:
+#         plugin_info_file.write(plugin_info_file_str)
+#         # TODO show and shot fps
+#
+#     ret = {
+#         "JobInfoFilePath": str(path_job_info),
+#         "PluginInfoFilePath": str(path_plugin_info),
+#     }
+#
+#     yield Output(ret)
+#
+#     yield AssetMaterialization(
+#         asset_key=context.asset_key,
+#         metadata={
+#             "__".join(context.asset_key.path): MetadataValue.json(ret)
+#         }
+#     )
 
 
 @asset(
