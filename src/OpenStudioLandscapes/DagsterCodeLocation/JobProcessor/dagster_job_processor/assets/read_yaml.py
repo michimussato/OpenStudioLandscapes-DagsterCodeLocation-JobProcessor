@@ -2266,6 +2266,8 @@ def job_dict(
     session = requests.Session()
     response = session.send(prepared_request, verify=False)
 
+    context.log.debug(f"{response = }")
+
     # curl_cmd = [
     #     "curl",
     #     "--header", "Content-Type: application/json",
@@ -2293,7 +2295,7 @@ def job_dict(
                 f"```json\n{json.dumps(payload, default=str, indent=CONFIG.JSON_INDENT)}\n```"
             ),
             "request": MetadataValue.md(
-                f"```json\n{request.json(indent=2, fallback=str)}\n```"
+                f"```json\n{json.dumps(request.__dict__, indent=2, fallback=str)}\n```"
             ),
             "response": MetadataValue.md(
                 f"```json\n{response.json(indent=2, fallback=str)}\n```"
