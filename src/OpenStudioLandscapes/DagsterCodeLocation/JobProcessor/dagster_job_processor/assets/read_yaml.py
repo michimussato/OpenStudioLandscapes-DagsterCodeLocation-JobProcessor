@@ -1099,21 +1099,58 @@ def job_info_file(
     # render_output_directory.mkdir(parents=True, exist_ok=True)
     path = render_output_directory / "jobinfo_info.txt"
 
-    job_info_file_str = textwrap.dedent(
-        f"""\
-        InitialStatus={job_model.deadline_initial_status}
-        BatchName={batch_name}
-        Name={job_title_str}
-        Frames={frames}
-        ChunkSize={job_model.chunk_size}
-        ForceReloadPlugin=True
-        Comment={job_model.comment}
-        Plugin=CommandLine
-        StartupDirectory=
-        OutputDirectory0={render_output_directory}
-        OutputFilename0={render_output_filename["padding_deadline"]}
-        """
+    from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.jobs import models_submission
+
+    job_info_dict = {
+        "Plugin": models_submission.Plugin.CommandLine.value,
+        "Frames": frames,
+        "Name": job_title_str,
+        "Comment": job_model.comment,
+        # "Department"
+        "BatchName": batch_name,
+        # "UserName"
+        # "Pool"
+        # "SecondaryPool"
+        # "Group"
+        "Priority": 50,
+        "ChunkSize": job_model.chunk_size,
+        # "ConcurrentTasks"
+        # "LimitConcurrentTasksToNumberOfCpus"
+        # "OnJobComplete"
+        # "SynchronizeAllAuxiliaryFiles"
+        "ForceReloadPlugin": True,
+        # "Sequential"
+        # "SuppressEvents"
+        # "Protected"
+        "InitialStatus": job_model.deadline_initial_status,
+        # "StartupDirectory"
+        "OutputDirectory0": render_output_directory.as_posix(),
+        "OutputFilename0": render_output_filename["padding_deadline"],
+    }
+
+    job_info = models_submission.JobInfo(
+        **job_info_dict,
     )
+
+    job_info_file_str = str
+    for k, v in job_info_dict.items():
+        job_info_file_str += f"{k}={v}\n"
+
+    # job_info_file_str = textwrap.dedent(
+    #     f"""\
+    #     InitialStatus={job_model.deadline_initial_status}
+    #     BatchName={batch_name}
+    #     Name={job_title_str}
+    #     Frames={frames}
+    #     ChunkSize={job_model.chunk_size}
+    #     ForceReloadPlugin=True
+    #     Comment={job_model.comment}
+    #     Plugin=CommandLine
+    #     StartupDirectory=
+    #     OutputDirectory0={render_output_directory}
+    #     OutputFilename0={render_output_filename["padding_deadline"]}
+    #     """
+    # )
 
     with open(path, "w") as job_info_file:
         job_info_file.write(job_info_file_str)
@@ -1126,6 +1163,9 @@ def job_info_file(
             "__".join(context.asset_key.path): MetadataValue.path(path),
             # "job_info_file_str": MetadataValue.text(job_info_file_str),
             "job_info_file_str": MetadataValue.md(f"```\n{job_info_file_str}\n```"),
+            "job_info_file_yaml": MetadataValue.md(
+                f"```yaml\n{yaml.safe_dump(json.loads(job_info.model_dump_json(indent=2, fallback=str)))}\n```"
+            ),
         }
     )
 
@@ -2050,4 +2090,72 @@ def export_combined_dict(
             ),
             "destination": MetadataValue.path(out.parent),
         }
+    )
+
+
+@asset(
+    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+    # # This can fail if the job has already been archived
+    # deps=[
+    #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "archive_job_yaml"]),
+    # ],
+    ins={
+        "job_info_file": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_info_file"]),
+        ),
+        "plugin_info_file": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "plugin_info_file"]),
+        ),
+    },
+)
+def job(
+        context: AssetExecutionContext,
+        job_info_file: pathlib.Path,
+        plugin_info_file: pathlib.Path,
+) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
+
+    """
+    Before:
+    cat "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/037/4_1197-1254_4/combined_dict.json"
+
+    After
+    cat "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/045/4_0997-1104_4/combined_dict.json"
+    """
+
+    # job_model.farm_cmd = job_submission_tree
+    # job_model.task_url = get_task_url
+    #
+    # out = render_output_directory / "combined_dict.json"
+    #
+    # # model_dict = json.loads(
+    # #     job_model.model_dump_json(
+    # #         fallback=str,
+    # #         indent=CONFIG.JSON_INDENT,
+    # #     )
+    # # )
+    #
+    # model_dict = job_model.model_dump(
+    #     fallback=str,
+    # )
+    #
+    # with open(out, "w") as fo:
+    #     json.dump(
+    #         obj=model_dict,
+    #         fp=fo,
+    #         indent=CONFIG.JSON_INDENT,
+    #         sort_keys=True,
+    #         default=str,
+    #     )
+
+    yield Output(out)
+
+    yield AssetMaterialization(
+        asset_key=context.asset_key,
+        # metadata={
+        #     "__".join(context.asset_key.path): MetadataValue.path(out),
+        #     "model_dict": MetadataValue.md(
+        #         f"```json\n{json.dumps(model_dict, default=str, indent=CONFIG.JSON_INDENT)}\n```"
+        #     ),
+        #     "destination": MetadataValue.path(out.parent),
+        # }
     )
