@@ -1099,10 +1099,12 @@ def job_info_file(
     # render_output_directory.mkdir(parents=True, exist_ok=True)
     path = render_output_directory / "jobinfo_info.txt"
 
+    context.log.debug(f"{path = }")
+
     from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.jobs import models_submission
 
     job_info_dict = {
-        "Plugin": models_submission.Plugin.CommandLine.value,
+        "Plugin": models_submission.DeadlinePlugins.CommandLine.value,
         "Frames": frames,
         "Name": job_title_str,
         "Comment": job_model.comment,
@@ -1132,9 +1134,13 @@ def job_info_file(
         **job_info_dict,
     )
 
+    context.log.debug(f"{job_info = }")
+
     job_info_file_str = str
     for k, v in job_info_dict.items():
         job_info_file_str += f"{k}={v}\n"
+
+    context.log.debug(f"{job_info_file_str = }")
 
     # job_info_file_str = textwrap.dedent(
     #     f"""\
@@ -1152,8 +1158,8 @@ def job_info_file(
     #     """
     # )
 
-    with open(path, "w") as job_info_file:
-        job_info_file.write(job_info_file_str)
+    with open(path, "w") as fw:
+        fw.write(job_info_file_str)
 
     yield Output(path)
 

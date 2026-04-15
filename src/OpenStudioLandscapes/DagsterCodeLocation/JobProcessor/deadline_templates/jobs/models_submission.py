@@ -17,7 +17,7 @@ class CleanupMode(enum.Enum):
     DeleteJobs = "DeleteJobs"
 
 
-class OnJobComplete(enum.Enum):
+class OnJobCompleteAction(enum.Enum):
     Nothing = "Nothing"
     Delete = "Delete"
     Archive = "Archive"
@@ -61,7 +61,7 @@ class Cleanup(BaseModel):
 
 
 
-class Plugin(enum.StrEnum):
+class DeadlinePlugins(enum.StrEnum):
     CommandLine = "CommandLine"
 
 
@@ -161,8 +161,8 @@ class JobInfo(BaseModel):
     References:
     - [Job Info File Options](https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/manual-submission.html#job-info-file-options)
     """
-    Plugin: Plugin = Field(
-        default=Plugin.CommandLine.value,
+    Plugin: DeadlinePlugins = Field(
+        default=DeadlinePlugins.CommandLine.value,
         description="Plugin=<plugin name> : Specifies the plugin to use. Must match an existing plugin in the repository.",
     )
     Frames: str = Field(
@@ -221,8 +221,8 @@ class JobInfo(BaseModel):
         default=True,
         description="LimitConcurrentTasksToNumberOfCpus=<true/false> : If ConcurrentTasks is greater than 1, setting this to true will ensure that a Worker will not dequeue more tasks than it has processors (default = true).",
     )
-    OnJobComplete: OnJobComplete = Field(
-        default=OnJobComplete.Nothing.value,
+    OnJobComplete: OnJobCompleteAction = Field(
+        default=OnJobCompleteAction.Nothing.value,
         description="OnJobComplete=<Nothing/Delete/Archive> : Specifies what should happen to a job after it completes (default = Nothing).",
     )
     SynchronizeAllAuxiliaryFiles: bool = Field(
