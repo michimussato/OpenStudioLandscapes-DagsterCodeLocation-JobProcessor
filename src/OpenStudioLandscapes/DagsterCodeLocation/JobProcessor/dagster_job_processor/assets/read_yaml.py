@@ -1138,6 +1138,8 @@ def job_info_file(
 
     job_info_file_str = str
     for k, v in job_info_dict.items():
+        context.log.debug(f"{k = }")
+        context.log.debug(f"{v = }")
         job_info_file_str += f"{k}={v}\n"
 
     context.log.debug(f"{job_info_file_str = }")
