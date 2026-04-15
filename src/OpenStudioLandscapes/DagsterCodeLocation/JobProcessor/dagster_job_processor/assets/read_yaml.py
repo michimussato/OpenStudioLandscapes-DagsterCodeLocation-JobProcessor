@@ -2241,8 +2241,8 @@ def job_dict(
 
     # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/rest-jobs.html#submit-job
     job_description = {
-        "JobInfo": job_info_model,
-        "PluginInfo": plugin_info_model,
+        "JobInfo": json.loads(job_info_model.model_dump_json(indent=2, fallback=str)),
+        "PluginInfo": json.loads(plugin_info_model.model_dump_json(indent=2, fallback=str)),
         "IdOnly": False,
         "AuxFiles": [],
     }
