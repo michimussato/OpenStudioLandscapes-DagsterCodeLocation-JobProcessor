@@ -2250,9 +2250,9 @@ def job(
 
     context.log.debug(f"{request = }")
 
-    prepared_request = request.prepare()
-
-    context.log.debug(f"{prepared_request = }")
+    # prepared_request = request.prepare()
+    #
+    # context.log.debug(f"{prepared_request = }")
 
     # curl_cmd = [
     #     "curl",
@@ -2303,6 +2303,6 @@ def job(
             #     f"```json\n{json.dumps(model_dict, default=str, indent=CONFIG.JSON_INDENT)}\n```"
             # ),
             "request": MetadataValue.json(request.__dict__),
-            "prepared_request": MetadataValue.json(prepared_request.__dict__),
+            # "prepared_request": MetadataValue.json(prepared_request.__dict__),
         }
     )
