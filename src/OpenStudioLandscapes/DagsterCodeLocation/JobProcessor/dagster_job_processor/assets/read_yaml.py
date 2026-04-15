@@ -2205,6 +2205,9 @@ def export_combined_dict(
     #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "archive_job_yaml"]),
     # ],
     ins={
+        "CONFIG": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+        ),
         "job_info_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_info_model"]),
         ),
@@ -2213,11 +2216,12 @@ def export_combined_dict(
         ),
     },
 )
-def job(
+def job_dict(
         context: AssetExecutionContext,
+        CONFIG: DefaultConstants,
         job_info_model: models_submission.JobInfo,
         plugin_info_model: models_submission.CommandLinePluginInfo,
-) -> Generator[Output[requests.Request] | AssetMaterialization | Any, Any, None]:
+) -> Generator[Output[Dict] | AssetMaterialization | Any, Any, None]:
 
     """
     Before:
@@ -2244,15 +2248,15 @@ def job(
 
     context.log.debug(f"{payload = }")
 
-    request = requests.Request(
-        url="http://miniboss:8899/api/jobs",
-        method="POST",
-        headers=headers,
-        # json=payload,
-        data=json.dumps(payload),
-    )
-
-    context.log.debug(f"{request = }")
+    # request = requests.Request(
+    #     url="http://miniboss:8899/api/jobs",
+    #     method="POST",
+    #     headers=headers,
+    #     # json=payload,
+    #     data=json.dumps(payload),
+    # )
+    #
+    # context.log.debug(f"{request = }")
 
     # prepared_request = request.prepare()
     #
@@ -2302,11 +2306,242 @@ def job(
     yield AssetMaterialization(
         asset_key=context.asset_key,
         metadata={
-            "__".join(context.asset_key.path): MetadataValue.json(request.json),
+            "__".join(context.asset_key.path): MetadataValue.json(payload),
+            "payload": MetadataValue.md(
+                f"```json\n{json.dumps(payload, default=str, indent=CONFIG.JSON_INDENT)}\n```"
+            ),
+            # "payload": MetadataValue.json(request.__dict__),
+            # "prepared_request": MetadataValue.json(prepared_request.__dict__),
+        }
+    )
+
+
+@asset(
+    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+    # # This can fail if the job has already been archived
+    # deps=[
+    #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "archive_job_yaml"]),
+    # ],
+    ins={
+        "job_dict": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_dict"]),
+        ),
+        "plugin_info_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "plugin_info_model"]),
+        ),
+    },
+)
+def request(
+        context: AssetExecutionContext,
+        job_dict: Dict,
+        # plugin_info_model: models_submission.CommandLinePluginInfo,
+) -> Generator[Output[requests.Request] | AssetMaterialization | Any, Any, None]:
+
+    """
+    Before:
+    cat "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/037/4_1197-1254_4/combined_dict.json"
+
+    After
+    cat "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/045/4_0997-1104_4/combined_dict.json"
+    """
+
+    headers = {
+        "Content-Type": "application/json",
+        "Accept-Charset": "UTF-8",
+    }
+
+    context.log.debug(f"{headers = }")
+
+    # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/rest-jobs.html#submit-job
+    # payload = {
+    #     "JobInfo": job_info_model.model_dump_json(indent=2, fallback=str),
+    #     "PluginInfo": plugin_info_model.model_dump_json(indent=2, fallback=str),
+    #     "IdOnly": False,
+    #     "AuxFiles": [],
+    # }
+    #
+    # context.log.debug(f"{payload = }")
+
+    request_ = requests.Request(
+        url="http://miniboss:8899/api/jobs",
+        method="POST",
+        headers=headers,
+        # json=payload,
+        data=json.dumps(job_dict),
+    )
+
+    context.log.debug(f"{request_ = }")
+
+    # prepared_request = request.prepare()
+    #
+    # context.log.debug(f"{prepared_request = }")
+
+    # curl_cmd = [
+    #     "curl",
+    #     "--header", "Content-Type: application/json",
+    #     "--request", "POST",
+    #     "--data", json.dumps(
+    #         {
+    #             "JobInfo": job_info_model.model_dump_json(indent=2, fallback=str),
+    #             "PluginInfo": plugin_info_model.model_dump_json(indent=2, fallback=str),
+    #         },
+    #         indent=2,
+    #         default=str,
+    #     )
+    # ]
+
+    # job_model.farm_cmd = job_submission_tree
+    # job_model.task_url = get_task_url
+    #
+    # out = render_output_directory / "combined_dict.json"
+    #
+    # # model_dict = json.loads(
+    # #     job_model.model_dump_json(
+    # #         fallback=str,
+    # #         indent=CONFIG.JSON_INDENT,
+    # #     )
+    # # )
+    #
+    # model_dict = job_model.model_dump(
+    #     fallback=str,
+    # )
+    #
+    # with open(out, "w") as fo:
+    #     json.dump(
+    #         obj=model_dict,
+    #         fp=fo,
+    #         indent=CONFIG.JSON_INDENT,
+    #         sort_keys=True,
+    #         default=str,
+    #     )
+
+    yield Output(request_)
+
+    yield AssetMaterialization(
+        asset_key=context.asset_key,
+        metadata={
+            "__".join(context.asset_key.path): MetadataValue.json(request_.json),
             # "model_dict": MetadataValue.md(
             #     f"```json\n{json.dumps(model_dict, default=str, indent=CONFIG.JSON_INDENT)}\n```"
             # ),
-            "request": MetadataValue.json(request.__dict__),
+            "request": MetadataValue.json(request_.json(indent=2, fallback=str)),
+            # "prepared_request": MetadataValue.json(prepared_request.__dict__),
+        }
+    )
+
+
+@asset(
+    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+    # # This can fail if the job has already been archived
+    # deps=[
+    #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "archive_job_yaml"]),
+    # ],
+    ins={
+        "request": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_dict"]),
+        ),
+        # "plugin_info_model": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "plugin_info_model"]),
+        # ),
+    },
+)
+def submit_request(
+        context: AssetExecutionContext,
+        request: requests.Request,
+        # plugin_info_model: models_submission.CommandLinePluginInfo,
+) -> Generator[Output[requests.Response] | AssetMaterialization | Any, Any, None]:
+
+    """
+    Before:
+    cat "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/037/4_1197-1254_4/combined_dict.json"
+
+    After
+    cat "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/045/4_0997-1104_4/combined_dict.json"
+    """
+
+    # headers = {
+    #     "Content-Type": "application/json",
+    #     "Accept-Charset": "UTF-8",
+    # }
+    #
+    # context.log.debug(f"{headers = }")
+    #
+    # # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/rest-jobs.html#submit-job
+    # # payload = {
+    # #     "JobInfo": job_info_model.model_dump_json(indent=2, fallback=str),
+    # #     "PluginInfo": plugin_info_model.model_dump_json(indent=2, fallback=str),
+    # #     "IdOnly": False,
+    # #     "AuxFiles": [],
+    # # }
+    # #
+    # # context.log.debug(f"{payload = }")
+    #
+    # request_ = requests.Request(
+    #     url="http://miniboss:8899/api/jobs",
+    #     method="POST",
+    #     headers=headers,
+    #     # json=payload,
+    #     data=json.dumps(job_dict),
+    # )
+    #
+    # context.log.debug(f"{request_ = }")
+
+    prepared_request = request.prepare()
+
+    context.log.debug(f"{prepared_request = }")
+
+    session = requests.Session()
+    response = session.send(prepared_request, verify=False)
+
+    # curl_cmd = [
+    #     "curl",
+    #     "--header", "Content-Type: application/json",
+    #     "--request", "POST",
+    #     "--data", json.dumps(
+    #         {
+    #             "JobInfo": job_info_model.model_dump_json(indent=2, fallback=str),
+    #             "PluginInfo": plugin_info_model.model_dump_json(indent=2, fallback=str),
+    #         },
+    #         indent=2,
+    #         default=str,
+    #     )
+    # ]
+
+    # job_model.farm_cmd = job_submission_tree
+    # job_model.task_url = get_task_url
+    #
+    # out = render_output_directory / "combined_dict.json"
+    #
+    # # model_dict = json.loads(
+    # #     job_model.model_dump_json(
+    # #         fallback=str,
+    # #         indent=CONFIG.JSON_INDENT,
+    # #     )
+    # # )
+    #
+    # model_dict = job_model.model_dump(
+    #     fallback=str,
+    # )
+    #
+    # with open(out, "w") as fo:
+    #     json.dump(
+    #         obj=model_dict,
+    #         fp=fo,
+    #         indent=CONFIG.JSON_INDENT,
+    #         sort_keys=True,
+    #         default=str,
+    #     )
+
+    yield Output(response)
+
+    yield AssetMaterialization(
+        asset_key=context.asset_key,
+        metadata={
+            "__".join(context.asset_key.path): MetadataValue.json(response.json()),
+            # "model_dict": MetadataValue.md(
+            #     f"```json\n{json.dumps(model_dict, default=str, indent=CONFIG.JSON_INDENT)}\n```"
+            # ),
+            "response": MetadataValue.json(response.json(indent=2, fallback=str)),
             # "prepared_request": MetadataValue.json(prepared_request.__dict__),
         }
     )
