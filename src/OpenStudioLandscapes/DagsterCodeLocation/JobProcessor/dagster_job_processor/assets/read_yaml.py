@@ -2,8 +2,10 @@ import enum
 import pathlib
 import re
 import shutil
-import textwrap
-from typing import Any, Generator, Dict, List
+
+import requests
+# import textwrap
+from typing import Any, Generator, Dict
 
 import yaml
 from dagster import (
@@ -2214,7 +2216,7 @@ def job(
         context: AssetExecutionContext,
         job_info_model: models_submission.JobInfo,
         plugin_info_model: models_submission.CommandLinePluginInfo,
-) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
+) -> Generator[Output[requests.Request] | AssetMaterialization | Any, Any, None]:
 
     """
     Before:
@@ -2223,6 +2225,42 @@ def job(
     After
     cat "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/045/4_0997-1104_4/combined_dict.json"
     """
+
+    headers = {
+        "Content-Type": "application/json",
+        "Accept-Charset": "UTF-8",
+    }
+
+    context.log.debug(f"{headers = }")
+
+    payload = {
+        "JobInfo": job_info_model.model_dump_json(indent=2, fallback=str),
+        "PluginInfo": plugin_info_model.model_dump_json(indent=2, fallback=str),
+    }
+
+    context.log.debug(f"{payload = }")
+
+    request = requests.Request(
+        method="POST",
+        headers=headers,
+        data=json.dumps(payload),
+    )
+
+    context.log.debug(f"{request = }")
+
+    # curl_cmd = [
+    #     "curl",
+    #     "--header", "Content-Type: application/json",
+    #     "--request", "POST",
+    #     "--data", json.dumps(
+    #         {
+    #             "JobInfo": job_info_model.model_dump_json(indent=2, fallback=str),
+    #             "PluginInfo": plugin_info_model.model_dump_json(indent=2, fallback=str),
+    #         },
+    #         indent=2,
+    #         default=str,
+    #     )
+    # ]
 
     # job_model.farm_cmd = job_submission_tree
     # job_model.task_url = get_task_url
@@ -2249,15 +2287,15 @@ def job(
     #         default=str,
     #     )
 
-    yield Output(out)
+    yield Output(request)
 
     yield AssetMaterialization(
         asset_key=context.asset_key,
-        # metadata={
-        #     "__".join(context.asset_key.path): MetadataValue.path(out),
-        #     "model_dict": MetadataValue.md(
-        #         f"```json\n{json.dumps(model_dict, default=str, indent=CONFIG.JSON_INDENT)}\n```"
-        #     ),
-        #     "destination": MetadataValue.path(out.parent),
-        # }
+        metadata={
+            "__".join(context.asset_key.path): MetadataValue.json(request.json),
+            # "model_dict": MetadataValue.md(
+            #     f"```json\n{json.dumps(model_dict, default=str, indent=CONFIG.JSON_INDENT)}\n```"
+            # ),
+            # "destination": MetadataValue.path(out.parent),
+        }
     )
