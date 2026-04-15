@@ -65,74 +65,74 @@ class DeadlinePlugins(enum.StrEnum):
     CommandLine = "CommandLine"
 
 
-class JobDependencies(BaseModel):
-    """
-    I believe the JobID is known only after
-    successful submission. Hence, a job which
-    depends on another job has to be submitted
-    afterwards.
-
-    References:
-    - [Dependencies](https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/manual-submission.html#dependencies)
-
-    """
-    JobDependencies: List[str] = Field(
-        default_factory=list,
-        description="JobDependencies=<jobID,jobID,jobID> : Specifies what jobs must finish before this job will resume (default = blank). These dependency jobs must be identified using their unique job ID, which is outputted after the job is submitted, and can be found in the Monitor in the “Job ID” column.",
-    )
-    JobDependencyPercentage: int = Field(
-        default=-1,
-        description="JobDependencyPercentage=<-1, or 0 to 100> : If between 0 and 100, this job will resume when all of its job dependencies have completed the specified percentage number of tasks. If -1, this feature will be disabled (default = -1)."
-    )
-    IsFrameDependent: bool = Field(
-        default=False,
-        description="IsFrameDependent=<true/false> : Specifies whether or not the job is frame dependent (default = false)."
-    )
-    FrameDependencyOffsetStart: int = Field(
-        default=0,
-        description="FrameDependencyOffsetStart=<-100000 to 100000> : If the job is frame dependent, this is the start frame offset (default = 0)."
-    )
-    FrameDependencyOffsetEnd: int = Field(
-        default=0,
-        description="FrameDependencyOffsetEnd=<-100000 to 100000> : If the job is frame dependent, this is the end frame offset (default = 0)."
-    )
-    ResumeOnCompleteDependencies: bool = Field(
-        default=True,
-        description="ResumeOnCompleteDependencies=<true/false> : Specifies whether or not the dependent job should resume when its dependencies are complete (default = true)."
-    )
-    ResumeOnDeletedDependencies: bool = Field(
-        default=False,
-        description="ResumeOnDeletedDependencies=<true/false> : Specifies whether or not the dependent job should resume when its dependencies have been deleted (default = false)."
-    )
-    ResumeOnFailedDependencies: bool = Field(
-        default=False,
-        description="ResumeOnFailedDependencies=<true/false> : Specifies whether or not the dependent job should resume when its dependencies have failed (default = false)."
-    )
-    RequiredAssets: List[pathlib.Path] = Field(
-        default_factory=list,
-        description="RequiredAssets=<assetPath,assetPath,assetPath> : Specifies what asset files must exist before this job will resume (default = blank). These asset paths must be identified using full paths, and multiple paths can be separated with commas. If using frame dependencies, you can replace padding in a sequence with the ‘#’ characters, and a task for the job will only be resumed when the required assets for the task’s frame exist."
-    )
-    ScriptDependencies: List[pathlib.Path] = Field(
-        default_factory=list,
-        description="ScriptDependencies=<scriptPath,scriptPath,scriptPath> : Specifies what Python script files will be executed to determine if a job can resume (default = blank). These script paths must be identified using full paths, and multiple paths can be separated with commas. See the [dependency scripting section](https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/job-scripts.html#job-dependency-scripts-ref-label) of the documentation for more information."
-    )
-
-    @field_validator("JobDependencies")
-    @classmethod
-    def stringify_job_dependencies(cls, v: List[str]) -> str:
-        return str(",".join(v))
-
-    # OverrideResumeOn: bool = False
-    # ResumeOnComplete: bool = True
-    # ResumeOnDeleted: bool = False
-    # ResumeOnFailed: bool = False
-    # ResumeOnPercentageCompleted: bool = False
-    # ResumeOnPercentageValue: float = 0.0
-    # OverrideFrameOffsets: bool = False
-    # StartOffset: int = 0
-    # EndOffset: int = 0
-    # Notes: str = ""
-    # IgnoreFrameOffsets: bool = False
+# class JobDependencies(BaseModel):
+#     """
+#     I believe the JobID is known only after
+#     successful submission. Hence, a job which
+#     depends on another job has to be submitted
+#     afterwards.
+#
+#     References:
+#     - [Dependencies](https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/manual-submission.html#dependencies)
+#
+#     """
+#     JobDependencies: List[str] = Field(
+#         default_factory=list,
+#         description="JobDependencies=<jobID,jobID,jobID> : Specifies what jobs must finish before this job will resume (default = blank). These dependency jobs must be identified using their unique job ID, which is outputted after the job is submitted, and can be found in the Monitor in the “Job ID” column.",
+#     )
+#     JobDependencyPercentage: int = Field(
+#         default=-1,
+#         description="JobDependencyPercentage=<-1, or 0 to 100> : If between 0 and 100, this job will resume when all of its job dependencies have completed the specified percentage number of tasks. If -1, this feature will be disabled (default = -1)."
+#     )
+#     IsFrameDependent: bool = Field(
+#         default=False,
+#         description="IsFrameDependent=<true/false> : Specifies whether or not the job is frame dependent (default = false)."
+#     )
+#     FrameDependencyOffsetStart: int = Field(
+#         default=0,
+#         description="FrameDependencyOffsetStart=<-100000 to 100000> : If the job is frame dependent, this is the start frame offset (default = 0)."
+#     )
+#     FrameDependencyOffsetEnd: int = Field(
+#         default=0,
+#         description="FrameDependencyOffsetEnd=<-100000 to 100000> : If the job is frame dependent, this is the end frame offset (default = 0)."
+#     )
+#     ResumeOnCompleteDependencies: bool = Field(
+#         default=True,
+#         description="ResumeOnCompleteDependencies=<true/false> : Specifies whether or not the dependent job should resume when its dependencies are complete (default = true)."
+#     )
+#     ResumeOnDeletedDependencies: bool = Field(
+#         default=False,
+#         description="ResumeOnDeletedDependencies=<true/false> : Specifies whether or not the dependent job should resume when its dependencies have been deleted (default = false)."
+#     )
+#     ResumeOnFailedDependencies: bool = Field(
+#         default=False,
+#         description="ResumeOnFailedDependencies=<true/false> : Specifies whether or not the dependent job should resume when its dependencies have failed (default = false)."
+#     )
+#     RequiredAssets: List[pathlib.Path] = Field(
+#         default_factory=list,
+#         description="RequiredAssets=<assetPath,assetPath,assetPath> : Specifies what asset files must exist before this job will resume (default = blank). These asset paths must be identified using full paths, and multiple paths can be separated with commas. If using frame dependencies, you can replace padding in a sequence with the ‘#’ characters, and a task for the job will only be resumed when the required assets for the task’s frame exist."
+#     )
+#     ScriptDependencies: List[pathlib.Path] = Field(
+#         default_factory=list,
+#         description="ScriptDependencies=<scriptPath,scriptPath,scriptPath> : Specifies what Python script files will be executed to determine if a job can resume (default = blank). These script paths must be identified using full paths, and multiple paths can be separated with commas. See the [dependency scripting section](https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/job-scripts.html#job-dependency-scripts-ref-label) of the documentation for more information."
+#     )
+#
+#     @field_validator("JobDependencies")
+#     @classmethod
+#     def stringify_job_dependencies(cls, v: List[str]) -> str:
+#         return str(",".join(v))
+#
+#     # OverrideResumeOn: bool = False
+#     # ResumeOnComplete: bool = True
+#     # ResumeOnDeleted: bool = False
+#     # ResumeOnFailed: bool = False
+#     # ResumeOnPercentageCompleted: bool = False
+#     # ResumeOnPercentageValue: float = 0.0
+#     # OverrideFrameOffsets: bool = False
+#     # StartOffset: int = 0
+#     # EndOffset: int = 0
+#     # Notes: str = ""
+#     # IgnoreFrameOffsets: bool = False
 
 
 class CommandLinePluginInfo(BaseModel):
@@ -260,10 +260,55 @@ class JobInfo(BaseModel):
     # )
 
     # Dependencies
-    Dependencies: JobDependencies = Field(
-        default=JobDependencies(),
-        description="",
+    JobDependencies: List[str] = Field(
+        default_factory=list,
+        description="JobDependencies=<jobID,jobID,jobID> : Specifies what jobs must finish before this job will resume (default = blank). These dependency jobs must be identified using their unique job ID, which is outputted after the job is submitted, and can be found in the Monitor in the “Job ID” column.",
     )
+    JobDependencyPercentage: int = Field(
+        default=-1,
+        description="JobDependencyPercentage=<-1, or 0 to 100> : If between 0 and 100, this job will resume when all of its job dependencies have completed the specified percentage number of tasks. If -1, this feature will be disabled (default = -1)."
+    )
+    IsFrameDependent: bool = Field(
+        default=False,
+        description="IsFrameDependent=<true/false> : Specifies whether or not the job is frame dependent (default = false)."
+    )
+    FrameDependencyOffsetStart: int = Field(
+        default=0,
+        description="FrameDependencyOffsetStart=<-100000 to 100000> : If the job is frame dependent, this is the start frame offset (default = 0)."
+    )
+    FrameDependencyOffsetEnd: int = Field(
+        default=0,
+        description="FrameDependencyOffsetEnd=<-100000 to 100000> : If the job is frame dependent, this is the end frame offset (default = 0)."
+    )
+    ResumeOnCompleteDependencies: bool = Field(
+        default=True,
+        description="ResumeOnCompleteDependencies=<true/false> : Specifies whether or not the dependent job should resume when its dependencies are complete (default = true)."
+    )
+    ResumeOnDeletedDependencies: bool = Field(
+        default=False,
+        description="ResumeOnDeletedDependencies=<true/false> : Specifies whether or not the dependent job should resume when its dependencies have been deleted (default = false)."
+    )
+    ResumeOnFailedDependencies: bool = Field(
+        default=False,
+        description="ResumeOnFailedDependencies=<true/false> : Specifies whether or not the dependent job should resume when its dependencies have failed (default = false)."
+    )
+    RequiredAssets: List[pathlib.Path] = Field(
+        default_factory=list,
+        description="RequiredAssets=<assetPath,assetPath,assetPath> : Specifies what asset files must exist before this job will resume (default = blank). These asset paths must be identified using full paths, and multiple paths can be separated with commas. If using frame dependencies, you can replace padding in a sequence with the ‘#’ characters, and a task for the job will only be resumed when the required assets for the task’s frame exist."
+    )
+    ScriptDependencies: List[pathlib.Path] = Field(
+        default_factory=list,
+        description="ScriptDependencies=<scriptPath,scriptPath,scriptPath> : Specifies what Python script files will be executed to determine if a job can resume (default = blank). These script paths must be identified using full paths, and multiple paths can be separated with commas. See the [dependency scripting section](https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/job-scripts.html#job-dependency-scripts-ref-label) of the documentation for more information."
+    )
+
+    @field_validator("JobDependencies")
+    @classmethod
+    def stringify_job_dependencies(cls, v: List[str]) -> str:
+        return str(",".join(v))
+    # Dependencies: JobDependencies = Field(
+    #     default=JobDependencies(),
+    #     description="",
+    # )
     # :  = Field(
     #     default=,
     #     description="",

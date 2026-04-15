@@ -2238,7 +2238,7 @@ def job(
         "JobInfo": job_info_model.model_dump_json(indent=2, fallback=str),
         "PluginInfo": plugin_info_model.model_dump_json(indent=2, fallback=str),
         "IdOnly": False,
-        "AusFiles": [],
+        "AuxFiles": [],
     }
 
     context.log.debug(f"{payload = }")
