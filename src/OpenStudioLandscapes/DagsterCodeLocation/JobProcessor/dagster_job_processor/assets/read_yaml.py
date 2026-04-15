@@ -2307,7 +2307,7 @@ def job_dict(
                 f"```json\n{json.dumps(request.__dict__, indent=2, default=str)}\n```"
             ),
             "response": MetadataValue.md(
-                f"```json\n{response.json(indent=2, fallback=str)}\n```"
+                f"```json\n{response.json()}\n```"
             ),
             # "request": MetadataValue.json(request.__dict__),
             # "prepared_request": MetadataValue.json(prepared_request.__dict__),
