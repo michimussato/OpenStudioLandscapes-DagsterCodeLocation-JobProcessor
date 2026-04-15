@@ -2264,10 +2264,14 @@ def job_dict(
     context.log.debug(f"{prepared_request = }")
 
     session = requests.Session()
-    response = session.send(prepared_request, verify=False)
+    response: requests.Response = session.send(prepared_request, verify=False)
 
     context.log.debug(f"{response = }")
-    context.log.debug(f"{response.json() = }")
+    context.log.debug(f"{response.raw = }")
+    context.log.debug(f"{response.status_code = }")
+    context.log.debug(f"{response.content = }")
+    context.log.debug(f"{response.text = }")
+    # context.log.debug(f"{response. = }")
 
     # curl_cmd = [
     #     "curl",
