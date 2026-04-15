@@ -2240,12 +2240,16 @@ def job_dict(
     context.log.debug(f"{headers = }")
 
     # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/rest-jobs.html#submit-job
-    payload = {
-        "JobInfo": job_info_model.model_dump_json(indent=2, fallback=str),
-        "PluginInfo": plugin_info_model.model_dump_json(indent=2, fallback=str),
+    job_description = {
+        "JobInfo": job_info_model,
+        "PluginInfo": plugin_info_model,
         "IdOnly": False,
         "AuxFiles": [],
     }
+
+    context.log.debug(f"{job_description = }")
+
+    payload = json.dumps(job_description, indent=2, sort_keys=True, default=str)
 
     context.log.debug(f"{payload = }")
 
