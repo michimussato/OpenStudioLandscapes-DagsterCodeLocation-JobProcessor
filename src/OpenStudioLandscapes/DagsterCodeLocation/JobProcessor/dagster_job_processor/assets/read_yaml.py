@@ -1464,7 +1464,7 @@ def render_arguments(
     yield AssetMaterialization(
         asset_key=context.asset_key,
         metadata={
-            "__".join(context.asset_key.path): MetadataValue.text(ret)
+            "__".join(context.asset_key.path): MetadataValue.md(f"```\n{ret}\n```"),
         }
     )
 
