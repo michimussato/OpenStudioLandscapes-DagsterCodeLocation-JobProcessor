@@ -2326,15 +2326,11 @@ def job_dict(
         "job_dict": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_dict"]),
         ),
-        "plugin_info_model": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "plugin_info_model"]),
-        ),
     },
 )
 def request(
         context: AssetExecutionContext,
         job_dict: Dict,
-        # plugin_info_model: models_submission.CommandLinePluginInfo,
 ) -> Generator[Output[requests.Request] | AssetMaterialization | Any, Any, None]:
 
     """
@@ -2438,7 +2434,7 @@ def request(
     # ],
     ins={
         "request": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_dict"]),
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "request"]),
         ),
         # "plugin_info_model": AssetIn(
         #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "plugin_info_model"]),
