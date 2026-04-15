@@ -779,51 +779,51 @@ def batch_name(
     )
 
 
-@asset(
-    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-    ins={
-        "render_output_directory": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
-        ),
-        "render_output_filename": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_filename"])
-        ),
-        "batch_name": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "batch_name"])
-        ),
-        "job_model": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
-        ),
-    }
-)
-def props(
-        context: AssetExecutionContext,
-        render_output_directory: pathlib.Path,
-        render_output_filename: Dict,
-        batch_name: str,
-        job_model: JobBase,
-) -> Generator[Output[List[str]] | AssetMaterialization | Any, Any, None]:
-
-    props = [
-        ('Comment', f'{job_model.comment}'),  # TODO
-        ('ForceReloadPlugin', True),
-        ('InitialStatus', job_model.deadline_initial_status),
-        ('OutputDirectory0', f'{render_output_directory}'),
-        ('OutputFilename0', f'{render_output_filename["padding_deadline"]}'),
-        ('BatchName', f'{batch_name}'),
-        # This should not end up in plugin_info_file it seems: https://docs.thinkboxsoftware.com/products/deadline/10.1/1_User%20Manual/manual/manual-submission.html#job-info-ref-label
-    ]
-
-    props_ = [f'{k}={v}' for k, v in props]
-
-    yield Output(props_)
-
-    yield AssetMaterialization(
-        asset_key=context.asset_key,
-        metadata={
-            "__".join(context.asset_key.path): MetadataValue.json(props_)
-        }
-    )
+# @asset(
+#     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+#     ins={
+#         "render_output_directory": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
+#         ),
+#         "render_output_filename": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_filename"])
+#         ),
+#         "batch_name": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "batch_name"])
+#         ),
+#         "job_model": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
+#         ),
+#     }
+# )
+# def props(
+#         context: AssetExecutionContext,
+#         render_output_directory: pathlib.Path,
+#         render_output_filename: Dict,
+#         batch_name: str,
+#         job_model: JobBase,
+# ) -> Generator[Output[List[str]] | AssetMaterialization | Any, Any, None]:
+#
+#     props = [
+#         # ('Comment', f'{job_model.comment}'),  # TODO
+#         # ('ForceReloadPlugin', True),
+#         # ('InitialStatus', job_model.deadline_initial_status),
+#         # ('OutputDirectory0', f'{render_output_directory}'),
+#         # ('OutputFilename0', f'{render_output_filename["padding_deadline"]}'),
+#         # ('BatchName', f'{batch_name}'),
+#         # This should not end up in plugin_info_file it seems: https://docs.thinkboxsoftware.com/products/deadline/10.1/1_User%20Manual/manual/manual-submission.html#job-info-ref-label
+#     ]
+#
+#     props_ = [f'{k}={v}' for k, v in props]
+#
+#     yield Output(props_)
+#
+#     yield AssetMaterialization(
+#         asset_key=context.asset_key,
+#         metadata={
+#             "__".join(context.asset_key.path): MetadataValue.json(props_)
+#         }
+#     )
 
 
 @asset(
@@ -1102,24 +1102,25 @@ def job_info_file(
         Name={job_title_str}
         Frames={frames}
         ChunkSize={job_model.chunk_size}
+        ForceReloadPlugin=True
+        Comment={job_model.comment}
         Plugin=CommandLine
         StartupDirectory=
+        OutputDirectory0={render_output_directory}
+        OutputFilename0={render_output_filename["padding_deadline"]}
         """
     )
 
-
     with open(path, "w") as job_info_file:
         job_info_file.write(job_info_file_str)
-
-        for prop in props:
-            job_info_file.write(f'{prop}\n')
 
     yield Output(path)
 
     yield AssetMaterialization(
         asset_key=context.asset_key,
         metadata={
-            "__".join(context.asset_key.path): MetadataValue.path(path)
+            "__".join(context.asset_key.path): MetadataValue.path(path),
+            "job_info_file_str": MetadataValue.text(job_info_file_str),
         }
     )
 
@@ -1148,16 +1149,24 @@ def plugin_info_file(
     # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/manual-submission.html#plug-in-info-file
     # render_output_directory.mkdir(parents=True, exist_ok=True)
     path = pathlib.Path(f"{render_output_directory}/plugin_info.txt")
+
+    job_info_file_str = textwrap.dedent(
+        f"""
+        Executable={job_model.plugin_model.executable.as_posix()}
+        Arguments="{render_arguments}"
+        """
+    )
+
     with open(path, "w") as job_info_file:
-        job_info_file.write(f'Executable={job_model.plugin_model.executable.as_posix()}\n')
-        job_info_file.write(f'Arguments="{render_arguments}"\n')
+        job_info_file.write(job_info_file_str)
 
     yield Output(path)
 
     yield AssetMaterialization(
         asset_key=context.asset_key,
         metadata={
-            "__".join(context.asset_key.path): MetadataValue.path(path)
+            "__".join(context.asset_key.path): MetadataValue.path(path),
+            "job_info_file_str": MetadataValue.text(job_info_file_str),
         }
     )
 
