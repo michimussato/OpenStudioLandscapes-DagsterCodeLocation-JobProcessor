@@ -17,6 +17,8 @@ from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.resources import KitsuResource
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.jobs.job_base import JobBase, Resolution
 # from OpenStudioLandscapes.DagsterCodeLocation.StreamingProcess import submit_cmds
+from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.jobs import models_submission
+
 
 # TODO
 #  rename to generate_job_submission_scripts
@@ -1101,8 +1103,6 @@ def job_info_file(
 
     context.log.debug(f"{path = }")
 
-    from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.jobs import models_submission
-
     job_info_dict = {
         "Plugin": models_submission.DeadlinePlugins.CommandLine.value,
         "Frames": frames,
@@ -1203,15 +1203,34 @@ def plugin_info_file(
     # render_output_directory.mkdir(parents=True, exist_ok=True)
     path = pathlib.Path(f"{render_output_directory}/plugin_info.txt")
 
-    job_info_file_str = textwrap.dedent(
-        f"""
-        Executable={job_model.plugin_model.executable.as_posix()}
-        Arguments="{render_arguments}"
-        """
+    context.log.debug(f"{path = }")
+
+    plugin_info_dict = {
+        "Executable": job_model.plugin_model.executable.as_posix(),
+        "Arguments": f'"{render_arguments}"',
+    }
+
+    plugin_info = models_submission.CommandLinePluginInfo(
+        **plugin_info_dict,
     )
 
-    with open(path, "w") as job_info_file:
-        job_info_file.write(job_info_file_str)
+    context.log.debug(f"{plugin_info = }")
+
+    plugin_info_file_str = str()
+    for k, v in plugin_info_dict.items():
+        context.log.debug(f"{k = }")
+        context.log.debug(f"{v = }")
+        plugin_info_file_str += f"{k}={v}\n"
+
+    # plugin_info_file_str = textwrap.dedent(
+    #     f"""
+    #     Executable={job_model.plugin_model.executable.as_posix()}
+    #     Arguments="{render_arguments}"
+    #     """
+    # )
+
+    with open(path, "w") as fw:
+        fw.write(plugin_info_file_str)
 
     yield Output(path)
 
@@ -1219,8 +1238,11 @@ def plugin_info_file(
         asset_key=context.asset_key,
         metadata={
             "__".join(context.asset_key.path): MetadataValue.path(path),
-            # "job_info_file_str": MetadataValue.text(job_info_file_str),
-            "job_info_file_str": MetadataValue.md(f"```\n{job_info_file_str}\n```"),
+            # "plugin_info_file_str": MetadataValue.text(plugin_info_file_str),
+            "plugin_info_file_str": MetadataValue.md(f"```\n{plugin_info_file_str}\n```"),
+            "plugin_info_file_yaml": MetadataValue.md(
+                f"```yaml\n{yaml.safe_dump(json.loads(plugin_info.model_dump_json(indent=2, fallback=str)))}\n```"
+            ),
         }
     )
 
