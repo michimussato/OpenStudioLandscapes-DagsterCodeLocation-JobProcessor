@@ -2241,12 +2241,18 @@ def job(
     context.log.debug(f"{payload = }")
 
     request = requests.Request(
+        url="http://miniboss:8899/api/jobs",
         method="POST",
         headers=headers,
+        # json=payload,
         data=json.dumps(payload),
     )
 
     context.log.debug(f"{request = }")
+
+    prepared_request = request.prepare()
+
+    context.log.debug(f"{prepared_request = }")
 
     # curl_cmd = [
     #     "curl",
@@ -2296,6 +2302,7 @@ def job(
             # "model_dict": MetadataValue.md(
             #     f"```json\n{json.dumps(model_dict, default=str, indent=CONFIG.JSON_INDENT)}\n```"
             # ),
-            # "destination": MetadataValue.path(out.parent),
+            "request": MetadataValue.json(request.__dict__),
+            "prepared_request": MetadataValue.json(prepared_request.__dict__),
         }
     )
