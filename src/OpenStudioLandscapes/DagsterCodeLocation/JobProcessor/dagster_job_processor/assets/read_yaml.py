@@ -2233,9 +2233,12 @@ def job(
 
     context.log.debug(f"{headers = }")
 
+    # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/rest-jobs.html#submit-job
     payload = {
         "JobInfo": job_info_model.model_dump_json(indent=2, fallback=str),
         "PluginInfo": plugin_info_model.model_dump_json(indent=2, fallback=str),
+        "IdOnly": False,
+        "AusFiles": [],
     }
 
     context.log.debug(f"{payload = }")
