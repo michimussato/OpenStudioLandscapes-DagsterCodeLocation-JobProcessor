@@ -1125,7 +1125,7 @@ def job_info_file(
         metadata={
             "__".join(context.asset_key.path): MetadataValue.path(path),
             # "job_info_file_str": MetadataValue.text(job_info_file_str),
-            "job_info_file_str": MetadataValue.md(f"```generic\n{job_info_file_str}\n```"),
+            "job_info_file_str": MetadataValue.md(f"```\n{job_info_file_str}\n```"),
         }
     )
 
@@ -1172,7 +1172,7 @@ def plugin_info_file(
         metadata={
             "__".join(context.asset_key.path): MetadataValue.path(path),
             # "job_info_file_str": MetadataValue.text(job_info_file_str),
-            "job_info_file_str": MetadataValue.md(f"```generic\n{job_info_file_str}\n```"),
+            "job_info_file_str": MetadataValue.md(f"```\n{job_info_file_str}\n```"),
         }
     )
 
