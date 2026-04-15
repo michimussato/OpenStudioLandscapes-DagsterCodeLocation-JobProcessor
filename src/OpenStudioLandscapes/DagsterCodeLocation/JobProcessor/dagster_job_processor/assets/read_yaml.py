@@ -9,7 +9,7 @@ import yaml
 from dagster import (
     asset, AssetIn, MetadataValue,
     AssetMaterialization, Output,
-    Config, AssetExecutionContext, AssetKey,
+    Config, AssetExecutionContext, AssetKey, multi_asset, AssetOut,
 )
 import json
 
@@ -1060,8 +1060,20 @@ def frames(
     )
 
 
-@asset(
-    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+@multi_asset(
+    outs={
+        "job_info_file": AssetOut(
+            **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+            dagster_type=pathlib.Path,
+            description="",
+        ),
+        "job_info_model": AssetOut(
+            **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+            dagster_type=models_submission.CommandLinePluginInfo,
+            description="",
+        ),
+    },
+    # **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     ins={
         "batch_name": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "batch_name"])
@@ -1163,23 +1175,59 @@ def job_info_file(
     with open(path, "w") as fw:
         fw.write(job_info_file_str)
 
-    yield Output(path)
+    output_name = "job_info_file"
+
+    yield Output(
+        output_name=output_name,
+        value=path,
+    )
 
     yield AssetMaterialization(
-        asset_key=context.asset_key,
+        asset_key=context.asset_key_for_output(output_name),
         metadata={
-            "__".join(context.asset_key.path): MetadataValue.path(path),
+            "__".join(context.asset_key_for_output(output_name).path): MetadataValue.path(path),
             # "job_info_file_str": MetadataValue.text(job_info_file_str),
             "job_info_file_str": MetadataValue.md(f"```\n{job_info_file_str}\n```"),
-            "job_info_file_yaml": MetadataValue.md(
+            # "job_info_file_yaml": MetadataValue.md(
+            #     f"```yaml\n{yaml.safe_dump(json.loads(job_info.model_dump_json(indent=2, fallback=str)))}\n```"
+            # ),
+        }
+    )
+
+    output_name = "job_info_model"
+
+    yield Output(
+        output_name=output_name,
+        value=job_info,
+    )
+
+    yield AssetMaterialization(
+        asset_key=context.asset_key_for_output(output_name),
+        metadata={
+            # "__".join(context.asset_key.path): MetadataValue.path(path),
+            # # "job_info_file_str": MetadataValue.text(job_info_file_str),
+            # "job_info_file_str": MetadataValue.md(f"```\n{job_info_file_str}\n```"),
+            "job_info_model_yaml": MetadataValue.md(
                 f"```yaml\n{yaml.safe_dump(json.loads(job_info.model_dump_json(indent=2, fallback=str)))}\n```"
             ),
         }
     )
 
 
-@asset(
-    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+@multi_asset(
+    outs={
+        "plugin_info_file": AssetOut(
+            **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+            dagster_type=pathlib.Path,
+            description="",
+        ),
+        "plugin_info_model": AssetOut(
+            **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+            dagster_type=models_submission.CommandLinePluginInfo,
+            description="",
+        ),
+    },
+    # **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     ins={
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
@@ -1207,7 +1255,7 @@ def plugin_info_file(
 
     plugin_info_dict = {
         "Executable": job_model.plugin_model.executable.as_posix(),
-        "Arguments": f"\"{render_arguments}\"",
+        "Arguments": f'"{render_arguments}"',
     }
 
     plugin_info = models_submission.CommandLinePluginInfo(
@@ -1232,15 +1280,39 @@ def plugin_info_file(
     with open(path, "w") as fw:
         fw.write(plugin_info_file_str)
 
-    yield Output(path)
+    output_name = "plugin_info_file"
+
+    yield Output(
+        output_name=output_name,
+        value=path,
+    )
 
     yield AssetMaterialization(
-        asset_key=context.asset_key,
+        asset_key=context.asset_key_for_output(output_name),
         metadata={
-            "__".join(context.asset_key.path): MetadataValue.path(path),
+            "__".join(context.asset_key_for_output(output_name).path): MetadataValue.path(path),
             # "plugin_info_file_str": MetadataValue.text(plugin_info_file_str),
             "plugin_info_file_str": MetadataValue.md(f"```\n{plugin_info_file_str}\n```"),
-            "plugin_info_file_yaml": MetadataValue.md(
+            # "plugin_info_file_yaml": MetadataValue.md(
+            #     f"```yaml\n{yaml.safe_dump(json.loads(plugin_info.model_dump_json(indent=2, fallback=str)))}\n```"
+            # ),
+        }
+    )
+
+    output_name = "plugin_info_model"
+
+    yield Output(
+        output_name=output_name,
+        value=plugin_info,
+    )
+
+    yield AssetMaterialization(
+        asset_key=context.asset_key_for_output(output_name),
+        metadata={
+            # "__".join(context.asset_key_for_output(output_name).path): MetadataValue.path(path),
+            # # "plugin_info_file_str": MetadataValue.text(plugin_info_file_str),
+            # "plugin_info_file_str": MetadataValue.md(f"```\n{plugin_info_file_str}\n```"),
+            "plugin_info_model_yaml": MetadataValue.md(
                 f"```yaml\n{yaml.safe_dump(json.loads(plugin_info.model_dump_json(indent=2, fallback=str)))}\n```"
             ),
         }
