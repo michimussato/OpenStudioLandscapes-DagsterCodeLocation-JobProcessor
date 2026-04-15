@@ -1429,7 +1429,7 @@ def render_arguments(
         CONFIG: DefaultConstants,
 ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
     args = job_model.plugin_model.args
-    render_output = str(render_output_directory / CONFIG.RENDER_RAW_OUT / render_output_filename["padding_command"])
+    render_output = render_output_directory / CONFIG.RENDER_RAW_OUT / render_output_filename["padding_command"]
 
     job_model_dict = json.loads(
         job_model.model_dump_json(
@@ -1454,7 +1454,7 @@ def render_arguments(
     context.log.debug(f"{plugin_model_dict = }")
 
     ret = " ".join(args).format(
-        render_output=render_output,
+        render_output=render_output.as_posix(),
         **job_model_dict,
         **plugin_model_dict,
     )
@@ -2258,7 +2258,7 @@ def job_dict(
         method="POST",
         headers=headers,
         # json=payload,
-        data=json.dumps(payload),
+        data=payload,
     )
 
     context.log.debug(f"{request = }")
