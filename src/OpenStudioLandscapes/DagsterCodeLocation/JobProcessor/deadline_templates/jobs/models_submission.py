@@ -1,5 +1,6 @@
 import getpass
 import pathlib
+import socket
 import textwrap
 from typing import List, NamedTuple
 
@@ -194,10 +195,10 @@ class JobInfo(BaseModel):
         default_factory=getpass.getuser,
         description="UserName=<username> : Specifies the job’s user (default = current user).",
     )
-    # MachineName: str = Field(
-    #     default_factory="current machine",
-    #     description="MachineName=<machineName> : Specifies the machine the job was submitted from (default = current machine).",
-    # )
+    MachineName: str = Field(
+        default_factory=socket.gethostname,
+        description="MachineName=<machineName> : Specifies the machine the job was submitted from (default = current machine).",
+    )
     Pool: str = Field(
         default=None,
         description="Pool=<poolName> : Specifies the pool that the job is being submitted to (default = none).",
@@ -305,6 +306,11 @@ class JobInfo(BaseModel):
     @classmethod
     def stringify_job_dependencies(cls, v: List[str]) -> str:
         return str(",".join(v))
+
+    @field_validator("RequiredAssets", "ScriptDependencies")
+    @classmethod
+    def stringify_list_of_paths(cls, v: List[pathlib.Path]) -> str:
+        return str(",".join([v.as_posix() for v in v]))
     # Dependencies: JobDependencies = Field(
     #     default=JobDependencies(),
     #     description="",

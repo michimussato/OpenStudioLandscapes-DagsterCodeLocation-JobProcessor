@@ -1124,7 +1124,8 @@ def job_info_file(
         "Comment": job_model.comment,
         # "Department"
         "BatchName": batch_name,
-        # "UserName"
+        "UserName": "michael",
+        "MachineName": "Lenovo",
         # "Pool"
         # "SecondaryPool"
         # "Group"
