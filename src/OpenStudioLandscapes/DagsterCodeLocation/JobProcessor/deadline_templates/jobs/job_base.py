@@ -6,14 +6,12 @@ from typing import Union, Dict, NamedTuple
 
 from pydantic import BaseModel, Field
 
+from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.jobs.models_submission import InitialStatuses
+
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.plugins.blender.plugin_blender__4_1_1 import PluginBlender_4_1_1
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.plugins.houdini.plugin_houdini__19_5_805 import PluginHoudini_19_5_805
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.plugins.nuke.plugin_nuke__15_0v4 import PluginNuke_15_0v4
 
-
-class InitialStatuses(enum.StrEnum):
-    ACTIVE = "Active"
-    SUSPENDED = "Suspended"
 
 class OutputFormats(enum.StrEnum):
     PNG = "png"
