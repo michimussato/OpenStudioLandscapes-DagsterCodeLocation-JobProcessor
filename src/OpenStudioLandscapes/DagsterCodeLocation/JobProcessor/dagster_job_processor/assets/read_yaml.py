@@ -1073,9 +1073,9 @@ def frames(
         "frames": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frames"])
         ),
-        "props": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "props"])
-        ),
+        # "props": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "props"])
+        # ),
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
         ),
@@ -1087,7 +1087,7 @@ def job_info_file(
         job_title_str: str,
         render_output_directory: pathlib.Path,
         frames: str,
-        props: List,
+        # props: List,
         job_model: JobBase,
 ) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
 
