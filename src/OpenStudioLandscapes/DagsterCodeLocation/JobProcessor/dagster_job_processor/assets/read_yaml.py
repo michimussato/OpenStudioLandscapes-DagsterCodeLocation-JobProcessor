@@ -1069,7 +1069,7 @@ def frames(
         ),
         "job_info_model": AssetOut(
             **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-            dagster_type=models_submission.CommandLinePluginInfo,
+            dagster_type=models_submission.JobInfo,
             description="",
         ),
     },
@@ -2202,18 +2202,18 @@ def export_combined_dict(
     #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "archive_job_yaml"]),
     # ],
     ins={
-        "job_info_file": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_info_file"]),
+        "job_info_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_info_model"]),
         ),
-        "plugin_info_file": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "plugin_info_file"]),
+        "plugin_info_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "plugin_info_model"]),
         ),
     },
 )
 def job(
         context: AssetExecutionContext,
-        job_info_file: pathlib.Path,
-        plugin_info_file: pathlib.Path,
+        job_info_model: models_submission.JobInfo,
+        plugin_info_model: models_submission.CommandLinePluginInfo,
 ) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
 
     """
