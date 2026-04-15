@@ -2249,7 +2249,7 @@ def job_dict(
 
     context.log.debug(f"{job_description = }")
 
-    payload = json.dumps(job_description, indent=2, sort_keys=True, default=str)
+    payload = json.dumps(job_description, indent=CONFIG.JSON_INDENT, sort_keys=True, default=str)
 
     context.log.debug(f"{payload = }")
 
@@ -2298,16 +2298,16 @@ def job_dict(
         metadata={
             "__".join(context.asset_key.path): MetadataValue.json(payload),
             "headers": MetadataValue.md(
-                f"```json\n{json.dumps(headers, default=str, indent=CONFIG.JSON_INDENT)}\n```"
+                f"```json\n{json.dumps(headers, default=str, sort_keys=True, indent=CONFIG.JSON_INDENT)}\n```"
             ),
             "payload": MetadataValue.md(
-                f"```json\n{json.dumps(payload, default=str, indent=CONFIG.JSON_INDENT)}\n```"
+                f"```json\n{payload}\n```"
             ),
             "request": MetadataValue.md(
-                f"```json\n{json.dumps(request.__dict__, indent=2, default=str)}\n```"
+                f"```json\n{json.dumps(request.__dict__, indent=CONFIG.JSON_INDENT, default=str, sort_keys=True)}\n```"
             ),
             "response": MetadataValue.md(
-                f"```json\n{response.json()}\n```"
+                f"```json\n{json.dumps(json.loads(response.json()), default=str, sort_keys=True, indent=CONFIG.JSON_INDENT)}\n```"
             ),
             # "request": MetadataValue.json(request.__dict__),
             # "prepared_request": MetadataValue.json(prepared_request.__dict__),
