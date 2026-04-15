@@ -2426,7 +2426,7 @@ def payload_raw(
 #     )
 
 
-@asset(
+@multi_asset(
     outs={
         "job": AssetOut(
             **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
