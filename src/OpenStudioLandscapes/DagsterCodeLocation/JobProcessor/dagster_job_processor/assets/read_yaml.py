@@ -1259,7 +1259,7 @@ def plugin_info_file(
 
     plugin_info_dict = {
         "Executable": job_model.plugin_model.executable.as_posix(),
-        "Arguments": f'"{render_arguments}"',
+        "Arguments": f"{render_arguments}",
     }
 
     plugin_info = models_submission.CommandLinePluginInfo(
