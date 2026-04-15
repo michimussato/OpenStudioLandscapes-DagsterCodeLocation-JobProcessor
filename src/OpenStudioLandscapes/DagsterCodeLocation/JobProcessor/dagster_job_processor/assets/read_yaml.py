@@ -1136,7 +1136,7 @@ def job_info_file(
 
     context.log.debug(f"{job_info = }")
 
-    job_info_file_str = str
+    job_info_file_str = str()
     for k, v in job_info_dict.items():
         context.log.debug(f"{k = }")
         context.log.debug(f"{v = }")
