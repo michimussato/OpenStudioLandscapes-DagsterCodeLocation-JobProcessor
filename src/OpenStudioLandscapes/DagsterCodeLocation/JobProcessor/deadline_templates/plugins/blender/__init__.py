@@ -101,8 +101,8 @@ class PluginBlenderBase(PluginBase):
     args: List = [
         "--enable-autoexec",
         "--background",
-        "<QUOTE>{job_file}<QUOTE>",
-        "--render-output", "<QUOTE>{render_output}<QUOTE>",
+        "<QUOTE>'{job_file}'<QUOTE>",
+        "--render-output", "<QUOTE>'{render_output}'<QUOTE>",
         # "--render-format", "{output_format.upper()}",
         # AttributeError: 'str' object has no attribute 'upper()'
         #   File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/execution/plan/utils.py", line 56, in op_execution_error_boundary

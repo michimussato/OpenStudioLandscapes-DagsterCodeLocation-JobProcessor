@@ -2,10 +2,8 @@ import enum
 import pathlib
 import re
 import shutil
-from xml.etree.ElementTree import indent
 
 import requests
-# import textwrap
 from typing import Any, Generator, Dict
 
 import yaml
@@ -19,7 +17,6 @@ import json
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.config.models import DefaultConstants
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.resources import KitsuResource
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.jobs.job_base import JobBase, Resolution
-# from OpenStudioLandscapes.DagsterCodeLocation.StreamingProcess import submit_cmds
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.jobs import models_submission
 
 
@@ -431,9 +428,6 @@ def get_task_url(
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
         ),
-        # "job_model": AssetIn(
-        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "read_job_yaml"])
-        # ),
     },
 )
 def render_version_directory(
@@ -442,7 +436,6 @@ def render_version_directory(
         show_name: str,
         task_name: str,
         CONFIG: DefaultConstants,
-        # job_model: JobBase,
 ) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
 
     # TODO: make this fail safe
@@ -517,12 +510,12 @@ def version(
         "output_format": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "output_format"])
         ),
-        "frame_start_absolute": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_start_absolute"])
-        ),
-        "frame_end_absolute": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_end_absolute"])
-        ),
+        # "frame_start_absolute": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_start_absolute"])
+        # ),
+        # "frame_end_absolute": AssetIn(
+        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frame_end_absolute"])
+        # ),
     },
 )
 def render_output_filename(
@@ -531,8 +524,8 @@ def render_output_filename(
         job_model: JobBase,
         job_title: str,
         output_format: str,
-        frame_start_absolute: int,
-        frame_end_absolute: int,
+        # frame_start_absolute: int,
+        # frame_end_absolute: int,
 ) -> Generator[Output[Dict[str, str]] | AssetMaterialization | Any, Any, None]:
 
     # padding_bash_expansion = "{%i..%i}" % (frame_start_absolute, frame_end_absolute)
@@ -568,9 +561,6 @@ def render_output_filename(
         "version": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "version"]),
         ),
-        # "CONFIG": AssetIn(
-        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
-        # ),
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
         ),
@@ -585,7 +575,6 @@ def render_output_filename(
 def render_output_directory(
         context: AssetExecutionContext,
         version: str,
-        # CONFIG: DefaultConstants,
         job_model: JobBase,
         render_version_directory: pathlib.Path,
         get_kitsu_task_dict: Dict,
@@ -1076,7 +1065,6 @@ def frames(
             description="",
         ),
     },
-    # **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     ins={
         "batch_name": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "batch_name"])
@@ -1090,9 +1078,6 @@ def frames(
         "frames": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "frames"])
         ),
-        # "props": AssetIn(
-        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "props"])
-        # ),
         "render_output_filename": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_filename"])
         ),
@@ -1107,7 +1092,6 @@ def job_info_file(
         job_title_str: str,
         render_output_directory: pathlib.Path,
         frames: str,
-        # props: List,
         render_output_filename: Dict,
         job_model: JobBase,
 ) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
@@ -1190,11 +1174,7 @@ def job_info_file(
         asset_key=context.asset_key_for_output(output_name),
         metadata={
             "__".join(context.asset_key_for_output(output_name).path): MetadataValue.path(path),
-            # "job_info_file_str": MetadataValue.text(job_info_file_str),
             "job_info_file_str": MetadataValue.md(f"```\n{job_info_file_str}\n```"),
-            # "job_info_file_yaml": MetadataValue.md(
-            #     f"```yaml\n{yaml.safe_dump(json.loads(job_info.model_dump_json(indent=2, fallback=str)))}\n```"
-            # ),
         }
     )
 
@@ -1208,9 +1188,6 @@ def job_info_file(
     yield AssetMaterialization(
         asset_key=context.asset_key_for_output(output_name),
         metadata={
-            # "__".join(context.asset_key.path): MetadataValue.path(path),
-            # # "job_info_file_str": MetadataValue.text(job_info_file_str),
-            # "job_info_file_str": MetadataValue.md(f"```\n{job_info_file_str}\n```"),
             "job_info_model_yaml": MetadataValue.md(
                 f"```yaml\n{yaml.safe_dump(json.loads(job_info.model_dump_json(indent=2, fallback=str)))}\n```"
             ),
@@ -1231,7 +1208,6 @@ def job_info_file(
             description="",
         ),
     },
-    # **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
     ins={
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
@@ -1274,13 +1250,6 @@ def plugin_info_file(
         context.log.debug(f"{v = }")
         plugin_info_file_str += f"{k}={v}\n"
 
-    # plugin_info_file_str = textwrap.dedent(
-    #     f"""
-    #     Executable={job_model.plugin_model.executable.as_posix()}
-    #     Arguments="{render_arguments}"
-    #     """
-    # )
-
     with open(path, "w") as fw:
         fw.write(plugin_info_file_str)
 
@@ -1295,11 +1264,7 @@ def plugin_info_file(
         asset_key=context.asset_key_for_output(output_name),
         metadata={
             "__".join(context.asset_key_for_output(output_name).path): MetadataValue.path(path),
-            # "plugin_info_file_str": MetadataValue.text(plugin_info_file_str),
             "plugin_info_file_str": MetadataValue.md(f"```\n{plugin_info_file_str}\n```"),
-            # "plugin_info_file_yaml": MetadataValue.md(
-            #     f"```yaml\n{yaml.safe_dump(json.loads(plugin_info.model_dump_json(indent=2, fallback=str)))}\n```"
-            # ),
         }
     )
 
@@ -1313,9 +1278,6 @@ def plugin_info_file(
     yield AssetMaterialization(
         asset_key=context.asset_key_for_output(output_name),
         metadata={
-            # "__".join(context.asset_key_for_output(output_name).path): MetadataValue.path(path),
-            # # "plugin_info_file_str": MetadataValue.text(plugin_info_file_str),
-            # "plugin_info_file_str": MetadataValue.md(f"```\n{plugin_info_file_str}\n```"),
             "plugin_info_model_yaml": MetadataValue.md(
                 f"```yaml\n{yaml.safe_dump(json.loads(plugin_info.model_dump_json(indent=2, fallback=str)))}\n```"
             ),
@@ -1357,9 +1319,6 @@ def job_main(
 
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
-    # deps=[
-    #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_submission_tree"]),
-    # ],
     ins={
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
@@ -1403,9 +1362,6 @@ def archive_job_yaml(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        # "combine_dicts": AssetIn(
-        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "combine_dicts"])
-        # ),
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
         ),
@@ -1422,7 +1378,6 @@ def archive_job_yaml(
 )
 def render_arguments(
         context: AssetExecutionContext,
-        # combine_dicts: dict,
         render_output_directory: pathlib.Path,
         render_output_filename: Dict,
         job_model: JobBase,
@@ -2121,10 +2076,6 @@ def resolution(
 
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-    # # This can fail if the job has already been archived
-    # deps=[
-    #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "archive_job_yaml"]),
-    # ],
     ins={
         "render_output_directory": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"]),
@@ -2201,10 +2152,6 @@ def export_combined_dict(
 
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-    # # This can fail if the job has already been archived
-    # deps=[
-    #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "archive_job_yaml"]),
-    # ],
     ins={
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
@@ -2288,144 +2235,6 @@ def payload_raw(
     )
 
 
-# @asset(
-#     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-#     # # This can fail if the job has already been archived
-#     # deps=[
-#     #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "archive_job_yaml"]),
-#     # ],
-#     ins={
-#         "job_dict": AssetIn(
-#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_dict"]),
-#         ),
-#     },
-# )
-# def request(
-#         context: AssetExecutionContext,
-#         job_dict: Dict,
-# ) -> Generator[Output[requests.Request] | AssetMaterialization | Any, Any, None]:
-#
-#     """
-#     Before:
-#     cat "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/037/4_1197-1254_4/combined_dict.json"
-#
-#     After
-#     cat "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/045/4_0997-1104_4/combined_dict.json"
-#     """
-#
-#     """
-# dagster._core.errors.DagsterInvariantViolationError: Object AssetsDefinition with key ["OpenStudioLandscapes_DagsterCodeLocation_JobProcessor_Deadline", "request"] is not picklable. You are currently using the fs_io_manager and the multi_or_in_process_executor. You will need to use a different io manager to continue using this output. For example, you can use the mem_io_manager with the in_process_executor.
-# For more information on io managers, visit https://docs.dagster.io/concepts/io-management/io-managers
-# For more information on executors, vist https://docs.dagster.io/deployment/executors#overview
-#   File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/execution/plan/execute_plan.py", line 245, in dagster_event_sequence_for_step
-#     yield from check.generator(step_events)
-#   File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/execution/plan/execute_step.py", line 508, in core_dagster_event_sequence_for_step
-#     for evt in _type_check_and_store_output(step_context, user_event):
-#   File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/execution/plan/execute_step.py", line 554, in _type_check_and_store_output
-#     yield from _store_output(step_context, step_output_handle, output)
-#   File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/execution/plan/execute_step.py", line 772, in _store_output
-#     for elt in iterate_with_context(
-#   File "/opt/python3.11/lib/python3.11/site-packages/dagster/_utils/__init__.py", line 480, in iterate_with_context
-#     next_output = next(iterator)
-#                   ^^^^^^^^^^^^^^
-#   File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/execution/plan/execute_step.py", line 763, in _gen_fn
-#     gen_output = output_manager.handle_output(output_context, output.value)
-#                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#   File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/storage/upath_io_manager.py", line 448, in handle_output
-#     self.dump_to_path(context=context, obj=obj, path=path)
-#   File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/storage/fs_io_manager.py", line 271, in dump_to_path
-#     raise DagsterInvariantViolationError(
-# The above exception was caused by the following exception:
-# _pickle.PicklingError: Can't pickle <function request at 0x7ff942033100>: it's not the same object as OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.assets.read_yaml.request
-#   File "/opt/python3.11/lib/python3.11/site-packages/dagster/_core/storage/fs_io_manager.py", line 260, in dump_to_path
-#     pickle.dump(obj, file, PICKLE_PROTOCOL)
-#     """
-#
-#     headers = {
-#         "Content-Type": "application/json",
-#         "Accept-Charset": "UTF-8",
-#     }
-#
-#     context.log.debug(f"{headers = }")
-#
-#     # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/rest-jobs.html#submit-job
-#     # payload = {
-#     #     "JobInfo": job_info_model.model_dump_json(indent=2, fallback=str),
-#     #     "PluginInfo": plugin_info_model.model_dump_json(indent=2, fallback=str),
-#     #     "IdOnly": False,
-#     #     "AuxFiles": [],
-#     # }
-#     #
-#     # context.log.debug(f"{payload = }")
-#
-#     request_ = requests.Request(
-#         url="http://miniboss:8899/api/jobs",
-#         method="POST",
-#         headers=headers,
-#         # json=payload,
-#         data=json.dumps(job_dict),
-#     )
-#
-#     context.log.debug(f"{request_ = }")
-#
-#     # prepared_request = request.prepare()
-#     #
-#     # context.log.debug(f"{prepared_request = }")
-#
-#     # curl_cmd = [
-#     #     "curl",
-#     #     "--header", "Content-Type: application/json",
-#     #     "--request", "POST",
-#     #     "--data", json.dumps(
-#     #         {
-#     #             "JobInfo": job_info_model.model_dump_json(indent=2, fallback=str),
-#     #             "PluginInfo": plugin_info_model.model_dump_json(indent=2, fallback=str),
-#     #         },
-#     #         indent=2,
-#     #         default=str,
-#     #     )
-#     # ]
-#
-#     # job_model.farm_cmd = job_submission_tree
-#     # job_model.task_url = get_task_url
-#     #
-#     # out = render_output_directory / "combined_dict.json"
-#     #
-#     # # model_dict = json.loads(
-#     # #     job_model.model_dump_json(
-#     # #         fallback=str,
-#     # #         indent=CONFIG.JSON_INDENT,
-#     # #     )
-#     # # )
-#     #
-#     # model_dict = job_model.model_dump(
-#     #     fallback=str,
-#     # )
-#     #
-#     # with open(out, "w") as fo:
-#     #     json.dump(
-#     #         obj=model_dict,
-#     #         fp=fo,
-#     #         indent=CONFIG.JSON_INDENT,
-#     #         sort_keys=True,
-#     #         default=str,
-#     #     )
-#
-#     yield Output(request_)
-#
-#     yield AssetMaterialization(
-#         asset_key=context.asset_key,
-#         metadata={
-#             "__".join(context.asset_key.path): MetadataValue.json(request_.json),
-#             # "model_dict": MetadataValue.md(
-#             #     f"```json\n{json.dumps(model_dict, default=str, indent=CONFIG.JSON_INDENT)}\n```"
-#             # ),
-#             "request": MetadataValue.json(request_.json(indent=2, fallback=str)),
-#             # "prepared_request": MetadataValue.json(prepared_request.__dict__),
-#         }
-#     )
-
-
 @multi_asset(
     outs={
         "job": AssetOut(
@@ -2439,11 +2248,6 @@ def payload_raw(
             description="",
         ),
     },
-    # **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-    # # This can fail if the job has already been archived
-    # deps=[
-    #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "archive_job_yaml"]),
-    # ],
     ins={
         "CONFIG": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
@@ -2524,8 +2328,6 @@ def submit_request_raw(
             "response": MetadataValue.md(
                 f"```json\n{json.dumps(response.json(), default=str, sort_keys=True, indent=CONFIG.JSON_INDENT)}\n```"
             ),
-            # "request": MetadataValue.json(request.__dict__),
-            # "prepared_request": MetadataValue.json(prepared_request.__dict__),
         }
     )
 
@@ -2542,19 +2344,5 @@ def submit_request_raw(
         asset_key=context.asset_key_for_output(output_name),
         metadata={
             "__".join(context.asset_key_for_output(output_name).path): MetadataValue.path(_id),
-            # "headers": MetadataValue.md(
-            #     f"```json\n{json.dumps(headers, default=str, sort_keys=True, indent=CONFIG.JSON_INDENT)}\n```"
-            # ),
-            # "payload": MetadataValue.md(
-            #     f"```json\n{payload}\n```"
-            # ),
-            # "request": MetadataValue.md(
-            #     f"```json\n{json.dumps(request.__dict__, indent=CONFIG.JSON_INDENT, default=str, sort_keys=True)}\n```"
-            # ),
-            # "response": MetadataValue.md(
-            #     f"```json\n{json.dumps(response.json(), default=str, sort_keys=True, indent=CONFIG.JSON_INDENT)}\n```"
-            # ),
-            # "request": MetadataValue.json(request.__dict__),
-            # "prepared_request": MetadataValue.json(prepared_request.__dict__),
         }
     )
