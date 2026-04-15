@@ -3,7 +3,7 @@ import pathlib
 import textwrap
 from typing import List, NamedTuple
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 import enum
 
 
@@ -116,6 +116,11 @@ class JobDependencies(BaseModel):
         default_factory=list,
         description="ScriptDependencies=<scriptPath,scriptPath,scriptPath> : Specifies what Python script files will be executed to determine if a job can resume (default = blank). These script paths must be identified using full paths, and multiple paths can be separated with commas. See the [dependency scripting section](https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/job-scripts.html#job-dependency-scripts-ref-label) of the documentation for more information."
     )
+
+    @field_validator("JobDependencies")
+    @classmethod
+    def stringify_job_dependencies(cls, v: List[str]) -> str:
+        return str(",".join(v))
 
     # OverrideResumeOn: bool = False
     # ResumeOnComplete: bool = True
