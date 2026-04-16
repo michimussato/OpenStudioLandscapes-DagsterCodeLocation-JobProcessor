@@ -2080,7 +2080,7 @@ def submit_request_raw(
     """
 
     headers = {
-        # "Content-Type": "application/json",
+        "Content-Type": "application/json",
         "Accept-Charset": "UTF-8",
     }
 
@@ -2096,12 +2096,13 @@ def submit_request_raw(
     #   > If you need that header set and you don’t want to encode the dict yourself, you can
     #   > also pass it directly using the json parameter (added in version 2.4.2) and it will
     #   > be encoded automatically
+    # -> using `json=` does not serialize as expected (yet). Hence, `data=` and manual.
     request = requests.Request(
         url=job_model.deadline_config.rest_api_jobs,
         method="POST",
         headers=headers,
-        json=payload_raw,
-        # data=payload,
+        # json=payload_raw,
+        data=payload,
     )
 
     context.log.debug(f"{request = }")
