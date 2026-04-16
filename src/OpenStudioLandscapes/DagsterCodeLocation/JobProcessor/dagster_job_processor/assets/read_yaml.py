@@ -2041,12 +2041,12 @@ def payload_raw(
 
 @multi_asset(
     outs={
-        "job": AssetOut(
+        "job_raw": AssetOut(
             **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
             dagster_type=Dict,
             description="",
         ),
-        "job_id": AssetOut(
+        "job_id_raw": AssetOut(
             **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
             dagster_type=str,
             description="",
@@ -2059,12 +2059,16 @@ def payload_raw(
         "payload_raw": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "payload_raw"]),
         ),
+        "job_model": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
+        ),
     },
 )
 def submit_request_raw(
         context: AssetExecutionContext,
         CONFIG: DefaultConstants,
         payload_raw: Dict,
+        job_model: JobBase,
 ) -> Generator[Output[requests.Response] | AssetMaterialization | Any, Any, None]:
 
     """
@@ -2076,7 +2080,7 @@ def submit_request_raw(
     """
 
     headers = {
-        "Content-Type": "application/json",
+        # "Content-Type": "application/json",
         "Accept-Charset": "UTF-8",
     }
 
@@ -2084,14 +2088,20 @@ def submit_request_raw(
 
     payload = json.dumps(payload_raw, indent=CONFIG.JSON_INDENT, sort_keys=True, default=str)
 
-    context.log.debug(f"{payload = }")
+    # context.log.debug(f"{payload = }")
 
+    # Requests: data vs. json:
+    # - https://stackoverflow.com/a/26685359/2207196
+    # - https://requests.readthedocs.io/en/latest/user/quickstart/#more-complicated-post-requests
+    #   > If you need that header set and you don’t want to encode the dict yourself, you can
+    #   > also pass it directly using the json parameter (added in version 2.4.2) and it will
+    #   > be encoded automatically
     request = requests.Request(
-        url="http://miniboss:8899/api/jobs",
+        url=job_model.deadline_config.rest_api_jobs,
         method="POST",
         headers=headers,
-        # json=payload,
-        data=payload,
+        json=payload_raw,
+        # data=payload,
     )
 
     context.log.debug(f"{request = }")
@@ -2109,7 +2119,7 @@ def submit_request_raw(
     # context.log.debug(f"{response.content = }")
     context.log.debug(f"{response.text = }")
 
-    output_name = "job"
+    output_name = "job_raw"
 
     yield Output(
         output_name=output_name,
@@ -2135,7 +2145,7 @@ def submit_request_raw(
         }
     )
 
-    output_name = "job_id"
+    output_name = "job_id_raw"
 
     _id = response.json().get("_id", None)
 
