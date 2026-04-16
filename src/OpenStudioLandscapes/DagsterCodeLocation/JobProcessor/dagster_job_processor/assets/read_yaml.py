@@ -2090,6 +2090,8 @@ def submit_request_raw(
 
     context.log.debug(f"{payload = }")
 
+    context.log.info(f"Sending request to {job_model.deadline_config.rest_api_jobs}...")
+
     # Requests: data vs. json:
     # - https://stackoverflow.com/a/26685359/2207196
     # - https://requests.readthedocs.io/en/latest/user/quickstart/#more-complicated-post-requests
