@@ -274,7 +274,6 @@ class JobInfo(BaseModel):
     # InitialStatus: InitialStatuses = InitialStatuses.ACTIVE.value
     # BatchName: str
     # Name: str
-    # Priority: int
     # ChunkSize: int
     # StartupDirectory: pathlib.Path
     # Comment: str = ""
