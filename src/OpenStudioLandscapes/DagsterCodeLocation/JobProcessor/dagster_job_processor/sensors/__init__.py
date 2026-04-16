@@ -11,7 +11,7 @@ from dagster import (
 )
 
 import os
-import json
+# import json
 import pathlib
 import shutil
 
@@ -21,7 +21,7 @@ from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.assets.read_yaml import ASSET_HEADER_JOB_PROCESSOR_READER
 # from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.assets.submit_jobs import ASSET_HEADER_JOB_SUBMITTER_DEADLINE
 
-from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.jobs import submit_synced_jobs, ingest_synced_jobs_yaml
+from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.jobs import ingest_synced_jobs_yaml
 
 
 CONFIG: DefaultConstants = DefaultConstants()
