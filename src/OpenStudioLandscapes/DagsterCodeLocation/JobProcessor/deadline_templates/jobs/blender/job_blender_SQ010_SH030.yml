@@ -3,8 +3,12 @@
 # Task:
 # - SQ010_SH030 Rendering (b0cfdac7-afa9-4382-a75d-3c80a388e136)
 
-
+deadline_config:
+  rest_api: http://miniboss:8899/api/
+  user: michael
+  host: lenovo
 job_file: /data/share/AWSPortalRoot1/fixtures/blender/sh030_001.blend
+job_priority: 70
 # job_file: /data/share/AWSPortalRoot1/fixtures/blender/sh030_001_256smpls.blend
 plugin_model:
   plugin_type: PluginBlender_4_1_1

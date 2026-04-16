@@ -307,112 +307,6 @@ def get_task_url(
     )
 
 
-# @asset(
-#     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-#     ins={
-#         "version": AssetIn(
-#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "version"]),
-#         ),
-#         "CONFIG": AssetIn(
-#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
-#         ),
-#         "resolution": AssetIn(
-#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "resolution"]),
-#         ),
-#         "job_model": AssetIn(
-#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
-#         ),
-#         "get_kitsu_task_dict": AssetIn(
-#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU["key_prefix"], "get_kitsu_task_dict"])
-#         ),
-#     },
-# )
-# def annotations_string(
-#         context: AssetExecutionContext,
-#         version: str,
-#         CONFIG: DefaultConstants,
-#         resolution: Resolution,
-#         job_model: JobBase,
-#         get_kitsu_task_dict: Dict,
-# ) -> Generator[Output[str] | AssetMaterialization | Any, Any, None]:
-#     """Returns the annotations string for the Deadline Draft jobs as a MaterializeResult object in the JSON format."""
-#
-#     handles = job_model.handles
-#
-#     # fps = job_model.fps
-#     #
-#     # fi = job_model.cut_in
-#     # fo = job_model.cut_out
-#
-#     fi_kitsu = 0
-#     fo_kitsu = 0
-#     if bool(job_model.kitsu_task):
-#         if get_task_name(get_kitsu_task_dict) == "Shot":
-#             fi_kitsu = get_kitsu_task_dict.get("entity", {}).get("data", {}).get("frame_in", 0)
-#             fo_kitsu = get_kitsu_task_dict.get("entity", {}).get("data", {}).get("frame_out", 0)
-#
-#     # fi_fo = (fi, fo)
-#
-#     entity_name = get_entity_name(get_kitsu_task_dict)
-#     task_name = get_task_name(get_kitsu_task_dict)
-#
-#     rgb = 95
-#     draft_annotations_string = {
-#         "NorthWest": {
-#             "text": f"{entity_name}/{task_name}",  # Todo: Add Sequence name to Shot if Shot and Shot is part of Sequence
-#             "colorR": rgb,
-#             "colorG": rgb,
-#             "colorB": rgb,
-#             "type": ""
-#         },
-#         "NorthCenter": {
-#             "text": f"{job_model.job_file.name}",
-#             "colorR": rgb,
-#             "colorG": rgb,
-#             "colorB": rgb,
-#             "type": ""
-#         }, "NorthEast": {
-#             "text": f"$time ({version})",
-#             "colorR": rgb,
-#             "colorG": rgb,
-#             "colorB": rgb,
-#             "type": ""
-#         }, "SouthWest": {
-#             "text": f"",
-#             "colorR": rgb,
-#             "colorG": rgb,
-#             "colorB": rgb,
-#             "type": ""
-#         },
-#         "SouthCenter": {
-#             "text": f"{handles}_{str(job_model.cut_in).zfill(CONFIG.PADDING)}||{handles}_{str(job_model.cut_in).zfill(CONFIG.PADDING)}|$frame|{str(job_model.cut_out).zfill(CONFIG.PADDING)}_{handles}||{str(job_model.cut_out).zfill(CONFIG.PADDING)}_{handles} @{job_model.fps}",
-#             "colorR": rgb,
-#             "colorG": rgb,
-#             "colorB": rgb,
-#             "type": ""
-#         },
-#         "SouthEast": {
-#             "text": f"{resolution.x}x{resolution.y} (x{CONFIG.RESOLUTION_DRAFT_SCALE})",
-#             "colorR": rgb,
-#             "colorG": rgb,
-#             "colorB": rgb,
-#             "type": ""
-#         }
-#     }
-#
-#     yield Output(json.dumps(draft_annotations_string))
-#
-#     yield AssetMaterialization(
-#         asset_key=context.asset_key,
-#         metadata={
-#             "__".join(context.asset_key.path): MetadataValue.json(draft_annotations_string),
-#             "annotations_string": MetadataValue.text(json.dumps(draft_annotations_string)),
-#             "cut_in_kitsu": MetadataValue.int(fi_kitsu),
-#             "cut_out_kitsu": MetadataValue.int(fo_kitsu),
-#         }
-#     )
-
-
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
@@ -773,53 +667,6 @@ def batch_name(
     )
 
 
-# @asset(
-#     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-#     ins={
-#         "render_output_directory": AssetIn(
-#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
-#         ),
-#         "render_output_filename": AssetIn(
-#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_filename"])
-#         ),
-#         "batch_name": AssetIn(
-#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "batch_name"])
-#         ),
-#         "job_model": AssetIn(
-#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
-#         ),
-#     }
-# )
-# def props(
-#         context: AssetExecutionContext,
-#         render_output_directory: pathlib.Path,
-#         render_output_filename: Dict,
-#         batch_name: str,
-#         job_model: JobBase,
-# ) -> Generator[Output[List[str]] | AssetMaterialization | Any, Any, None]:
-#
-#     props = [
-#         # ('Comment', f'{job_model.comment}'),  # TODO
-#         # ('ForceReloadPlugin', True),
-#         # ('InitialStatus', job_model.deadline_initial_status),
-#         # ('OutputDirectory0', f'{render_output_directory}'),
-#         # ('OutputFilename0', f'{render_output_filename["padding_deadline"]}'),
-#         # ('BatchName', f'{batch_name}'),
-#         # This should not end up in plugin_info_file it seems: https://docs.thinkboxsoftware.com/products/deadline/10.1/1_User%20Manual/manual/manual-submission.html#job-info-ref-label
-#     ]
-#
-#     props_ = [f'{k}={v}' for k, v in props]
-#
-#     yield Output(props_)
-#
-#     yield AssetMaterialization(
-#         asset_key=context.asset_key,
-#         metadata={
-#             "__".join(context.asset_key.path): MetadataValue.json(props_)
-#         }
-#     )
-
-
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
@@ -1054,11 +901,11 @@ def frames(
 
 @multi_asset(
     outs={
-        "job_info_file": AssetOut(
-            **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-            dagster_type=pathlib.Path,
-            description="",
-        ),
+        # "job_info_file": AssetOut(
+        #     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+        #     dagster_type=pathlib.Path,
+        #     description="",
+        # ),
         "job_info_model": AssetOut(
             **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
             dagster_type=models_submission.JobInfo,
@@ -1109,12 +956,12 @@ def job_info_file(
         "Comment": job_model.comment,
         # "Department"
         "BatchName": batch_name,
-        "UserName": "michael",
-        "MachineName": "Lenovo",
+        "UserName": job_model.deadline_config.user,
+        "MachineName": job_model.deadline_config.host,
         # "Pool"
         # "SecondaryPool"
         # "Group"
-        "Priority": 50,
+        "Priority": job_model.job_priority,
         "ChunkSize": job_model.chunk_size,
         # "ConcurrentTasks"
         # "LimitConcurrentTasksToNumberOfCpus"
@@ -1136,47 +983,31 @@ def job_info_file(
 
     context.log.debug(f"{job_info = }")
 
-    job_info_file_str = str()
-    for k, v in job_info_dict.items():
-        context.log.debug(f"{k = }")
-        context.log.debug(f"{v = }")
-        job_info_file_str += f"{k}={v}\n"
+    # job_info_file_str = str()
+    # for k, v in job_info_dict.items():
+    #     context.log.debug(f"{k = }")
+    #     context.log.debug(f"{v = }")
+    #     job_info_file_str += f"{k}={v}\n"
 
-    context.log.debug(f"{job_info_file_str = }")
+    # context.log.debug(f"{job_info_file_str = }")
 
-    # job_info_file_str = textwrap.dedent(
-    #     f"""\
-    #     InitialStatus={job_model.deadline_initial_status}
-    #     BatchName={batch_name}
-    #     Name={job_title_str}
-    #     Frames={frames}
-    #     ChunkSize={job_model.chunk_size}
-    #     ForceReloadPlugin=True
-    #     Comment={job_model.comment}
-    #     Plugin=CommandLine
-    #     StartupDirectory=
-    #     OutputDirectory0={render_output_directory}
-    #     OutputFilename0={render_output_filename["padding_deadline"]}
-    #     """
+    # with open(path, "w") as fw:
+    #     fw.write(job_info_file_str)
+
+    # output_name = "job_info_file"
+    #
+    # yield Output(
+    #     output_name=output_name,
+    #     value=path,
     # )
-
-    with open(path, "w") as fw:
-        fw.write(job_info_file_str)
-
-    output_name = "job_info_file"
-
-    yield Output(
-        output_name=output_name,
-        value=path,
-    )
-
-    yield AssetMaterialization(
-        asset_key=context.asset_key_for_output(output_name),
-        metadata={
-            "__".join(context.asset_key_for_output(output_name).path): MetadataValue.path(path),
-            "job_info_file_str": MetadataValue.md(f"```\n{job_info_file_str}\n```"),
-        }
-    )
+    #
+    # yield AssetMaterialization(
+    #     asset_key=context.asset_key_for_output(output_name),
+    #     metadata={
+    #         "__".join(context.asset_key_for_output(output_name).path): MetadataValue.path(path),
+    #         "job_info_file_str": MetadataValue.md(f"```\n{job_info_file_str}\n```"),
+    #     }
+    # )
 
     output_name = "job_info_model"
 
@@ -1197,11 +1028,11 @@ def job_info_file(
 
 @multi_asset(
     outs={
-        "plugin_info_file": AssetOut(
-            **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-            dagster_type=pathlib.Path,
-            description="",
-        ),
+        # "plugin_info_file": AssetOut(
+        #     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+        #     dagster_type=pathlib.Path,
+        #     description="",
+        # ),
         "plugin_info_model": AssetOut(
             **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
             dagster_type=models_submission.CommandLinePluginInfo,
@@ -1244,29 +1075,29 @@ def plugin_info_file(
 
     context.log.debug(f"{plugin_info = }")
 
-    plugin_info_file_str = str()
-    for k, v in plugin_info_dict.items():
-        context.log.debug(f"{k = }")
-        context.log.debug(f"{v = }")
-        plugin_info_file_str += f"{k}={v}\n"
+    # plugin_info_file_str = str()
+    # for k, v in plugin_info_dict.items():
+    #     context.log.debug(f"{k = }")
+    #     context.log.debug(f"{v = }")
+    #     plugin_info_file_str += f"{k}={v}\n"
 
-    with open(path, "w") as fw:
-        fw.write(plugin_info_file_str)
+    # with open(path, "w") as fw:
+    #     fw.write(plugin_info_file_str)
 
-    output_name = "plugin_info_file"
-
-    yield Output(
-        output_name=output_name,
-        value=path,
-    )
-
-    yield AssetMaterialization(
-        asset_key=context.asset_key_for_output(output_name),
-        metadata={
-            "__".join(context.asset_key_for_output(output_name).path): MetadataValue.path(path),
-            "plugin_info_file_str": MetadataValue.md(f"```\n{plugin_info_file_str}\n```"),
-        }
-    )
+    # output_name = "plugin_info_file"
+    #
+    # yield Output(
+    #     output_name=output_name,
+    #     value=path,
+    # )
+    #
+    # yield AssetMaterialization(
+    #     asset_key=context.asset_key_for_output(output_name),
+    #     metadata={
+    #         "__".join(context.asset_key_for_output(output_name).path): MetadataValue.path(path),
+    #         "plugin_info_file_str": MetadataValue.md(f"```\n{plugin_info_file_str}\n```"),
+    #     }
+    # )
 
     output_name = "plugin_info_model"
 
@@ -1285,36 +1116,36 @@ def plugin_info_file(
     )
 
 
-@asset(
-    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-    ins={
-        "job_info_file": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_info_file"])
-        ),
-        "plugin_info_file": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "plugin_info_file"])
-        ),
-    }
-)
-def job_main(
-        context: AssetExecutionContext,
-        job_info_file: pathlib.Path,
-        plugin_info_file: pathlib.Path,
-) -> Generator[Output[Dict[str, str]] | AssetMaterialization | Any, Any, None]:
-
-    ret = {
-        "JobInfoFilePath": job_info_file.as_posix(),
-        "PluginInfoFilePath": plugin_info_file.as_posix(),
-    }
-
-    yield Output(ret)
-
-    yield AssetMaterialization(
-        asset_key=context.asset_key,
-        metadata={
-            "__".join(context.asset_key.path): MetadataValue.json(ret)
-        }
-    )
+# @asset(
+#     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+#     ins={
+#         "job_info_file": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_info_file"])
+#         ),
+#         "plugin_info_file": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "plugin_info_file"])
+#         ),
+#     }
+# )
+# def job_main(
+#         context: AssetExecutionContext,
+#         job_info_file: pathlib.Path,
+#         plugin_info_file: pathlib.Path,
+# ) -> Generator[Output[Dict[str, str]] | AssetMaterialization | Any, Any, None]:
+#
+#     ret = {
+#         "JobInfoFilePath": job_info_file.as_posix(),
+#         "PluginInfoFilePath": plugin_info_file.as_posix(),
+#     }
+#
+#     yield Output(ret)
+#
+#     yield AssetMaterialization(
+#         asset_key=context.asset_key,
+#         metadata={
+#             "__".join(context.asset_key.path): MetadataValue.json(ret)
+#         }
+#     )
 
 
 @asset(
@@ -1424,153 +1255,153 @@ def render_arguments(
     )
 
 
-@asset(
-    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-    ins={
-        "render_output_directory": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
-        ),
-        # "job_draft_png": AssetIn(
-        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_draft_png"])
-        # ),
-        # "job_draft_mov": AssetIn(
-        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_draft_mov"])
-        # ),
-        # "job_kitsu_publish": AssetIn(
-        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_kitsu_publish"])
-        # ),
-        "CONFIG": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
-        ),
-        # "job_model": AssetIn(
-        #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
-        # ),
-        "job_main": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_main"])
-        ),
-    }
-)
-def job_submission_tree(
-        context: AssetExecutionContext,
-        render_output_directory: pathlib.Path,
-        # job_draft_png: Dict,
-        # job_draft_mov: Dict,
-        # job_kitsu_publish: Dict,
-        CONFIG: DefaultConstants,
-        # job_model: JobBase,
-        job_main: Dict[str, str],
-) -> Generator[Output[dict[str, list[str]]] | AssetMaterialization | Any, Any, None]:
-
-    ####
-    # {
-    #  Jobs:
-    #  [
-    #   {
-    #    Job
-    #    Deps
-    #    Aux
-    #   }
-    #   {
-    #    Job
-    #    Deps
-    #    Aux
-    #   }
-    #   {
-    #    Job
-    #    Deps
-    #    Aux
-    #   }
-    #  ]
-    # }
-    #
-    ####
-
-    job_dict_template = CONFIG.JOB_DICT_TEMPLATE
-    job_dict_main = job_dict_template.copy()
-    job_dict_main.update(job_main)
-
-    i = 0
-
-    multiple_jobs_v2_dict = dict()
-    multiple_jobs_v2_dict["Jobs"] = jobs = []
-    job_0 = job_dict_main
-    job_0_dependencies = job_0["JobDependencies"]  # we could add the jobs here, on which this job depends on
-    job_0_index = i
-    jobs.append(job_0)
-    i += 1
-
-    # if job_model.append_draft_job_png:
-    #
-    #     job = job_dict_template.copy()
-    #     job["JobInfoFilePath"] = str(job_draft_png["JobInfoFilePath"])
-    #     job["PluginInfoFilePath"] = str(job_draft_png["PluginInfoFilePath"])
-    #     job_dependencies = job["JobDependencies"] = []  # Change from None to []
-    #
-    #     parents = [job_0_index]
-    #
-    #     for i_ in parents:
-    #         job_dependencies.append(f"index://{i_}")
-    #
-    #     jobs.append(job)
-    #     job_draft_png_index = i
-    #     i += 1
-
-    # if job_model.append_draft_job_mov:
-    #
-    #     job = job_dict_template.copy()
-    #     job["JobInfoFilePath"] = str(job_draft_mov["JobInfoFilePath"])
-    #     job["PluginInfoFilePath"] = str(job_draft_mov["PluginInfoFilePath"])
-    #     job_dependencies = job["JobDependencies"] = []  # Change from None to []
-    #
-    #     parents = [job_0_index]
-    #
-    #     for i_ in parents:
-    #         job_dependencies.append(f"index://{i_}")
-    #
-    #     jobs.append(job)
-    #     job_draft_mov_index = i
-    #     i += 1
-
-    # if bool(job_model.kitsu_task) and job_model.with_kitsu_publish:
-    #
-    #     job = job_dict_template.copy()
-    #     job["JobInfoFilePath"] = str(job_kitsu_publish["JobInfoFilePath"])
-    #     job["PluginInfoFilePath"] = str(job_kitsu_publish["PluginInfoFilePath"])
-    #     job_dependencies = job["JobDependencies"] = []  # Change from None to []
-    #
-    #     parents = [job_draft_mov_index]
-    #
-    #     for i_ in parents:
-    #         job_dependencies.append(f"index://{i_}")
-    #
-    #     # self.LOGGER.info(f'Generating Kitsu Publish Job (MOV)...')
-    #     # job_kitsu_publish_, job_kitsu_publish_jobinfo, job_kitsu_publish_plugininfo = self.job_kitsu_publish(parents=[job_draft_mov_index])
-    #     jobs.append(job)
-    #     job_draft_kitsu_publish_index = i
-    #     i += 1
-
-    # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/manual-submission.html#plug-in-info-file
-    # render_output_directory.mkdir(parents=True, exist_ok=True)
-    submission_file = render_output_directory / CONFIG.SUBMISSION_JSON
-    with open(submission_file, "w") as submit_v2:
-        json.dump(multiple_jobs_v2_dict, submit_v2, ensure_ascii=False, indent=CONFIG.JSON_INDENT, sort_keys=True)
-
-    cmd = [
-        "/opt/Thinkbox/Deadline10/bin/deadlinecommand",
-        "-SubmitMultipleJobsV2",
-        "-jsonfilepath", f"{str(submission_file)}",
-    ]
-
-    ret = {"deadline_cmd": cmd}
-
-    yield Output(ret)
-
-    yield AssetMaterialization(
-        asset_key=context.asset_key,
-        metadata={
-            "__".join(context.asset_key.path): MetadataValue.json(ret)
-        }
-    )
+# @asset(
+#     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+#     ins={
+#         "render_output_directory": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
+#         ),
+#         # "job_draft_png": AssetIn(
+#         #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_draft_png"])
+#         # ),
+#         # "job_draft_mov": AssetIn(
+#         #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_draft_mov"])
+#         # ),
+#         # "job_kitsu_publish": AssetIn(
+#         #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_kitsu_publish"])
+#         # ),
+#         "CONFIG": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+#         ),
+#         # "job_model": AssetIn(
+#         #     AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
+#         # ),
+#         "job_main": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_main"])
+#         ),
+#     }
+# )
+# def job_submission_tree(
+#         context: AssetExecutionContext,
+#         render_output_directory: pathlib.Path,
+#         # job_draft_png: Dict,
+#         # job_draft_mov: Dict,
+#         # job_kitsu_publish: Dict,
+#         CONFIG: DefaultConstants,
+#         # job_model: JobBase,
+#         job_main: Dict[str, str],
+# ) -> Generator[Output[dict[str, list[str]]] | AssetMaterialization | Any, Any, None]:
+#
+#     ####
+#     # {
+#     #  Jobs:
+#     #  [
+#     #   {
+#     #    Job
+#     #    Deps
+#     #    Aux
+#     #   }
+#     #   {
+#     #    Job
+#     #    Deps
+#     #    Aux
+#     #   }
+#     #   {
+#     #    Job
+#     #    Deps
+#     #    Aux
+#     #   }
+#     #  ]
+#     # }
+#     #
+#     ####
+#
+#     job_dict_template = CONFIG.JOB_DICT_TEMPLATE
+#     job_dict_main = job_dict_template.copy()
+#     job_dict_main.update(job_main)
+#
+#     i = 0
+#
+#     multiple_jobs_v2_dict = dict()
+#     multiple_jobs_v2_dict["Jobs"] = jobs = []
+#     job_0 = job_dict_main
+#     job_0_dependencies = job_0["JobDependencies"]  # we could add the jobs here, on which this job depends on
+#     job_0_index = i
+#     jobs.append(job_0)
+#     i += 1
+#
+#     # if job_model.append_draft_job_png:
+#     #
+#     #     job = job_dict_template.copy()
+#     #     job["JobInfoFilePath"] = str(job_draft_png["JobInfoFilePath"])
+#     #     job["PluginInfoFilePath"] = str(job_draft_png["PluginInfoFilePath"])
+#     #     job_dependencies = job["JobDependencies"] = []  # Change from None to []
+#     #
+#     #     parents = [job_0_index]
+#     #
+#     #     for i_ in parents:
+#     #         job_dependencies.append(f"index://{i_}")
+#     #
+#     #     jobs.append(job)
+#     #     job_draft_png_index = i
+#     #     i += 1
+#
+#     # if job_model.append_draft_job_mov:
+#     #
+#     #     job = job_dict_template.copy()
+#     #     job["JobInfoFilePath"] = str(job_draft_mov["JobInfoFilePath"])
+#     #     job["PluginInfoFilePath"] = str(job_draft_mov["PluginInfoFilePath"])
+#     #     job_dependencies = job["JobDependencies"] = []  # Change from None to []
+#     #
+#     #     parents = [job_0_index]
+#     #
+#     #     for i_ in parents:
+#     #         job_dependencies.append(f"index://{i_}")
+#     #
+#     #     jobs.append(job)
+#     #     job_draft_mov_index = i
+#     #     i += 1
+#
+#     # if bool(job_model.kitsu_task) and job_model.with_kitsu_publish:
+#     #
+#     #     job = job_dict_template.copy()
+#     #     job["JobInfoFilePath"] = str(job_kitsu_publish["JobInfoFilePath"])
+#     #     job["PluginInfoFilePath"] = str(job_kitsu_publish["PluginInfoFilePath"])
+#     #     job_dependencies = job["JobDependencies"] = []  # Change from None to []
+#     #
+#     #     parents = [job_draft_mov_index]
+#     #
+#     #     for i_ in parents:
+#     #         job_dependencies.append(f"index://{i_}")
+#     #
+#     #     # self.LOGGER.info(f'Generating Kitsu Publish Job (MOV)...')
+#     #     # job_kitsu_publish_, job_kitsu_publish_jobinfo, job_kitsu_publish_plugininfo = self.job_kitsu_publish(parents=[job_draft_mov_index])
+#     #     jobs.append(job)
+#     #     job_draft_kitsu_publish_index = i
+#     #     i += 1
+#
+#     # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/manual-submission.html#plug-in-info-file
+#     # render_output_directory.mkdir(parents=True, exist_ok=True)
+#     submission_file = render_output_directory / CONFIG.SUBMISSION_JSON
+#     with open(submission_file, "w") as submit_v2:
+#         json.dump(multiple_jobs_v2_dict, submit_v2, ensure_ascii=False, indent=CONFIG.JSON_INDENT, sort_keys=True)
+#
+#     cmd = [
+#         "/opt/Thinkbox/Deadline10/bin/deadlinecommand",
+#         "-SubmitMultipleJobsV2",
+#         "-jsonfilepath", f"{str(submission_file)}",
+#     ]
+#
+#     ret = {"deadline_cmd": cmd}
+#
+#     yield Output(ret)
+#
+#     yield AssetMaterialization(
+#         asset_key=context.asset_key,
+#         metadata={
+#             "__".join(context.asset_key.path): MetadataValue.json(ret)
+#         }
+#     )
 
 
 # @asset(
@@ -2074,80 +1905,80 @@ def resolution(
 #     )
 
 
-@asset(
-    **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-    ins={
-        "render_output_directory": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"]),
-        ),
-        "job_submission_tree": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_submission_tree"]),
-        ),
-        "CONFIG": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
-        ),
-        "job_model": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
-        ),
-        "get_task_url": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_task_url"])
-        ),
-    },
-)
-def export_combined_dict(
-        context: AssetExecutionContext,
-        render_output_directory: pathlib.Path,
-        job_submission_tree: Dict,
-        CONFIG: DefaultConstants,
-        job_model: JobBase,
-        get_task_url: str,
-) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
-
-    """
-    Before:
-    cat "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/037/4_1197-1254_4/combined_dict.json"
-
-    After
-    cat "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/045/4_0997-1104_4/combined_dict.json"
-    """
-
-    job_model.farm_cmd = job_submission_tree
-    job_model.task_url = get_task_url
-
-    out = render_output_directory / "combined_dict.json"
-
-    # model_dict = json.loads(
-    #     job_model.model_dump_json(
-    #         fallback=str,
-    #         indent=CONFIG.JSON_INDENT,
-    #     )
-    # )
-
-    model_dict = job_model.model_dump(
-        fallback=str,
-    )
-
-    with open(out, "w") as fo:
-        json.dump(
-            obj=model_dict,
-            fp=fo,
-            indent=CONFIG.JSON_INDENT,
-            sort_keys=True,
-            default=str,
-        )
-
-    yield Output(out)
-
-    yield AssetMaterialization(
-        asset_key=context.asset_key,
-        metadata={
-            "__".join(context.asset_key.path): MetadataValue.path(out),
-            "model_dict": MetadataValue.md(
-                f"```json\n{json.dumps(model_dict, default=str, indent=CONFIG.JSON_INDENT)}\n```"
-            ),
-            "destination": MetadataValue.path(out.parent),
-        }
-    )
+# @asset(
+#     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
+#     ins={
+#         "render_output_directory": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"]),
+#         ),
+#         "job_submission_tree": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_DEADLINE["key_prefix"], "job_submission_tree"]),
+#         ),
+#         "CONFIG": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "CONFIG"]),
+#         ),
+#         "job_model": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
+#         ),
+#         "get_task_url": AssetIn(
+#             AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "get_task_url"])
+#         ),
+#     },
+# )
+# def export_combined_dict(
+#         context: AssetExecutionContext,
+#         render_output_directory: pathlib.Path,
+#         job_submission_tree: Dict,
+#         CONFIG: DefaultConstants,
+#         job_model: JobBase,
+#         get_task_url: str,
+# ) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
+#
+#     """
+#     Before:
+#     cat "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/037/4_1197-1254_4/combined_dict.json"
+#
+#     After
+#     cat "/data/share/AWSPortalRoot1/out/Test Production/Shot/SH030/Rendering/045/4_0997-1104_4/combined_dict.json"
+#     """
+#
+#     job_model.farm_cmd = job_submission_tree
+#     job_model.task_url = get_task_url
+#
+#     out = render_output_directory / "combined_dict.json"
+#
+#     # model_dict = json.loads(
+#     #     job_model.model_dump_json(
+#     #         fallback=str,
+#     #         indent=CONFIG.JSON_INDENT,
+#     #     )
+#     # )
+#
+#     model_dict = job_model.model_dump(
+#         fallback=str,
+#     )
+#
+#     with open(out, "w") as fo:
+#         json.dump(
+#             obj=model_dict,
+#             fp=fo,
+#             indent=CONFIG.JSON_INDENT,
+#             sort_keys=True,
+#             default=str,
+#         )
+#
+#     yield Output(out)
+#
+#     yield AssetMaterialization(
+#         asset_key=context.asset_key,
+#         metadata={
+#             "__".join(context.asset_key.path): MetadataValue.path(out),
+#             "model_dict": MetadataValue.md(
+#                 f"```json\n{json.dumps(model_dict, default=str, indent=CONFIG.JSON_INDENT)}\n```"
+#             ),
+#             "destination": MetadataValue.path(out.parent),
+#         }
+#     )
 
 
 @asset(
@@ -2195,33 +2026,6 @@ def payload_raw(
     }
 
     context.log.debug(f"{payload_raw = }")
-
-    payload = json.dumps(payload_raw, indent=CONFIG.JSON_INDENT, sort_keys=True, default=str)
-
-    context.log.debug(f"{payload = }")
-
-    request = requests.Request(
-        url="http://miniboss:8899/api/jobs",
-        method="POST",
-        headers=headers,
-        # json=payload,
-        data=payload,
-    )
-
-    context.log.debug(f"{request = }")
-
-    prepared_request = request.prepare()
-
-    context.log.debug(f"{prepared_request = }")
-
-    session = requests.Session()
-    response: requests.Response = session.send(prepared_request, verify=False)
-
-    context.log.debug(f"{response = }")
-    context.log.debug(f"{response.raw = }")
-    context.log.debug(f"{response.status_code = }")
-    context.log.debug(f"{response.content = }")
-    context.log.debug(f"{response.text = }")
 
     yield Output(payload_raw)
 

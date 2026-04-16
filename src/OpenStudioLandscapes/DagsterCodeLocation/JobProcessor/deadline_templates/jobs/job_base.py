@@ -4,7 +4,7 @@ import uuid
 import enum
 from typing import Union, Dict, NamedTuple
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.jobs.models_submission import InitialStatuses
 
@@ -55,7 +55,49 @@ class CutRange(NamedTuple):
 # }
 
 
+class DeadlineConfigModel(BaseModel):
+
+    rest_api: str = Field(
+        description="The URL of the Rest API.",
+        examples=["http://miniboss:8899/api"]
+    )
+
+    user: str = Field(
+        description="The username of the submitter.",
+        examples=["michael", "michael@openstudiolandscapes.lan"]
+    )
+
+    host: str = Field(
+        description="The username of the submitter.",
+        examples=["laptop", "workstation.openstudiolandscapes.lan"]
+    )
+
+    @field_validator("rest_api")
+    @classmethod
+    def remove_trailing_slash(cls, v: str) -> str:
+        if v.endswith("/"):
+            v.rstrip("/")
+        return v
+
+    @property
+    def rest_api_jobs(self) -> str:
+        """
+        The URL of the [Jobs](https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/rest-jobs.html#rest-jobs-ref-label)
+        REST endpoint.
+        """
+        return f"{self.rest_api}/jobs"
+
+
 class JobBase(BaseModel):
+
+    deadline_config: DeadlineConfigModel = Field(
+        description="The Deadline Configuration information for this job.",
+    )
+
+    job_priority: int = Field(
+        default=50,
+        description="Job priority between 0 (lowest) and 100 (highest).",
+    )
 
     job_file: pathlib.Path = Field(
         default=None,
