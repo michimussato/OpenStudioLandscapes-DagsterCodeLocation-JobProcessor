@@ -928,7 +928,7 @@ def frames(
         ),
     }
 )
-def job_info_file(
+def job_info(
         context: AssetExecutionContext,
         batch_name: str,
         job_title_str: str,
@@ -1015,7 +1015,7 @@ def job_info_file(
         ),
     }
 )
-def plugin_info_file(
+def plugin_info(
         context: AssetExecutionContext,
         render_output_directory: pathlib.Path,
         render_arguments: str,
