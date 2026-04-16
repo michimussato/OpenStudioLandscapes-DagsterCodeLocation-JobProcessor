@@ -76,7 +76,7 @@ class DeadlineConfigModel(BaseModel):
     @classmethod
     def remove_trailing_slash(cls, v: str) -> str:
         if v.endswith("/"):
-            v.rstrip("/")
+            v = v.rstrip("/")
         return v
 
     @property
