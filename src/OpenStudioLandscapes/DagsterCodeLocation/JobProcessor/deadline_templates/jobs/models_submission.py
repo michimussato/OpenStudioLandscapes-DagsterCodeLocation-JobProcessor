@@ -190,7 +190,7 @@ class JobInfo(BaseModel):
 
     # Dependencies
     JobDependencies: List[str] = Field(
-        default_factory=list,
+        default_factory=str,  # Empty str defaults to no dependency
         description="JobDependencies=<jobID,jobID,jobID> : Specifies what jobs must finish before this job will resume (default = blank). These dependency jobs must be identified using their unique job ID, which is outputted after the job is submitted, and can be found in the Monitor in the “Job ID” column.",
     )
     JobDependencyPercentage: int = Field(
@@ -222,11 +222,11 @@ class JobInfo(BaseModel):
         description="ResumeOnFailedDependencies=<true/false> : Specifies whether or not the dependent job should resume when its dependencies have failed (default = false)."
     )
     RequiredAssets: List[pathlib.Path] = Field(
-        default_factory=str,
+        default_factory=str,  # Empty str defaults to no requirements
         description="RequiredAssets=<assetPath,assetPath,assetPath> : Specifies what asset files must exist before this job will resume (default = blank). These asset paths must be identified using full paths, and multiple paths can be separated with commas. If using frame dependencies, you can replace padding in a sequence with the ‘#’ characters, and a task for the job will only be resumed when the required assets for the task’s frame exist."
     )
     ScriptDependencies: List[pathlib.Path] = Field(
-        default_factory=str,
+        default_factory=str,  # Empty str defaults to no dependency
         description="ScriptDependencies=<scriptPath,scriptPath,scriptPath> : Specifies what Python script files will be executed to determine if a job can resume (default = blank). These script paths must be identified using full paths, and multiple paths can be separated with commas. See the [dependency scripting section](https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/job-scripts.html#job-dependency-scripts-ref-label) of the documentation for more information."
     )
 
