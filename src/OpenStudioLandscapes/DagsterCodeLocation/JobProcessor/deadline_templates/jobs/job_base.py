@@ -75,9 +75,9 @@ class DeadlineConfigModel(BaseModel):
     @field_validator("rest_api")
     @classmethod
     def remove_trailing_slash(cls, v: str) -> str:
-        if v.endswith("/"):
-            v = v.rstrip("/")
-        return v
+        # if v.endswith("/"):
+        #     v = v.rstrip("/")
+        return v.rstrip("/")
 
     @property
     def rest_api_jobs(self) -> str:
