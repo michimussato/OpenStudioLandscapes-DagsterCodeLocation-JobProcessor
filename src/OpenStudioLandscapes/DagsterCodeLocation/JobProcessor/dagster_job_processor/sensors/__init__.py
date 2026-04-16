@@ -19,7 +19,7 @@ from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.config.models import DefaultConstants
 # from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.assets.read_yaml import ASSET_HEADER_JOB_PROCESSOR
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.assets.read_yaml import ASSET_HEADER_JOB_PROCESSOR_READER
-from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.assets.submit_jobs import ASSET_HEADER_JOB_SUBMITTER_DEADLINE
+# from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.assets.submit_jobs import ASSET_HEADER_JOB_SUBMITTER_DEADLINE
 
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor.jobs import submit_synced_jobs, ingest_synced_jobs_yaml
 
@@ -27,84 +27,84 @@ from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.dagster_job_processor
 CONFIG: DefaultConstants = DefaultConstants()
 
 
-@sensor(
-    job=submit_synced_jobs,
-    default_status=settings.SENSORS_STATUS,
-    minimum_interval_seconds=30,
-)
-def submission_sensor(
-        context: SensorEvaluationContext,
-):
-    path_to_submission_files = pathlib.Path(CONFIG.OUTPUT_ROOT)
-
-    previous_state = json.loads(context.cursor) if context.cursor else {}
-    current_state = {}
-
-    runs_to_request = []
-
-    for submission_json in path_to_submission_files.rglob(CONFIG.SUBMISSION_JSON):
-
-        file_path = path_to_submission_files / submission_json
-
-        context.log.info(f'Checking {file_path}...')
-
-        combine_dict_path = pathlib.Path(path_to_submission_files / submission_json).parent / 'combined_dict.json'
-
-        # this is for older versions.
-        # once every folder has this file,
-        # this part can be removed
-        if not combine_dict_path.exists():
-            current_state[str(file_path)] = str(combine_dict_path)
-            continue
-        else:
-            with open(combine_dict_path, 'r+') as f:
-                combined_dict = json.load(f)
-
-                if 'farm_job_queued' not in combined_dict:
-                    # current_state[str(file_path)] = str(combine_dict_path)
-                    continue
-                elif 'farm_job_queued' in combined_dict:
-                    if combined_dict['farm_job_queued'] is True:
-                        # current_state[str(file_path)] = str(combine_dict_path)
-                        continue
-                    else:
-
-                        current_state[str(file_path)] = str(combine_dict_path)
-
-                        # if the file is new or has been modified since the last run, add it to the request queue
-                        # if file_path not in previous_state or previous_state[file_path] != last_modified:
-                        if file_path not in previous_state:
-
-                            context.log.info(f'Submission file is new: {file_path}...')
-
-                            runs_to_request.append(RunRequest(
-                                run_key=f"submit_synced_jobs_{str(file_path).replace(os.sep, '__')}",
-                                run_config={
-                                    "ops": {
-                                        AssetKey([*ASSET_HEADER_JOB_SUBMITTER_DEADLINE["key_prefix"], "submit_job"]).to_python_identifier(): {
-                                            "config": {
-                                                "filename": str(file_path),
-                                                "combine_dict_path": str(combine_dict_path),
-                                                # **request_config
-                                                }
-                                            }
-                                        }
-                                    }
-                                )
-                            )
-
-                            # This is just the Dagster Job, not the actual
-                            # submission to deadline.
-                            combined_dict['farm_job_queued'] = True
-
-                            f.seek(0)  # rewind
-                            json.dump(combined_dict, f, ensure_ascii=False, indent=4)
-                            f.truncate()
-
-    return SensorResult(
-        run_requests=runs_to_request,
-        cursor=json.dumps(current_state),
-    )
+# @sensor(
+#     job=submit_synced_jobs,
+#     default_status=settings.SENSORS_STATUS,
+#     minimum_interval_seconds=30,
+# )
+# def submission_sensor(
+#         context: SensorEvaluationContext,
+# ):
+#     path_to_submission_files = pathlib.Path(CONFIG.OUTPUT_ROOT)
+#
+#     previous_state = json.loads(context.cursor) if context.cursor else {}
+#     current_state = {}
+#
+#     runs_to_request = []
+#
+#     for submission_json in path_to_submission_files.rglob(CONFIG.SUBMISSION_JSON):
+#
+#         file_path = path_to_submission_files / submission_json
+#
+#         context.log.info(f'Checking {file_path}...')
+#
+#         combine_dict_path = pathlib.Path(path_to_submission_files / submission_json).parent / 'combined_dict.json'
+#
+#         # this is for older versions.
+#         # once every folder has this file,
+#         # this part can be removed
+#         if not combine_dict_path.exists():
+#             current_state[str(file_path)] = str(combine_dict_path)
+#             continue
+#         else:
+#             with open(combine_dict_path, 'r+') as f:
+#                 combined_dict = json.load(f)
+#
+#                 if 'farm_job_queued' not in combined_dict:
+#                     # current_state[str(file_path)] = str(combine_dict_path)
+#                     continue
+#                 elif 'farm_job_queued' in combined_dict:
+#                     if combined_dict['farm_job_queued'] is True:
+#                         # current_state[str(file_path)] = str(combine_dict_path)
+#                         continue
+#                     else:
+#
+#                         current_state[str(file_path)] = str(combine_dict_path)
+#
+#                         # if the file is new or has been modified since the last run, add it to the request queue
+#                         # if file_path not in previous_state or previous_state[file_path] != last_modified:
+#                         if file_path not in previous_state:
+#
+#                             context.log.info(f'Submission file is new: {file_path}...')
+#
+#                             runs_to_request.append(RunRequest(
+#                                 run_key=f"submit_synced_jobs_{str(file_path).replace(os.sep, '__')}",
+#                                 run_config={
+#                                     "ops": {
+#                                         AssetKey([*ASSET_HEADER_JOB_SUBMITTER_DEADLINE["key_prefix"], "submit_job"]).to_python_identifier(): {
+#                                             "config": {
+#                                                 "filename": str(file_path),
+#                                                 "combine_dict_path": str(combine_dict_path),
+#                                                 # **request_config
+#                                                 }
+#                                             }
+#                                         }
+#                                     }
+#                                 )
+#                             )
+#
+#                             # This is just the Dagster Job, not the actual
+#                             # submission to deadline.
+#                             combined_dict['farm_job_queued'] = True
+#
+#                             f.seek(0)  # rewind
+#                             json.dump(combined_dict, f, ensure_ascii=False, indent=4)
+#                             f.truncate()
+#
+#     return SensorResult(
+#         run_requests=runs_to_request,
+#         cursor=json.dumps(current_state),
+#     )
 
 
 # @sensor(
