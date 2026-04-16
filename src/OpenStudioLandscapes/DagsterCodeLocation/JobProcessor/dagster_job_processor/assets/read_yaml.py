@@ -2088,7 +2088,7 @@ def submit_request_raw(
 
     payload = json.dumps(payload_raw, indent=CONFIG.JSON_INDENT, sort_keys=True, default=str)
 
-    # context.log.debug(f"{payload = }")
+    context.log.debug(f"{payload = }")
 
     # Requests: data vs. json:
     # - https://stackoverflow.com/a/26685359/2207196
