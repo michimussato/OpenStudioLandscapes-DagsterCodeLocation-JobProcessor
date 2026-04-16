@@ -901,11 +901,6 @@ def frames(
 
 @multi_asset(
     outs={
-        # "job_info_file": AssetOut(
-        #     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-        #     dagster_type=pathlib.Path,
-        #     description="",
-        # ),
         "job_info_model": AssetOut(
             **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
             dagster_type=models_submission.JobInfo,
@@ -983,32 +978,6 @@ def job_info_file(
 
     context.log.debug(f"{job_info = }")
 
-    # job_info_file_str = str()
-    # for k, v in job_info_dict.items():
-    #     context.log.debug(f"{k = }")
-    #     context.log.debug(f"{v = }")
-    #     job_info_file_str += f"{k}={v}\n"
-
-    # context.log.debug(f"{job_info_file_str = }")
-
-    # with open(path, "w") as fw:
-    #     fw.write(job_info_file_str)
-
-    # output_name = "job_info_file"
-    #
-    # yield Output(
-    #     output_name=output_name,
-    #     value=path,
-    # )
-    #
-    # yield AssetMaterialization(
-    #     asset_key=context.asset_key_for_output(output_name),
-    #     metadata={
-    #         "__".join(context.asset_key_for_output(output_name).path): MetadataValue.path(path),
-    #         "job_info_file_str": MetadataValue.md(f"```\n{job_info_file_str}\n```"),
-    #     }
-    # )
-
     output_name = "job_info_model"
 
     yield Output(
@@ -1028,11 +997,6 @@ def job_info_file(
 
 @multi_asset(
     outs={
-        # "plugin_info_file": AssetOut(
-        #     **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
-        #     dagster_type=pathlib.Path,
-        #     description="",
-        # ),
         "plugin_info_model": AssetOut(
             **ASSET_HEADER_JOB_PROCESSOR_DEADLINE,
             dagster_type=models_submission.CommandLinePluginInfo,
@@ -1074,30 +1038,6 @@ def plugin_info_file(
     )
 
     context.log.debug(f"{plugin_info = }")
-
-    # plugin_info_file_str = str()
-    # for k, v in plugin_info_dict.items():
-    #     context.log.debug(f"{k = }")
-    #     context.log.debug(f"{v = }")
-    #     plugin_info_file_str += f"{k}={v}\n"
-
-    # with open(path, "w") as fw:
-    #     fw.write(plugin_info_file_str)
-
-    # output_name = "plugin_info_file"
-    #
-    # yield Output(
-    #     output_name=output_name,
-    #     value=path,
-    # )
-    #
-    # yield AssetMaterialization(
-    #     asset_key=context.asset_key_for_output(output_name),
-    #     metadata={
-    #         "__".join(context.asset_key_for_output(output_name).path): MetadataValue.path(path),
-    #         "plugin_info_file_str": MetadataValue.md(f"```\n{plugin_info_file_str}\n```"),
-    #     }
-    # )
 
     output_name = "plugin_info_model"
 
