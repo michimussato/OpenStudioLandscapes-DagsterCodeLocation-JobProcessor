@@ -429,9 +429,8 @@ def render_output_filename(
     padding_command = f"{job_model.plugin_model.padding_command}"
     padding_oiiotool = f"{job_model.plugin_model.padding_oiiotool}"
 
-    # # Don't uncomment
-    # # Required to eval(padding_deadline) and eval(padding_command)
-    # from OpenStudioLandscapes.Dagster.JobProcessor.dagster_job_processor.settings import PADDING as EVAL_PADDING
+    # Don't uncomment
+    # Required to eval(padding_deadline) and eval(padding_command)
     EVAL_PADDING = CONFIG.PADDING
 
     ret = {
