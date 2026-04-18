@@ -20,6 +20,15 @@ class PluginBase(BaseModel):
         default="'#' * EVAL_PADDING",  # Results in ####
         description="The padding character for Deadline",
     )
+    # https://docs.thinkboxsoftware.com/products/deadline/10.2/1_User%20Manual/manual/manual-submission.html#arbitrary-command-line-jobs
+    padding_deadline_batch_startframe: str = Field(
+        default="'<STARTFRAME%' + str(EVAL_PADDING).zfill(1) + '>'",  # Results in '<STARTFRAME>%4'
+        description="Todo",
+    )
+    padding_deadline_batch_endframe: str = Field(
+        default="'<ENDFRAME%' + str(EVAL_PADDING).zfill(1) + '>'",  # Results in '<ENDFRAME>%4'
+        description="Todo",
+    )
     padding_command: str = Field(
         default="'#' * EVAL_PADDING",  # Results in #####
         description="The padding character for arbitrary commands",

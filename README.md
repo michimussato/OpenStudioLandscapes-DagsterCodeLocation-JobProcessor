@@ -71,5 +71,5 @@ python3.11 -m pip install --root-user-action=ignore --force-reinstall 'OpenStudi
 > 
 > ```shell
 > docker exec -it dagster.2026-01-21_17-22-54__seasoned-jelly-wholesale-mixer bash
-> pip3 install --root-user-action=ignore --editable 'OpenStudioLandscapes-DagsterCodeLocation-JobProcessor @ git+https://github.com/michimussato/OpenStudioLandscapes-DagsterCodeLocation-JobProcessor.git@yaml-migration'
+> pip3 install --root-user-action=ignore --editable 'OpenStudioLandscapes-DagsterCodeLocation-JobProcessor @ git+https://github.com/michimussato/OpenStudioLandscapes-DagsterCodeLocation-JobProcessor.git@main'
 > ```

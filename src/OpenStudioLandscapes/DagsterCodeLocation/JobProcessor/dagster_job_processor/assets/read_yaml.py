@@ -424,6 +424,8 @@ def render_output_filename(
 
     # padding_bash_expansion = "{%i..%i}" % (frame_start_absolute, frame_end_absolute)
     padding_deadline = f"{job_model.plugin_model.padding_deadline}"
+    padding_deadline_batch_startframe = f"{job_model.plugin_model.padding_deadline_batch_startframe}"
+    padding_deadline_batch_endframe = f"{job_model.plugin_model.padding_deadline_batch_endframe}"
     padding_command = f"{job_model.plugin_model.padding_command}"
     padding_oiiotool = f"{job_model.plugin_model.padding_oiiotool}"
 
@@ -435,6 +437,8 @@ def render_output_filename(
     ret = {
         # "padding_bash_expansion": f"{job_title}.{padding_bash_expansion}.{output_format}",
         "padding_deadline": f"{job_title}.{eval(padding_deadline)}.{output_format}",
+        "padding_deadline_batch_startframe": f"{job_title}.{eval(padding_deadline_batch_startframe)}.{output_format}",
+        "padding_deadline_batch_endframe": f"{job_title}.{eval(padding_deadline_batch_endframe)}.{output_format}",
         "padding_command": f"{job_title}.{eval(padding_command)}.{output_format}",
         "padding_oiiotool": f"{job_title}.{eval(padding_oiiotool)}.{output_format}",
     }
@@ -444,7 +448,9 @@ def render_output_filename(
     yield AssetMaterialization(
         asset_key=context.asset_key,
         metadata={
-            "__".join(context.asset_key.path): MetadataValue.json(ret),
+            "__".join(context.asset_key.path): MetadataValue.md(
+                f"```json\n{json.dumps(ret)}\n```"
+            ),
         }
     )
 
