@@ -448,7 +448,7 @@ def render_output_filename(
         asset_key=context.asset_key,
         metadata={
             "__".join(context.asset_key.path): MetadataValue.md(
-                f"```json\n{json.dumps(ret)}\n```"
+                f"```json\n{json.dumps(ret, indent=2, default=str, sort_keys=True)}\n```"
             ),
         }
     )

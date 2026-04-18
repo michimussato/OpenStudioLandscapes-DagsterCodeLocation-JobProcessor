@@ -93,6 +93,14 @@ class DefaultConstants(BaseModel):
         default="raw",
         description="The subfolder where the raw renders will go."
     )
+    OIIO_BASE_OUT: str = Field(
+        default="oiio",
+        description="The base subfolder where the processed raw renders will go."
+    )
+    OIIO_TEXT_OVERLAY_OUT: str = Field(
+        default="oiio_text_overlay",
+        description="The subfolder where the text overlay images will go."
+    )
 
 
 class Submitter(BaseModel):
