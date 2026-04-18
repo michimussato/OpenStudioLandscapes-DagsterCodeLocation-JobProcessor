@@ -457,14 +457,11 @@ def render_output_filename(
 @asset(
     **ASSET_HEADER_JOB_PROCESSOR,
     ins={
-        "version": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "version"]),
-        ),
         "job_model": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_READER["key_prefix"], "read_job_yaml"])
         ),
-        "render_version_directory": AssetIn(
-            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_version_directory"])
+        "render_output_directory": AssetIn(
+            AssetKey([*ASSET_HEADER_JOB_PROCESSOR["key_prefix"], "render_output_directory"])
         ),
         "get_kitsu_task_dict": AssetIn(
             AssetKey([*ASSET_HEADER_JOB_PROCESSOR_PREPROCESSOR_KITSU["key_prefix"], "get_kitsu_task_dict"])
@@ -473,16 +470,15 @@ def render_output_filename(
 )
 def render_output_directory(
         context: AssetExecutionContext,
-        version: str,
         job_model: JobBase,
-        render_version_directory: pathlib.Path,
+        render_output_directory: pathlib.Path,
         get_kitsu_task_dict: Dict,
 ) -> Generator[Output[pathlib.Path] | AssetMaterialization | Any, Any, None]:
 
     # handles = job_model.handles
 
-    _out = render_version_directory / version
-    _out.mkdir(parents=True, exist_ok=True)
+    render_output_directory.mkdir(parents=True, exist_ok=True)
+    kitsu_task_json = render_output_directory / "kitsu_task.json"
 
     if bool(job_model.kitsu_task):
         entity_type = get_entity_type(get_kitsu_task_dict)
@@ -492,7 +488,7 @@ def render_output_directory(
             #     fw.write(f"{str(job_model.kitsu_task) = }")
             # with open(_out / "kitsu_task_id.txt", "w") as fw:
             #     fw.write(str(job_model.kitsu_task))
-            with open(_out / "kitsu_task.json", "w") as fw:
+            with open(kitsu_task_json, "w") as fw:
                 json.dump(
                     get_kitsu_task_dict,
                     fw,
@@ -502,14 +498,13 @@ def render_output_directory(
                     sort_keys=True,
                 )
 
-    _out.mkdir(parents=True, exist_ok=True)
-
-    yield Output(_out)
+    yield Output(render_output_directory)
 
     yield AssetMaterialization(
         asset_key=context.asset_key,
         metadata={
-            "__".join(context.asset_key.path): MetadataValue.path(_out)
+            "__".join(context.asset_key.path): MetadataValue.path(render_output_directory),
+            "kitsu_task_json": MetadataValue.path(kitsu_task_json),
         }
     )
 
