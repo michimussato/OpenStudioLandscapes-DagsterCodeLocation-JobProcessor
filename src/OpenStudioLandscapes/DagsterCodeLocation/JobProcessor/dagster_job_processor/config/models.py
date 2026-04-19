@@ -105,6 +105,15 @@ class DefaultConstants(BaseModel):
         default="oiio_handle_overlay",
         description="The subfolder where the handle overlay images will go."
     )
+    OIIO_EXR_WITH_CUSTOM_METADATA: str = Field(
+        default="oiio_exr_with_custom_metadata",
+        description="The subfolder where the EXR images with extra "
+                    "metadata will go."
+    )
+    OIIO_PNG: str = Field(
+        default="oiio_png",
+        description="The subfolder where the PNG images will go."
+    )
 
 
 class Submitter(BaseModel):
