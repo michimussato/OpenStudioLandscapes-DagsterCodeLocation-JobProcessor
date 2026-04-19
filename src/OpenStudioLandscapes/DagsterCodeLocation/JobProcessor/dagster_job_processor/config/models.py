@@ -101,6 +101,10 @@ class DefaultConstants(BaseModel):
         default="oiio_text_overlay",
         description="The subfolder where the text overlay images will go."
     )
+    OIIO_HANDLE_OVERLAY_OUT: str = Field(
+        default="oiio_handle_overlay",
+        description="The subfolder where the handle overlay images will go."
+    )
 
 
 class Submitter(BaseModel):
