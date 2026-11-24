@@ -10,6 +10,7 @@ from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.jo
 
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.plugins.blender import (
     plugin_blender__4_1_1,
+    plugin_blender__4_4_3,
 )
 from OpenStudioLandscapes.DagsterCodeLocation.JobProcessor.deadline_templates.plugins.houdini import (
     plugin_houdini__19_5_805,
@@ -141,6 +142,7 @@ class JobBase(BaseModel):
 
     plugin_model: Union[
         plugin_blender__4_1_1.PluginBlender_4_1_1,
+        plugin_blender__4_4_3.PluginBlender_4_4_3,
         plugin_houdini__19_5_805.PluginHoudini_19_5_805,
         plugin_houdini__19_5_805.PluginHoudiniKarma_19_5_805,
         plugin_nuke__15_0v4.PluginNuke_15_0v4,
